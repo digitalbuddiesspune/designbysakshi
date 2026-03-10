@@ -1,1 +1,41 @@
 @import "tailwindcss";
+
+/* DesignBySakshi brand theme – light pastel purple & elegant purple text */
+:root {
+  /* Primary background (light pastel purple from reference) */
+  --brand-pastel: #E6D2F2;
+  /* Dark purple – headings, prominent text, input borders */
+  --brand-dark: #3D294D;
+  /* Medium purple – body text, links, secondary */
+  --brand-muted: #5C4B6B;
+  /* Supporting palette */
+  --brand-purple: #5C4B6B;
+  --brand-lavender: #b8a9c9;
+  --brand-lavender-soft: #d4c8e4;
+  --brand-lavender-light: #E6D2F2;
+  --brand-cream: #faf9fc;
+  --brand-gold: #c9a962;
+  --brand-gold-light: #e5d4a1;
+}
+
+body {
+  font-family: "Cormorant Garamond", "Georgia", serif;
+  color: var(--brand-dark);
+  background: var(--brand-pastel);
+}
+
+@layer components {
+  .font-display {
+    font-family: "Cormorant Garamond", "Georgia", serif;
+  }
+  .font-script {
+    font-family: "Great Vibes", "Georgia", cursive;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
