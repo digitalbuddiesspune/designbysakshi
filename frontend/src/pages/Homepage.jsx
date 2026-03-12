@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import Hero from "../components/Hero";
 import ShopByCategory from "../components/ShopByCategory";
 import ShopByCollection from "../components/ShopByCollection";
+import TopProducts from "../components/TopProducts";
+import HighlightGrid from "../components/HighlightGrid";
+import WhyChooseUs from "../components/WhyChooseUs";
 
 const Homepage = () => {
   return (
@@ -10,6 +13,22 @@ const Homepage = () => {
       <Hero />
       <ShopByCategory />
       <ShopByCollection />
+
+      {/* Full-width banner above Top Products */}
+      <section className="bg-white pt-20 sm:pt-24">
+        <img
+          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773317411/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_6_hon7ex.png"
+          alt="DesignBySakshi seasonal collection banner"
+          className="block w-full h-auto object-cover"
+        />
+      </section>
+
+      {/* Highlight products image grid */}
+      <HighlightGrid />
+
+      <TopProducts />
+
+      <WhyChooseUs />
 
       {/* CTA strip */}
       <section

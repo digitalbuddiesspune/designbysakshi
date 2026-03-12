@@ -128,7 +128,7 @@ const Header = () => {
       {/* Category bar: 4 main categories with subcategories */}
       <div
         className="border-t"
-        style={{ borderColor: "var(--brand-lavender-soft)", background: "white" }}
+        style={{ borderColor: "var(--brand-lavender-soft)", background: "#000000" }}
       >
         <div className="flex w-full justify-center px-4 sm:px-6 lg:px-8">
           <nav className="flex w-full max-w-7xl flex-wrap items-center justify-center gap-1 py-1.5 md:gap-6 md:py-2" aria-label="Categories">
@@ -144,14 +144,14 @@ const Header = () => {
                   <Link
                     to={mainHref(cat.slug)}
                     className="hidden py-1.5 text-sm font-medium no-underline transition hover:opacity-90 md:inline-block"
-                    style={{ color: "var(--brand-dark)" }}
+                    style={{ color: "#ffffff" }}
                   >
                     {cat.label}
                   </Link>
                   <button
                     type="button"
                     className="inline-flex items-center gap-1 py-1.5 pr-1 text-sm font-medium md:hidden"
-                    style={{ color: "var(--brand-dark)" }}
+                    style={{ color: "#ffffff" }}
                     onClick={() => setOpenCategory(openCategory === cat.slug ? null : cat.slug)}
                     aria-expanded={openCategory === cat.slug}
                     aria-haspopup="true"

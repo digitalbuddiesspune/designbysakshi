@@ -1,0 +1,81 @@
+{
+  "products": [
+    {
+      "name": "Mangal Sutra",
+      "image": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773316004/new_fancy_short_mangalsutra_suxbjp.jpg",
+      "price": 24999,
+      "description": [
+        "A beautiful traditional mangal sutra designed to symbolize love and commitment.",
+        "Crafted with elegant black beads and a stylish gold pendant."
+      ],
+      "price": 25000
+    },
+    {
+      "name": "Silver Ring",
+      "image": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773316003/1_Carat_Moissanite_Crisscross_Ring_-_Silver___8_s2afhd.jpg",
+      "price": 12999,
+      "description": [
+        "A stylish silver ring with a clean and modern design.",
+        "Crafted from high-quality sterling silver for durability."
+      ],
+      "price": 12000
+    },
+    {
+      "name": "Beaded Bracelet",
+      "image": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773316003/download_11_lzaovk.jpg",
+      "price": 4999,
+      "description": [
+        "A trendy bracelet made with stylish beads for a modern look.",
+        "Lightweight and comfortable for daily wear."
+      ],
+      "price": 5500
+    },
+    {
+      "name": "Gold Pendant",
+      "image": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773316270/Buy_Diamonds_Online___Diamond_Jewellery_Store_grgkm1.jpg",
+      "price": 18999,
+      "description": [
+        "A beautiful gold pendant designed to add elegance to any outfit.",
+        "Crafted with a premium finish and timeless design."
+      ],
+      "price": 18000
+    },
+
+      {
+      "name": "Mangal Sutra",
+      "image": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773316004/new_fancy_short_mangalsutra_suxbjp.jpg",
+      "description": [
+        "A beautiful traditional mangal sutra designed to symbolize love and commitment.",
+        "Crafted with elegant black beads and a stylish gold pendant."
+      ],
+      "price": 25000
+    },
+    {
+      "name": "Silver Ring",
+      "image": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773316003/1_Carat_Moissanite_Crisscross_Ring_-_Silver___8_s2afhd.jpg",
+      "description": [
+        "A stylish silver ring with a clean and modern design.",
+        "Crafted from high-quality sterling silver for durability."
+      ],
+      "price": 12000
+    },
+    {
+      "name": "Beaded Bracelet",
+      "image": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773316003/download_11_lzaovk.jpg",
+      "description": [
+        "A trendy bracelet made with stylish beads for a modern look.",
+        "Lightweight and comfortable for daily wear."
+      ],
+      "price": 5500
+    },
+    {
+      "name": "Gold Pendant",
+      "image": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773316270/Buy_Diamonds_Online___Diamond_Jewellery_Store_grgkm1.jpg",
+      "description": [
+        "A beautiful gold pendant designed to add elegance to any outfit.",
+        "Crafted with a premium finish and timeless design."
+      ],
+      "price": 18000
+    }
+  ]
+}
