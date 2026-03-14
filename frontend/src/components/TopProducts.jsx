@@ -22,7 +22,7 @@ const TopProducts = () => {
             fontFamily: "Cormorant Garamond, Georgia, serif",
           }}
         >
-          Top Products
+          New Arrival
         </h2>
 
         <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
@@ -34,14 +34,14 @@ const TopProducts = () => {
                 animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
               }}
             >
-              {/* Top Products Tag */}
+              {/* New Arrival Tag */}
               <div 
                 className="absolute left-0 top-2 z-10 px-3 py-1 text-xs font-semibold text-white"
                 style={{
                   background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)"
                 }}
               >
-                Top Products
+                New Arrival
               </div>
 
               {/* Image Container */}

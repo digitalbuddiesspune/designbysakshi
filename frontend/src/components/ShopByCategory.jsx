@@ -2,10 +2,55 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const categories = [
-  { id: "necklace", label: "Necklace", href: "/shop?category=necklace", image: "https://res.cloudinary.com/dfhjtmvrz/image/upload/v1772626408/23469a8f-9683-4f46-bfd8-2fe7091da443.png" },
-  { id: "mangal-sutra", label: "Mangal Sutra", href: "/shop?category=mangal-sutra", image: "https://res.cloudinary.com/dfhjtmvrz/image/upload/v1772632140/0486cd0846569729b6287de95d6ca5f9_jvurnm.jpg" },
-  { id: "earrings", label: "Earrings", href: "/shop?category=earrings", image: "https://res.cloudinary.com/dfhjtmvrz/image/upload/v1772630855/826a94f52e1b2e636bfe7b444f6c7133_p4z0b1.jpg" },
-  { id: "bracelets", label: "Bracelets", href: "/shop?category=bracelets", image: "https://res.cloudinary.com/dfhjtmvrz/image/upload/v1772631046/c0358e5333f3f2a3ef34f4365f745819_oc7z80.jpg" },
+  {
+    id: "necklace-sets",
+    label: "Necklace Sets",
+    href: "/necklace-sets",
+    image:
+      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773396951/necklace.jpg_cm747b.jpg",
+  },
+  {
+    id: "earrings",
+    label: "Earrings",
+    href: "/earrings",
+    image:
+      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227350/826a94f52e1b2e636bfe7b444f6c7133_p4z0b1_licyph.jpg",
+  },
+  {
+    id: "rings",
+    label: "Rings",
+    href: "/rings",
+    image:
+      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773396952/rings.jpg_stwjj7.jpg",
+  },
+  {
+    id: "bangles-bracelets",
+    label: "Bangles & Bracelets",
+    href: "/bangles-bracelets",
+    image:
+      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227353/c0358e5333f3f2a3ef34f4365f745819_oc7z80_mpspdh.jpg",
+  },
+  {
+    id: "pendants",
+    label: "Pendants",
+    href: "/pendants",
+    image:
+      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227351/23469a8f-9683-4f46-bfd8-2fe7091da443_v5yzqs.png",
+  },
+  {
+    id: "bridal-jewellery",
+    label: "Bridal Jewellery",
+    href: "/bridal-jewellery",
+    image:
+      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773396951/bridal.jpg_hyx0ih.jpg",
+  },
+  {
+    id: "anklets",
+    label: "Anklets",
+    href: "/anklets",
+    image:
+      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773396951/anklet.jpg_kcy23y.jpg",
+  },
 ];
 
 const ShopByCategory = () => {
@@ -16,13 +61,14 @@ const ShopByCategory = () => {
           Shop by Category
         </h2>
 
-        <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
-          {categories.map((cat) => (
-            <Link
-              key={cat.id}
-              to={cat.href}
-              className="group flex w-[140px] flex-col items-center sm:w-[160px]"
-            >
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex flex-nowrap justify-start gap-6 sm:gap-8 w-max mx-auto">
+            {categories.map((cat) => (
+              <Link
+                key={cat.id}
+                to={cat.href}
+                className="group flex w-[140px] flex-shrink-0 flex-col items-center sm:w-[160px]"
+              >
               <div
                 className="relative aspect-square w-full overflow-hidden rounded-2xl bg-[#7C2D52] shadow-md transition group-hover:opacity-95"
                 style={{
@@ -49,8 +95,9 @@ const ShopByCategory = () => {
               <span className="mt-3 text-center text-base font-medium text-[var(--brand-dark)]">
                 {cat.label}
               </span>
-            </Link>
-          ))}
+              </Link>
+            ))}
+          </div>
         </div>
 
         <div

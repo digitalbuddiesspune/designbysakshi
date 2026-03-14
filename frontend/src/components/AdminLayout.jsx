@@ -1,0 +1,258 @@
+import React, { useState, useEffect } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
+
+const AdminLayout = () => {
+  const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [openDropdown, setOpenDropdown] = useState(null);
+
+  const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + "/");
+
+  // Auto-open dropdown if on a page within that section
+  useEffect(() => {
+    const path = location.pathname;
+    if (path.startsWith("/admin/products") || path.startsWith("/admin/add-product")) {
+      setOpenDropdown("products");
+    } else if (path.startsWith("/admin/categories") || path.startsWith("/admin/add-category") || path.includes("/admin/edit-category")) {
+      setOpenDropdown("categories");
+    }
+  }, [location.pathname]);
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <aside
+        className={`${
+          isSidebarOpen ? "w-64" : "w-20"
+        } bg-gray-900 text-white transition-all duration-300 flex flex-col`}
+      >
+        {/* Logo */}
+        <div className="p-4 border-b border-gray-700">
+          <div className="flex items-center justify-between">
+            {isSidebarOpen && (
+              <h1
+                className="text-xl font-bold"
+                style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
+              >
+                Admin Panel
+              </h1>
+            )}
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 rounded hover:bg-gray-800"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-4">
+          <ul className="space-y-2">
+            {/* Dashboard */}
+            <li>
+              <Link
+                to="/admin/dashboard"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                  isActive("/admin/dashboard")
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+                {isSidebarOpen && <span>Dashboard</span>}
+              </Link>
+            </li>
+
+            {/* Products */}
+            <li>
+              <div className="mb-2">
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === "products" ? null : "products")}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                    isActive("/admin/products") || isActive("/admin/add-product")
+                      ? "bg-purple-600 text-white"
+                      : "text-gray-300 hover:bg-gray-800"
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                    />
+                  </svg>
+                  {isSidebarOpen && (
+                    <>
+                      <span className="flex-1 text-left">Products</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${
+                          openDropdown === "products" ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </>
+                  )}
+                </button>
+                {isSidebarOpen && openDropdown === "products" && (
+                  <ul className="mt-2 ml-8 space-y-1">
+                    <li>
+                      <Link
+                        to="/admin/add-product"
+                        className={`block px-4 py-2 rounded-lg transition ${
+                          isActive("/admin/add-product")
+                            ? "bg-purple-700 text-white"
+                            : "text-gray-400 hover:bg-gray-800"
+                        }`}
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        Add Product
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/admin/products"
+                        className={`block px-4 py-2 rounded-lg transition ${
+                          isActive("/admin/products") && !isActive("/admin/add-product")
+                            ? "bg-purple-700 text-white"
+                            : "text-gray-400 hover:bg-gray-800"
+                        }`}
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        My Products
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+            </li>
+
+            {/* Categories */}
+            <li>
+              <div className="mb-2">
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === "categories" ? null : "categories")}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                    isActive("/admin/categories") || isActive("/admin/add-category")
+                      ? "bg-purple-600 text-white"
+                      : "text-gray-300 hover:bg-gray-800"
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                    />
+                  </svg>
+                  {isSidebarOpen && (
+                    <>
+                      <span className="flex-1 text-left">Categories</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${
+                          openDropdown === "categories" ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </>
+                  )}
+                </button>
+                {isSidebarOpen && openDropdown === "categories" && (
+                  <ul className="mt-2 ml-8 space-y-1">
+                    <li>
+                      <Link
+                        to="/admin/categories"
+                        className={`block px-4 py-2 rounded-lg transition ${
+                          isActive("/admin/categories") && !isActive("/admin/add-category")
+                            ? "bg-purple-700 text-white"
+                            : "text-gray-400 hover:bg-gray-800"
+                        }`}
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        My Categories
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/admin/add-category"
+                        className={`block px-4 py-2 rounded-lg transition ${
+                          isActive("/admin/add-category")
+                            ? "bg-purple-700 text-white"
+                            : "text-gray-400 hover:bg-gray-800"
+                        }`}
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        Add Category
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
+            </li>
+          </ul>
+        </nav>
+
+        {/* Logout/Back to Site */}
+        <div className="p-4 border-t border-gray-700">
+          <Link
+            to="/"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            {isSidebarOpen && <span>Back to Site</span>}
+          </Link>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto">
+        <Outlet />
+      </main>
+    </div>
+  );
+};
+
+export default AdminLayout;

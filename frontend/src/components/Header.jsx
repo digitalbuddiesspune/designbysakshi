@@ -1,58 +1,199 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-const categoryBar = [
-  {
-    label: "Necklace",
-    slug: "necklace",
-    sub: [
-      { label: "AD Sets", slug: "ad-sets" },
-      { label: "Short Necklace", slug: "short-necklace" },
-      { label: "Long Necklace", slug: "long-necklace" },
-      { label: "Choker", slug: "choker" },
-      { label: "Layered", slug: "layered" },
-    ],
-  },
-  {
-    label: "Mangal Sutra",
-    slug: "mangal-sutra",
-    sub: [
-      { label: "Golden", slug: "golden" },
-      { label: "Silver", slug: "silver" },
-    ],
-  },
-  {
-    label: "Earrings",
-    slug: "earrings",
-    sub: [
-      { label: "Studs", slug: "studs" },
-      { label: "Jhumkas", slug: "jhumkas" },
-      { label: "Long Earrings", slug: "long-earrings" },
-      { label: "Drops", slug: "drops" },
-    ],
-  },
-  {
-    label: "Bracelets",
-    slug: "bracelets",
-    sub: [
-      { label: "Adjustable Bracelets", slug: "adjustable-bracelets" },
-    ],
-  },
-];
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 const Header = () => {
-  const [openCategory, setOpenCategory] = useState(null);
+  const [clickedCategory, setClickedCategory] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [expandedMobileCategory, setExpandedMobileCategory] = useState(null);
+  const [user, setUser] = useState(null);
+  const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [categoryBar, setCategoryBar] = useState([]);
+  const navigate = useNavigate();
+  const categoryRef = useRef(null);
+  const userDropdownRef = useRef(null);
+  const mobileMenuRef = useRef(null);
 
-  const subHref = (catSlug, subSlug) => `/shop?category=${catSlug}&type=${subSlug}`;
-  const mainHref = (slug) => `/shop?category=${slug}`;
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (categoryRef.current && !categoryRef.current.contains(event.target)) {
+        setClickedCategory(null);
+      }
+      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target)) {
+        setShowUserDropdown(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setShowMobileMenu(false);
+      }
+    };
+
+    if (clickedCategory || showUserDropdown || showMobileMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [clickedCategory, showUserDropdown, showMobileMenu]);
+
+  // Close logout toast after 3 seconds
+  useEffect(() => {
+    if (showLogoutToast) {
+      const timer = setTimeout(() => {
+        setShowLogoutToast(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showLogoutToast]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/categories`);
+      const categories = await response.json();
+      
+      // Transform backend categories to match frontend structure
+      const transformedCategories = categories.map((cat) => ({
+        label: cat.name,
+        slug: cat.slug,
+        sub: (cat.subcategories || []).map((sub) => ({
+          label: sub.name,
+          slug: sub.slug,
+        })),
+      }));
+      
+      setCategoryBar(transformedCategories);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const subHref = (catSlug, subSlug) => `/${catSlug}?subcategory=${subSlug}`;
+  const mainHref = (slug) => `/${slug}`;
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setShowSearch(false);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    setShowUserDropdown(false);
+    setShowLogoutToast(true);
+    setTimeout(() => {
+      navigate("/");
+    }, 1500);
+  };
 
   return (
     <header
-      className="sticky top-0 z-50 w-full border-b"
+      className="sticky top-0 z-[100] w-full border-b"
       style={{ background: "var(--brand-pastel)", borderColor: "var(--brand-lavender-soft)" }}
     >
-      {/* Top row: logo, nav, search, cart */}
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8 md:h-24">
+      {/* Mobile Header */}
+      <div className="md:hidden mx-auto flex h-16 items-center justify-between px-4">
+        {/* Left side: Hamburger and Logo */}
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="p-2 transition hover:opacity-80"
+            aria-label="Menu"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          {/* Logo - On the left */}
+          <Link
+            to="/"
+            className="flex items-center gap-1 no-underline transition opacity-90 hover:opacity-100"
+            style={{ color: "var(--brand-dark)" }}
+          >
+            <span
+              className="text-xl font-semibold tracking-wide"
+              style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
+            >
+              DesignBy
+            </span>
+            <span
+              className="text-2xl"
+              style={{ fontFamily: "Great Vibes, Georgia, cursive" }}
+            >
+              Sakshi
+            </span>
+          </Link>
+        </div>
+
+        {/* Right side icons */}
+        <div className="flex items-center gap-2">
+          {/* Search Icon */}
+          <button
+            type="button"
+            onClick={() => setShowSearch(!showSearch)}
+            className="p-2 transition hover:opacity-80"
+            aria-label="Search"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+
+          {/* User/Logout Icon */}
+          {user ? (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="p-2 transition hover:opacity-80"
+              aria-label="Logout"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate("/login")}
+              className="p-2 transition hover:opacity-80"
+              aria-label="Login"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop Header */}
+      <div className="hidden md:flex mx-auto h-20 max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8 md:h-24">
         <Link
           to="/"
           className="flex items-center gap-1 no-underline transition opacity-90 hover:opacity-100"
@@ -72,28 +213,71 @@ const Header = () => {
           </span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Main">
-          <Link
-            to="/shop"
-            className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Shop
-          </Link>
-          <Link
-            to="/collections"
-            className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Collections
-          </Link>
+        <nav className="flex items-center gap-6" aria-label="Main">
+          {/* Search Bar - First */}
+          <div className="relative">
+            {showSearch ? (
+              <form onSubmit={handleSearch} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2"
+                  style={{ 
+                    borderColor: "var(--brand-lavender-soft)",
+                    color: "var(--brand-dark)",
+                    minWidth: "200px"
+                  }}
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="rounded p-2 transition hover:opacity-80"
+                  aria-label="Search"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSearch(false);
+                    setSearchQuery("");
+                  }}
+                  className="rounded p-2 transition hover:opacity-80"
+                  aria-label="Close search"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowSearch(true)}
+                className="rounded p-2 transition hover:opacity-80"
+                aria-label="Search"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            )}
+          </div>
+
+          {/* About Us */}
           <Link
             to="/about"
             className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
             style={{ color: "var(--brand-dark)" }}
           >
-            About
+            About Us
           </Link>
+
+          {/* Contact */}
           <Link
             to="/contact"
             className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
@@ -104,15 +288,23 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-4" style={{ color: "var(--brand-dark)" }}>
-          <button
-            type="button"
-            className="rounded p-2 transition hover:opacity-80"
-            aria-label="Search"
+          {/* Wishlist Icon */}
+          <Link
+            to="/wishlist"
+            className="rounded p-2 no-underline transition hover:opacity-80"
+            aria-label="Wishlist"
           >
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
             </svg>
-          </button>
+          </Link>
+
+          {/* Cart Bag Icon */}
           <Link
             to="/cart"
             className="rounded p-2 no-underline transition hover:opacity-80"
@@ -122,75 +314,406 @@ const Header = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
           </Link>
+
+          {/* User Icon with Dropdown */}
+          <div className="relative" ref={userDropdownRef} style={{ zIndex: 99999 }}>
+            <button
+              type="button"
+              onClick={() => {
+                if (user) {
+                  setShowUserDropdown(!showUserDropdown);
+                } else {
+                  navigate("/login");
+                }
+              }}
+              className="rounded p-2 transition hover:opacity-80"
+              aria-label="User"
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={1.5}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+            </button>
+
+            {/* User Dropdown Menu */}
+            {user && showUserDropdown && (
+              <div
+                className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border"
+                style={{
+                  borderColor: "var(--brand-lavender-soft)",
+                  zIndex: 99999,
+                }}
+              >
+                <div className="py-1">
+                  <button
+                    onClick={() => {
+                      navigate("/profile");
+                      setShowUserDropdown(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm transition hover:bg-gray-50"
+                    style={{ color: "var(--brand-dark)" }}
+                  >
+                    Profile
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/orders");
+                      setShowUserDropdown(false);
+                    }}
+                    className="block w-full text-left px-4 py-2 text-sm transition hover:bg-gray-50"
+                    style={{ color: "var(--brand-dark)" }}
+                  >
+                    My Orders
+                  </button>
+                  <div className="border-t" style={{ borderColor: "var(--brand-lavender-soft)" }}></div>
+                  <button
+                    onClick={handleLogout}
+                    className="block w-full text-left px-4 py-2 text-sm transition hover:bg-gray-50 text-red-600"
+                  >
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Category bar: 4 main categories with subcategories */}
-      <div
-        className="border-t"
-        style={{ borderColor: "var(--brand-lavender-soft)", background: "#000000" }}
-      >
-        <div className="flex w-full justify-center px-4 sm:px-6 lg:px-8">
-          <nav className="flex w-full max-w-7xl flex-wrap items-center justify-center gap-1 py-1.5 md:gap-6 md:py-2" aria-label="Categories">
-            {categoryBar.map((cat) => (
-              <div
-                key={cat.slug}
-                className="relative group/cat"
-                onMouseEnter={() => setOpenCategory(cat.slug)}
-                onMouseLeave={() => setOpenCategory(null)}
-              >
-                {/* Main category: click opens on mobile, hover on desktop */}
-                <div className="flex items-center">
-                  <Link
-                    to={mainHref(cat.slug)}
-                    className="hidden py-1.5 text-sm font-medium no-underline transition hover:opacity-90 md:inline-block"
-                    style={{ color: "#ffffff" }}
-                  >
-                    {cat.label}
-                  </Link>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 py-1.5 pr-1 text-sm font-medium md:hidden"
-                    style={{ color: "#ffffff" }}
-                    onClick={() => setOpenCategory(openCategory === cat.slug ? null : cat.slug)}
-                    aria-expanded={openCategory === cat.slug}
-                    aria-haspopup="true"
-                  >
-                    {cat.label}
-                    <svg
-                      className={`h-4 w-4 transition ${openCategory === cat.slug ? "rotate-180" : ""}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
+      {/* Mobile Search Bar - Below Header */}
+      {showSearch && (
+        <div className="md:hidden border-b px-4 py-3" style={{ borderColor: "var(--brand-lavender-soft)", background: "var(--brand-pastel)" }}>
+          <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products..."
+              className="flex-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2"
+              style={{ 
+                borderColor: "var(--brand-lavender-soft)",
+                color: "var(--brand-dark)",
+              }}
+              autoFocus
+            />
+            <button
+              type="submit"
+              className="p-2 transition hover:opacity-80 rounded"
+              aria-label="Search"
+              style={{ background: "var(--brand-lavender)", color: "white" }}
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowSearch(false);
+                setSearchQuery("");
+              }}
+              className="p-2 transition hover:opacity-80"
+              aria-label="Close search"
+            >
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      )}
 
-                {/* Dropdown: visible on hover (desktop) or when open (mobile) */}
-                {cat.sub.length > 0 && (
-                  <div
-                    className={`absolute left-1/2 top-full z-10 min-w-[180px] -translate-x-1/2 rounded-md border bg-white py-2 shadow-lg transition md:invisible md:opacity-0 md:group-hover/cat:visible md:group-hover/cat:opacity-100 ${
-                      openCategory === cat.slug ? "visible opacity-100" : "invisible opacity-0"
-                    }`}
-                    style={{ borderColor: "var(--brand-lavender-soft)" }}
-                  >
-                    {cat.sub.map((sub) => (
-                      <Link
-                        key={sub.slug}
-                        to={subHref(cat.slug, sub.slug)}
-                        className="block px-4 py-2 text-sm no-underline transition hover:opacity-90"
-                        style={{ color: "var(--brand-dark)" }}
-                        onClick={() => setOpenCategory(null)}
-                      >
-                        {sub.label}
-                      </Link>
-                    ))}
+      {/* Logout Toast Notification */}
+      {showLogoutToast && (
+        <div
+          className="fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg animate-fade-in"
+          style={{
+            backgroundColor: "#000000",
+            color: "var(--brand-lavender)",
+          }}
+        >
+          <p className="text-sm font-medium">You are logout</p>
+        </div>
+      )}
+
+      {/* Mobile Menu Sidebar */}
+      {showMobileMenu && (
+        <div
+          ref={mobileMenuRef}
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
+          onClick={() => setShowMobileMenu(false)}
+        >
+          <div
+            className="fixed left-0 top-0 h-full w-80 bg-white shadow-xl overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            style={{ zIndex: 100000 }}
+          >
+            {/* Close Button */}
+            <div className="flex justify-end p-4 border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+              <button
+                onClick={() => setShowMobileMenu(false)}
+                className="p-2 transition hover:opacity-80"
+                aria-label="Close menu"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-4">
+              {/* User Info */}
+              {user && (
+                <div className="mb-4 pb-4 border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+                  <p className="text-sm mb-3 font-semibold" style={{ color: "var(--brand-muted)" }}>
+                    {user.name}
+                  </p>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => {
+                        navigate("/profile");
+                        setShowMobileMenu(false);
+                      }}
+                      className="text-base font-semibold block"
+                      style={{ color: "var(--brand-dark)" }}
+                    >
+                      My Profile
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigate("/orders");
+                        setShowMobileMenu(false);
+                      }}
+                      className="text-base font-semibold block"
+                      style={{ color: "var(--brand-dark)" }}
+                    >
+                      My Orders
+                    </button>
                   </div>
-                )}
+                </div>
+              )}
+
+              {/* Quick Links */}
+              <div className="mb-4 pb-4 border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+                <Link
+                  to="/about"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block py-2 text-base font-semibold"
+                  style={{ color: "var(--brand-dark)" }}
+                >
+                  About Us
+                </Link>
+                <Link
+                  to="/contact"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block py-2 text-base font-semibold"
+                  style={{ color: "var(--brand-dark)" }}
+                >
+                  Contact
+                </Link>
+                <Link
+                  to="/wishlist"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block py-2 text-base font-semibold"
+                  style={{ color: "var(--brand-dark)" }}
+                >
+                  Wishlist
+                </Link>
+                <Link
+                  to="/cart"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block py-2 text-base font-semibold"
+                  style={{ color: "var(--brand-dark)" }}
+                >
+                  Cart
+                </Link>
               </div>
-            ))}
+
+              {/* Catalog Heading */}
+              <h3
+                className="text-xl font-semibold mb-4"
+                style={{
+                  color: "var(--brand-dark)",
+                  fontFamily: "Cormorant Garamond, Georgia, serif",
+                }}
+              >
+                Catalog
+              </h3>
+
+              {/* Categories with Accordion */}
+              <div className="space-y-1">
+                {categoryBar.map((cat) => {
+                  const isExpanded = expandedMobileCategory === cat.slug;
+                  return (
+                    <div key={cat.slug} className="border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+                      {cat.sub.length > 0 ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setExpandedMobileCategory(isExpanded ? null : cat.slug);
+                            }}
+                            className="w-full flex items-center justify-between py-3 text-left text-base font-semibold"
+                            style={{ color: "var(--brand-dark)" }}
+                          >
+                            <span>{cat.label}</span>
+                            <svg
+                              className={`w-5 h-5 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 9l-7 7-7-7"
+                              />
+                            </svg>
+                          </button>
+                          {isExpanded && (
+                            <div className="pl-4 pb-2">
+                              {cat.sub.map((sub) => (
+                                <Link
+                                  key={sub.slug}
+                                  to={subHref(cat.slug, sub.slug)}
+                                  onClick={() => setShowMobileMenu(false)}
+                                  className="block py-2 text-sm font-medium"
+                                  style={{ color: "var(--brand-muted)" }}
+                                >
+                                  {sub.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <Link
+                          to={mainHref(cat.slug)}
+                          onClick={() => setShowMobileMenu(false)}
+                          className="block py-3 text-base font-semibold"
+                          style={{ color: "var(--brand-dark)" }}
+                        >
+                          {cat.label}
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category bar: main categories with subcategories - Desktop Only */}
+      <div
+        ref={categoryRef}
+        className="hidden md:block border-t relative category-dropdown-container"
+        style={{ borderColor: "var(--brand-lavender-soft)", background: "#000000", zIndex: 100, overflow: 'visible' }}
+      >
+        <div className="w-full px-2 sm:px-4 category-dropdown-container" style={{ overflowX: 'auto', overflowY: 'visible', position: 'relative' }}>
+          <nav
+            className="flex flex-nowrap items-center justify-between gap-4 w-full py-1.5 md:py-2 relative category-dropdown-container"
+            aria-label="Categories"
+          >
+            {categoryBar.map((cat) => {
+              const isOpen = clickedCategory === cat.slug;
+              return (
+                <div
+                  key={cat.slug}
+                  className="relative flex-1 text-center"
+                  style={{ position: 'relative', zIndex: isOpen ? 100000 : 'auto' }}
+                >
+                  {/* Main category: click toggles dropdown or navigates if no subcategories */}
+                  <div className="flex items-center justify-center px-2 relative">
+                    {cat.sub.length > 0 ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (clickedCategory === cat.slug) {
+                            setClickedCategory(null);
+                          } else {
+                            // Close any other open dropdowns first
+                            setClickedCategory(cat.slug);
+                          }
+                        }}
+                        className="py-1.5 text-sm font-medium transition hover:opacity-90 whitespace-nowrap bg-transparent border-none cursor-pointer"
+                        style={{ color: "#ffffff" }}
+                      >
+                        {cat.label}
+                        <svg
+                          className={`inline-block ml-1 h-4 w-4 transition-transform ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
+                        </svg>
+                      </button>
+                    ) : (
+                      <Link
+                        to={mainHref(cat.slug)}
+                        className="py-1.5 text-sm font-medium no-underline transition hover:opacity-90 whitespace-nowrap"
+                        style={{ color: "#ffffff" }}
+                      >
+                        {cat.label}
+                      </Link>
+                    )}
+                    
+                    {/* Dropdown: visible only when clicked */}
+                    {cat.sub.length > 0 && (
+                      <div
+                        className={`category-dropdown absolute rounded-md border bg-white py-2 shadow-lg ${
+                          isOpen ? '' : 'hidden'
+                        }`}
+                        style={{ 
+                          borderColor: "var(--brand-lavender-soft)",
+                          zIndex: 99999,
+                          position: 'absolute',
+                          display: isOpen ? 'block' : 'none',
+                          backgroundColor: '#ffffff',
+                          boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                          top: '100%',
+                          left: '50%',
+                          transform: 'translateX(-50%)',
+                          minWidth: '180px',
+                          whiteSpace: 'nowrap',
+                          marginTop: '4px'
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {cat.sub.map((sub) => (
+                          <Link
+                            key={sub.slug}
+                            to={subHref(cat.slug, sub.slug)}
+                            className="block px-4 py-2 text-sm no-underline transition hover:opacity-90 hover:bg-gray-50"
+                            style={{ color: "var(--brand-dark)" }}
+                            onClick={() => {
+                              setClickedCategory(null);
+                            }}
+                          >
+                            {sub.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </nav>
         </div>
       </div>

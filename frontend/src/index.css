@@ -181,6 +181,22 @@ body {
   }
 }
 
+/* Toast Animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
 /* Line clamp utility */
 .line-clamp-2 {
   display: -webkit-box;
@@ -198,4 +214,16 @@ body {
   .highlight-product-card {
     width: calc((100vw - 24px - 96px) / 5) !important; /* Desktop: 5 products */
   }
+}
+
+/* Category Dropdown Styles */
+.category-dropdown {
+  position: absolute !important;
+  z-index: 99999 !important;
+  overflow: visible !important;
+}
+
+.category-dropdown-container {
+  overflow: visible !important;
+  position: relative !important;
 }

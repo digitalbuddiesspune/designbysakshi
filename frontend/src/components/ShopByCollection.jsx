@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 
@@ -6,15 +6,18 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 const collectionImages = [
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227422/Untitled_1100_x_400_px_1000_x_500_px_1_1_t2vvxx.png",
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773298500/Untitled_1000_x_500_px_10_oaqebs.png",
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773229137/Untitled_1100_x_400_px_1000_x_500_px_4_yhcrmr.png",
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773229080/Untitled_1000_x_500_px_5_npeqsh.png",
+  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773391977/Untitled_1000_x_500_px_13_z1xctg.png",
+  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773388740/Untitled_1100_x_400_px_1000_x_500_px_5_qlj3rk.png",
+  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773394943/Untitled_1000_x_500_px_15_y8nxjg.png",
+  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773388741/Untitled_1000_x_500_px_2_1_hxzbet.png",
+  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773388741/Untitled_1000_x_500_px_4_1_fvr0ij.png",
+  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773391975/Untitled_1000_x_500_px_14_rn2itw.png"
 ];
 
 const ShopByCollection = () => {
   const prevRef = useRef(null);
   const nextRef = useRef(null);
+  const [swiper, setSwiper] = useState(null);
 
   return (
     <section className="bg-white pt-2 pb-4 sm:pt-4 sm:pb-12">
@@ -37,9 +40,29 @@ const ShopByCollection = () => {
                 prevEl: prevRef.current,
                 nextEl: nextRef.current,
               }}
-              onBeforeInit={(swiper) => {
-                swiper.params.navigation.prevEl = prevRef.current;
-                swiper.params.navigation.nextEl = nextRef.current;
+              onSwiper={(swiperInstance) => {
+                setSwiper(swiperInstance);
+                // Update navigation after a short delay to ensure refs are ready
+                setTimeout(() => {
+                  if (prevRef.current && nextRef.current && swiperInstance && swiperInstance.params && swiperInstance.params.navigation) {
+                    swiperInstance.params.navigation.prevEl = prevRef.current;
+                    swiperInstance.params.navigation.nextEl = nextRef.current;
+                    if (swiperInstance.navigation) {
+                      swiperInstance.navigation.init();
+                      swiperInstance.navigation.update();
+                    }
+                  }
+                }, 100);
+              }}
+              onInit={(swiperInstance) => {
+                if (prevRef.current && nextRef.current && swiperInstance && swiperInstance.params && swiperInstance.params.navigation) {
+                  swiperInstance.params.navigation.prevEl = prevRef.current;
+                  swiperInstance.params.navigation.nextEl = nextRef.current;
+                  if (swiperInstance.navigation) {
+                    swiperInstance.navigation.init();
+                    swiperInstance.navigation.update();
+                  }
+                }
               }}
               spaceBetween={12}
               slidesPerView={1}
@@ -85,7 +108,8 @@ const ShopByCollection = () => {
           {/* Custom Navigation Arrows */}
           <button
             ref={prevRef}
-            className="swiper-button-prev-custom absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            onClick={() => swiper?.slidePrev()}
+            className="swiper-button-prev-custom absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 cursor-pointer"
             aria-label="Previous slide"
           >
             <svg
@@ -104,7 +128,8 @@ const ShopByCollection = () => {
           </button>
           <button
             ref={nextRef}
-            className="swiper-button-next-custom absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            onClick={() => swiper?.slideNext()}
+            className="swiper-button-next-custom absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-300 cursor-pointer"
             aria-label="Next slide"
           >
             <svg

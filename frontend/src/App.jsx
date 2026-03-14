@@ -1,16 +1,20 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Footer from './components/Footer'
 import Header from './components/Header'
 
 const App = () => {
+  const location = useLocation();
+  // Hide header/footer for all admin routes including admin/login
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <Header />
+      {!isAdminRoute && <Header />}
       <main style={{ flex: 1 }}>
-       <Outlet/>
+        <Outlet />
       </main>
-      <Footer />
-    </div>  
+      {!isAdminRoute && <Footer />}
+    </div>
   )
 }
 

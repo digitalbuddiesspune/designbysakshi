@@ -1,0 +1,242 @@
+import React, { useState, useEffect } from "react";
+import { useLocation, useSearchParams, Link, useNavigate } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+
+const CategoryPage = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const subcategoryParam = searchParams.get("subcategory");
+
+  // derive slug from path, e.g. "/earrings" -> "earrings"
+  const pathSlug = location.pathname.replace(/^\//, "");
+  // Normalize slug variations (e.g., "ring" -> "rings")
+  const slugMap = {
+    "ring": "rings"
+  };
+  const categorySlug = slugMap[pathSlug] || pathSlug;
+
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(subcategoryParam || "");
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (categorySlug) {
+      fetchProducts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [categorySlug, selectedSubcategory]);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/categories`);
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      let url = `${API_URL}/products?category=${categorySlug}`;
+      if (selectedSubcategory) {
+        url += `&subcategory=${selectedSubcategory}`;
+      }
+      const response = await fetch(url);
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Find category by matching slug (try both normalized and original)
+  const currentCategory = categories.find(
+    (cat) => cat.slug === categorySlug || cat.slug === pathSlug
+  );
+
+  // Debug: Log category info
+  useEffect(() => {
+    if (categories.length > 0) {
+      console.log("All categories:", categories.map(c => ({ name: c.name, slug: c.slug, subCount: c.subcategories?.length || 0 })));
+      console.log("Looking for category with slug:", categorySlug, "or", pathSlug);
+      console.log("Found category:", currentCategory ? { name: currentCategory.name, slug: currentCategory.slug, subcategories: currentCategory.subcategories } : "NOT FOUND");
+    }
+  }, [categories, categorySlug, pathSlug, currentCategory]);
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const handleSubcategoryChange = (subSlug) => {
+    const newSubcategory = subSlug === selectedSubcategory ? "" : subSlug;
+    setSelectedSubcategory(newSubcategory);
+    
+    // Update URL with new subcategory
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (newSubcategory) {
+      newSearchParams.set("subcategory", newSubcategory);
+    } else {
+      newSearchParams.delete("subcategory");
+    }
+    setSearchParams(newSearchParams);
+  };
+
+  return (
+    <div className="min-h-screen bg-white py-8 sm:py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Subcategory Filter - single horizontal line with scroll (hidden bar) */}
+        {currentCategory && currentCategory.subcategories.length > 0 && (
+          <div className="mb-8 overflow-x-auto scrollbar-hide">
+            <div className="flex flex-nowrap items-center gap-3 w-max">
+              <button
+                onClick={() => handleSubcategoryChange("")}
+                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  selectedSubcategory === ""
+                    ? "text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                style={
+                  selectedSubcategory === ""
+                    ? {
+                        background:
+                          "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                      }
+                    : {}
+                }
+              >
+                All
+              </button>
+              {currentCategory.subcategories.map((sub) => (
+                <button
+                  key={sub.slug}
+                  onClick={() => handleSubcategoryChange(sub.slug)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    selectedSubcategory === sub.slug
+                      ? "text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                  style={
+                    selectedSubcategory === sub.slug
+                      ? {
+                          background:
+                            "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                        }
+                      : {}
+                  }
+                >
+                  {sub.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Products Grid */}
+        {loading ? (
+          <div className="text-center py-12">
+            <p style={{ color: "var(--brand-dark)" }}>Loading products...</p>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <p style={{ color: "var(--brand-dark)" }}>No products found in this category.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+            {products.map((product) => (
+              <div
+                key={product._id}
+                to={`/product/${product._id}`}
+                className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+              >
+                <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+
+                  {/* Wishlist Icon */}
+                  <button
+                    type="button"
+                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
+                    aria-label="Add to wishlist"
+                  >
+                    <svg
+                      className="h-4 w-4 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+                <div className="p-4">
+                  <h3
+                    className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-2"
+                    style={{
+                      fontFamily: "Cormorant Garamond, Georgia, serif",
+                    }}
+                  >
+                    {product.name}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg font-bold text-gray-900">
+                      {formatPrice(product.price)}
+                    </span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-3 flex gap-2">
+                    <Link
+                      to={`/product/${product._id}`}
+                      className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition hover:bg-gray-100"
+                      style={{
+                        borderColor: "var(--brand-lavender-soft)",
+                        color: "var(--brand-dark)",
+                      }}
+                    >
+                      View Details
+                    </Link>
+                    <button
+                      type="button"
+                      className="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                      }}
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CategoryPage;

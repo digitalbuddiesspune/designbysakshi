@@ -17,7 +17,7 @@ const Homepage = () => {
       {/* Full-width banner above Top Products */}
       <section className="bg-white pt-20 sm:pt-24">
         <img
-          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773317411/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_6_hon7ex.png"
+          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773383397/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_7_hdf4zv.png"
           alt="DesignBySakshi seasonal collection banner"
           className="block w-full h-auto object-cover"
         />
