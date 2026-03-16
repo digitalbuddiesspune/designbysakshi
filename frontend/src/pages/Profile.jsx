@@ -4,9 +4,20 @@ import UserSidebar from "../components/UserSidebar";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
+const getGuestId = () => {
+  if (typeof window === "undefined") return null;
+  let id = localStorage.getItem("guestId");
+  if (!id) {
+    id = `guest_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+    localStorage.setItem("guestId", id);
+  }
+  return id;
+};
+
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [addresses, setAddresses] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -27,6 +38,14 @@ const Profile = () => {
         email: userData.email || "",
         phone: userData.phone || "",
       });
+      const guestId = getGuestId();
+      try {
+        const raw = localStorage.getItem(`addresses_${guestId}`);
+        const parsed = raw ? JSON.parse(raw) : [];
+        setAddresses(Array.isArray(parsed) ? parsed : []);
+      } catch {
+        setAddresses([]);
+      }
     } else {
       navigate("/login");
     }
@@ -136,6 +155,7 @@ const Profile = () => {
 
   const handleLogout = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("token");
     navigate("/");
     window.location.reload();
   };
@@ -201,6 +221,30 @@ const Profile = () => {
                     {user.phone || "Not provided"}
                   </p>
                 </div>
+
+                {addresses.length > 0 && (
+                  <div className="pt-4 border-t" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+                    <label className="block text-sm font-medium mb-3" style={{ color: "var(--brand-muted)" }}>
+                      Saved Addresses
+                    </label>
+                    <div className="space-y-3">
+                      {addresses.map((addr) => (
+                        <div key={addr.id} className="rounded-lg border p-3" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-semibold" style={{ color: "var(--brand-dark)" }}>{addr.fullName}</span>
+                            {addr.isDefault && (
+                              <span className="rounded-md bg-gray-200 px-2 py-0.5 text-[11px] font-bold text-gray-700">DEFAULT</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            {[addr.street, addr.landmark, addr.city, addr.state, addr.pincode].filter(Boolean).join(", ")}
+                          </p>
+                          {addr.phone && <p className="text-sm text-gray-500 mt-0.5">{addr.phone}</p>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <button
                   onClick={() => setIsEditing(true)}

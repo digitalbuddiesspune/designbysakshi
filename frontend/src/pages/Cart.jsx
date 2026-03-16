@@ -98,159 +98,171 @@ const Cart = () => {
     }
   };
 
-  // Calculate Delivery Fee logic
-  const isDeliveryFree = total > 500;
-  const deliveryFee = isDeliveryFree ? 0 : 50;
-  const grandTotal = total + deliveryFee;
+  const isEmpty = !loading && items.length === 0;
 
   return (
     <div className="min-h-screen bg-white py-8">
-      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 flex flex-col items-center">
-        {/* Removed breadcrumbs and item count per user request. Shifted content up by reducing margin. */}
-        <div className="w-full mb-6 text-left">
-          <h1 className="text-4xl sm:text-3xl font-bold text-gray-700">Shopping Cart</h1>
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+       
+
+        <div className="mb-6">
+          <h1 className="text-3xl font-extrabold text-gray-900">Shopping Cart</h1>
+         
         </div>
 
-        <div className="w-full flex flex-col lg:flex-row gap-8 justify-between items-start">
-          {/* Left: Cart Items */}
-          <div className="flex-1 w-full lg:max-w-4xl xl:max-w-5xl">
-            <div className="mb-4 flex items-center justify-between">
-              <div className="text-base font-semibold text-gray-900"></div>
-              <button
-                type="button"
-                onClick={clearCart}
-                className="text-sm font-semibold text-red-600 hover:text-red-700 transition"
-                disabled={loading || items.length === 0}
-              >
-                Clear Cart
-              </button>
+        {/* ── Empty state: full-width centered card ── */}
+        {isEmpty ? (
+          <div className="flex justify-center items-center py-10">
+            <div className="w-full max-w-md rounded-2xl border border-gray-100 bg-white px-10 py-16 shadow-2xl text-center">
+            
+              <h2 className="text-2xl font-extrabold text-gray-800 mb-2">No Products Found</h2>
+              <p className="text-gray-500 text-sm mb-8 leading-relaxed">
+                Your cart is empty. Looks like you haven't added anything yet.<br />
+                Start exploring and find something you love!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+               
+                <Link
+                  to="/"
+                  className="rounded-xl border border-gray-200 bg-gray-50 px-6 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-100 transition no-underline"
+                >
+                  Go to Home
+                </Link>
+              </div>
             </div>
-            {loading ? (
-              <p className="text-base text-gray-600">Loading cart...</p>
-            ) : items.length === 0 ? (
-              <p className="text-base text-gray-600">Your cart is empty.</p>
-            ) : (
-              <div className="space-y-6">
-                {items.map((item) => (
-                  <div
-                    key={item.product?._id || item.product}
-                    className="flex flex-col sm:flex-row items-start sm:items-center gap-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm hover:shadow-md transition"
-                  >
-                    <div className="h-40 w-40 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100">
-                      {item.product?.image && (
-                        <img
-                          src={item.product.image}
-                          alt={item.product.name}
-                          className="h-full w-full object-cover"
-                        />
-                      )}
-                    </div>
-                    <div className="min-w-0 flex-1 w-full">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="min-w-0 flex-1">
-                          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 break-words">
-                            {item.product?.name || "Product"}
-                          </h2>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => removeItem(item.product?._id || item.product)}
-                          className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition"
-                          aria-label="Remove"
-                          disabled={busyProductId === (item.product?._id || item.product)}
-                        >
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M3 6h18" />
-                            <path strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M8 6V4h8v2" />
-                            <path strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M19 6l-1 14H6L5 6" />
-                          </svg>
-                        </button>
+          </div>
+        ) : (
+          /* ── Normal state: items + order summary grid ── */
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Left: Cart Items */}
+            <div className="md:col-span-2">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="text-sm font-semibold text-gray-900">Cart Items</div>
+                <button
+                  type="button"
+                  onClick={clearCart}
+                  className="text-sm font-semibold text-red-600 hover:text-red-700"
+                  disabled={loading}
+                >
+                  Clear Cart
+                </button>
+              </div>
+
+              {loading ? (
+                <p className="text-sm text-gray-600">Loading cart...</p>
+              ) : (
+                <div className="space-y-4">
+                  {items.map((item) => (
+                    <div
+                      key={item.product?._id || item.product}
+                      className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+                    >
+                      <div className="h-20 w-20 overflow-hidden rounded-xl bg-gray-100">
+                        {item.product?.image && (
+                          <img
+                            src={item.product.image}
+                            alt={item.product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        )}
                       </div>
-                      <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
-                            <button
-                              type="button"
-                              onClick={() => changeQty(item.product?._id || item.product, -1)}
-                              className="flex h-10 w-10 items-center justify-center text-lg font-bold text-gray-700 hover:bg-gray-200 disabled:opacity-50 transition"
-                              disabled={busyProductId === (item.product?._id || item.product)}
-                            >
-                              −
-                            </button>
-                            <div className="flex h-10 w-12 items-center justify-center text-base font-semibold text-gray-900">
-                              {item.quantity || 1}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h2 className="truncate text-sm font-semibold text-gray-900">
+                              {item.product?.name || "Product"}
+                            </h2>
+                            <div className="mt-1 text-xs text-gray-500">Size: 1000ml</div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => removeItem(item.product?._id || item.product)}
+                            className="rounded p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
+                            aria-label="Remove"
+                            disabled={busyProductId === (item.product?._id || item.product)}
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                              <path strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M3 6h18" />
+                              <path strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M8 6V4h8v2" />
+                              <path strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M19 6l-1 14H6L5 6" />
+                            </svg>
+                          </button>
+                        </div>
+                        <div className="mt-3 flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center overflow-hidden rounded-lg bg-gray-100">
+                              <button
+                                type="button"
+                                onClick={() => changeQty(item.product?._id || item.product, -1)}
+                                className="h-8 w-9 text-sm font-bold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                                disabled={busyProductId === (item.product?._id || item.product)}
+                              >
+                                −
+                              </button>
+                              <div className="h-8 w-10 text-center text-sm font-semibold leading-8 text-gray-900">
+                                {item.quantity || 1}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => changeQty(item.product?._id || item.product, 1)}
+                                className="h-8 w-9 text-sm font-bold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
+                                disabled={busyProductId === (item.product?._id || item.product)}
+                              >
+                                +
+                              </button>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => changeQty(item.product?._id || item.product, 1)}
-                              className="flex h-10 w-10 items-center justify-center text-lg font-bold text-gray-700 hover:bg-gray-200 disabled:opacity-50 transition"
-                              disabled={busyProductId === (item.product?._id || item.product)}
-                            >
-                              +
-                            </button>
+                          </div>
+                          <div className="text-base font-extrabold text-gray-900">
+                            ₹{((item.priceAtAddTime || 0) * (item.quantity || 1)).toLocaleString("en-IN")}
                           </div>
                         </div>
-                        <div className="text-xl font-extrabold text-gray-900">
-                          ₹{((item.priceAtAddTime || 0) * (item.quantity || 1)).toLocaleString("en-IN")}
-                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* Right: Order Summary */}
-          <div className="w-full lg:w-72 flex-shrink-0 ml-auto pt-8">
-            <div className="sticky top-24 rounded-2xl border border-gray-200 bg-gray-50 p-4 shadow-sm">
-              <h2 className="text-lg font-bold text-gray-900">Order Summary</h2>
-              <div className="mt-4 space-y-3 text-sm">
+            {/* Right: Order Summary */}
+            <div className="h-fit rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <h2 className="text-lg font-semibold text-gray-900">Order Summary</h2>
+              <div className="mt-4 space-y-2 text-sm">
                 <div className="flex items-center justify-between text-gray-700">
                   <span>Subtotal</span>
                   <span className="font-semibold text-gray-900">₹{total.toLocaleString("en-IN")}</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-700">
-                  <span>Delivery Charges</span>
-                  {isDeliveryFree ? (
-                    <span className="font-semibold text-green-600">Free</span>
-                  ) : (
-                    <span className="font-semibold text-gray-900">₹50</span>
-                  )}
+                  <span>18% GST</span>
+                  <span className="text-gray-600">Included</span>
                 </div>
-                {!isDeliveryFree && (
-                  <div className="text-xs text-green-600 mt-1">
-                    Add ₹{(500 - total).toLocaleString("en-IN")} more for!
-                  </div>
-                )}
+                <div className="flex items-center justify-between text-gray-700">
+                  <span>Delivery Charges</span>
+                  <span className="font-semibold text-green-600">Free</span>
+                </div>
               </div>
-
-              <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-base font-bold text-gray-900">
+              <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-base font-semibold text-gray-900">
                 <span>Total</span>
-                <span>₹{grandTotal.toLocaleString("en-IN")}</span>
+                <span>₹{total.toLocaleString("en-IN")}</span>
               </div>
-
               <button
                 type="button"
-                disabled={loading || items.length === 0}
+                disabled={loading}
                 onClick={() => navigate("/checkout")}
-                className="mt-5 w-full rounded-xl bg-gray-900 px-4 py-2 text-sm font-bold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 transition shadow hover:shadow-md"
+                className="mt-5 w-full rounded-xl bg-gray-800 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Proceed to Checkout
               </button>
-
               <div className="mt-3 text-center">
-                <Link to="/shop" className="text-sm font-medium text-gray-600 hover:text-gray-900 hover:underline transition">
+                <Link to="/" className="text-sm text-gray-600 hover:text-gray-800 hover:underline">
                   Continue Shopping
                 </Link>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default Cart;
-

@@ -60,5 +60,26 @@ router.post('/add', async (req, res) => {
   }
 });
 
+// Remove product from wishlist
+router.post('/remove', async (req, res) => {
+  try {
+    const { productId, userId, guestId } = req.body;
+    if (!productId) return res.status(400).json({ error: 'productId is required' });
+    if (!userId && !guestId) return res.status(400).json({ error: 'userId or guestId is required' });
+
+    const filter = buildOwnerFilter(userId, guestId);
+    const wishlist = await Wishlist.findOne(filter);
+    if (wishlist) {
+      wishlist.products = wishlist.products.filter((p) => p.toString() !== productId);
+      await wishlist.save();
+    }
+    const populated = await (wishlist ? wishlist.populate('products') : Promise.resolve({ products: [] }));
+    res.status(200).json(populated);
+  } catch (error) {
+    console.error('Error removing from wishlist:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
 

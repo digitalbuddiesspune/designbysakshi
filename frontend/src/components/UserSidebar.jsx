@@ -10,6 +10,7 @@ const UserSidebar = ({ onLogout }) => {
       onLogout();
     } else {
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
       navigate("/");
     }
   };

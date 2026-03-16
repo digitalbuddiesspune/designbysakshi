@@ -1,4 +1,5 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
 const router = express.Router();
@@ -39,8 +40,11 @@ router.post('/signup', async (req, res) => {
     const userResponse = user.toObject();
     delete userResponse.password;
 
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
     res.status(201).json({
       message: 'User created successfully',
+      token,
       user: userResponse
     });
   } catch (error) {
@@ -76,8 +80,11 @@ router.post('/login', async (req, res) => {
     const userResponse = user.toObject();
     delete userResponse.password;
 
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+
     res.json({
       message: 'Login successful',
+      token,
       user: userResponse
     });
   } catch (error) {

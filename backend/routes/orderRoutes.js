@@ -93,4 +93,27 @@ router.get('/myorders', async (req, res) => {
   }
 });
 
+// @desc    Cancel an order
+// @route   POST /api/orders/:id/cancel
+// @access  Private
+router.post('/:id/cancel', async (req, res) => {
+  try {
+    const userId = verifyToken(req, res);
+    if (!userId) return;
+
+    const order = await Order.findOne({ _id: req.params.id, user: userId });
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    if (['shipped', 'delivered', 'cancelled'].includes(order.status)) {
+      return res.status(400).json({ message: `Cannot cancel an order that is ${order.status}` });
+    }
+
+    order.status = 'cancelled';
+    await order.save();
+    res.json({ message: 'Order cancelled', order });
+  } catch (error) {
+    console.error('Cancel order error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;

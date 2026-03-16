@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
@@ -29,6 +29,8 @@ const saveStoredAddresses = (guestId, addresses) => {
 
 const Checkout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const buyNowItem = location.state?.buyNowItem || null;
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paymentMode, setPaymentMode] = useState("cash");
@@ -72,7 +74,7 @@ const Checkout = () => {
     saveStoredAddresses(guestId, addresses);
   }, [addresses, guestId]);
 
-  const items = cart?.items || [];
+  const items = buyNowItem ? [buyNowItem] : (cart?.items || []);
   const subtotal = items.reduce(
     (sum, item) => sum + (item.priceAtAddTime || 0) * (item.quantity || 1),
     0
@@ -144,12 +146,15 @@ const Checkout = () => {
         return;
       }
 
-      await fetch(`${API_URL}/cart/clear`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ guestId }),
-      });
-      window.dispatchEvent(new Event("cart-updated"));
+      // Only clear the full cart if this was a normal cart checkout
+      if (!buyNowItem) {
+        await fetch(`${API_URL}/cart/clear`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ guestId }),
+        });
+        window.dispatchEvent(new Event("cart-updated"));
+      }
 
       navigate("/orders");
     } catch (e) {

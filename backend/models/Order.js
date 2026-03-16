@@ -23,6 +23,10 @@ const orderItemSchema = new mongoose.Schema(
 
 const orderSchema = new mongoose.Schema(
   {
+    orderNumber: {
+      type: Number,
+      unique: true,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -55,6 +59,13 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+orderSchema.pre('save', async function () {
+  if (this.isNew && !this.orderNumber) {
+    const last = await mongoose.model('Order').findOne({}, {}, { sort: { orderNumber: -1 } });
+    this.orderNumber = last?.orderNumber ? last.orderNumber + 1 : 1001;
+  }
+});
 
 const Order = mongoose.model('Order', orderSchema);
 

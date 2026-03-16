@@ -141,6 +141,7 @@ const Signup = () => {
 
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.token) localStorage.setItem("token", data.token);
         setShowToast(true);
         setTimeout(() => {
           navigate("/");

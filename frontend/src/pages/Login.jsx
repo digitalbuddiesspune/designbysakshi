@@ -75,6 +75,7 @@ const Login = () => {
 
       if (response.ok) {
         localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.token) localStorage.setItem("token", data.token);
         setMessage("Login successful!");
         setTimeout(() => {
           navigate("/");
