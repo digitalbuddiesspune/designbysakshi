@@ -13,6 +13,8 @@ const Header = () => {
   const [user, setUser] = useState(null);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
   const [categoryBar, setCategoryBar] = useState([]);
+  const [cartCount, setCartCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
   const navigate = useNavigate();
   const categoryRef = useRef(null);
   const userDropdownRef = useRef(null);
@@ -28,6 +30,66 @@ const Header = () => {
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  const getGuestId = () => {
+    if (typeof window === "undefined") return null;
+    let id = localStorage.getItem("guestId");
+    if (!id) {
+      id = `guest_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+      localStorage.setItem("guestId", id);
+    }
+    return id;
+  };
+
+  useEffect(() => {
+    const guestId = getGuestId();
+    if (guestId) {
+      fetchCartCount(guestId);
+      fetchWishlistCount(guestId);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleCartUpdated = () => {
+      const guestId = getGuestId();
+      if (guestId) fetchCartCount(guestId);
+    };
+    const handleWishlistUpdated = () => {
+      const guestId = getGuestId();
+      if (guestId) fetchWishlistCount(guestId);
+    };
+
+    window.addEventListener("cart-updated", handleCartUpdated);
+    window.addEventListener("wishlist-updated", handleWishlistUpdated);
+
+    return () => {
+      window.removeEventListener("cart-updated", handleCartUpdated);
+      window.removeEventListener("wishlist-updated", handleWishlistUpdated);
+    };
+  }, []);
+
+  const fetchCartCount = async (guestId) => {
+    try {
+      const res = await fetch(`${API_URL}/cart?guestId=${encodeURIComponent(guestId)}`);
+      const data = await res.json();
+      const items = data?.items || [];
+      const totalQty = items.reduce((sum, item) => sum + (item.quantity || 0), 0);
+      setCartCount(totalQty);
+    } catch (err) {
+      console.error("Error fetching cart count:", err);
+    }
+  };
+
+  const fetchWishlistCount = async (guestId) => {
+    try {
+      const res = await fetch(`${API_URL}/wishlist?guestId=${encodeURIComponent(guestId)}`);
+      const data = await res.json();
+      const products = data?.products || [];
+      setWishlistCount(products.length);
+    } catch (err) {
+      console.error("Error fetching wishlist count:", err);
+    }
+  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -66,7 +128,7 @@ const Header = () => {
     try {
       const response = await fetch(`${API_URL}/categories`);
       const categories = await response.json();
-      
+
       // Transform backend categories to match frontend structure
       const transformedCategories = categories.map((cat) => ({
         label: cat.name,
@@ -76,7 +138,7 @@ const Header = () => {
           slug: sub.slug,
         })),
       }));
-      
+
       setCategoryBar(transformedCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
@@ -147,7 +209,7 @@ const Header = () => {
         </div>
 
         {/* Right side icons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" style={{ color: "var(--brand-dark)" }}>
           {/* Search Icon */}
           <button
             type="button"
@@ -159,6 +221,49 @@ const Header = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
+
+          {/* Wishlist Icon */}
+          <Link
+            to="/wishlist"
+            className="relative rounded p-2 no-underline transition hover:opacity-80"
+            aria-label="Wishlist"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+              />
+            </svg>
+            {wishlistCount > 0 && (
+              <span
+                className="absolute top-[-6px] right-[-6px] flex h-4 w-4 items-center justify-center rounded-full bg-white text-xs font-semibold text-black shadow"
+                style={{ lineHeight: 1 }}
+              >
+                {wishlistCount}
+              </span>
+            )}
+          </Link>
+
+          {/* Cart Bag Icon */}
+          <Link
+            to="/cart"
+            className="relative rounded p-2 no-underline transition hover:opacity-80"
+            aria-label="Cart"
+          >
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            {cartCount > 0 && (
+              <span
+                className="absolute  top-[-6px] right-[-6px] flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-black shadow"
+                style={{ lineHeight: 1 }}
+              >
+                {cartCount}
+              </span>
+            )}
+          </Link>
 
           {/* User/Logout Icon */}
           {user ? (
@@ -224,7 +329,7 @@ const Header = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
                   className="px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2"
-                  style={{ 
+                  style={{
                     borderColor: "var(--brand-lavender-soft)",
                     color: "var(--brand-dark)",
                     minWidth: "200px"
@@ -291,7 +396,7 @@ const Header = () => {
           {/* Wishlist Icon */}
           <Link
             to="/wishlist"
-            className="rounded p-2 no-underline transition hover:opacity-80"
+            className="relative rounded p-2 no-underline transition hover:opacity-80"
             aria-label="Wishlist"
           >
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -302,17 +407,33 @@ const Header = () => {
                 d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
               />
             </svg>
+            {wishlistCount > 0 && (
+              <span
+                className="absolute top-[-4px] right-[-2px] flex h-5 w-5 items-center justify-center rounded-full bg-white text-lg font-bold text-black shadow"
+                style={{ lineHeight: 1 }}
+              >
+                {wishlistCount}
+              </span>
+            )}
           </Link>
 
           {/* Cart Bag Icon */}
           <Link
             to="/cart"
-            className="rounded p-2 no-underline transition hover:opacity-80"
+            className="relative rounded p-2 no-underline transition hover:opacity-80"
             aria-label="Cart"
           >
             <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
+            {cartCount > 0 && (
+              <span
+                className="absolute top-[-4px] right-[-2px] flex h-5 w-5 items-center justify-center rounded-full bg-white text-lg font-bold text-black shadow"
+                style={{ lineHeight: 1 }}
+              >
+                {cartCount}
+              </span>
+            )}
           </Link>
 
           {/* User Icon with Dropdown */}
@@ -393,7 +514,7 @@ const Header = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search products..."
               className="flex-1 px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2"
-              style={{ 
+              style={{
                 borderColor: "var(--brand-lavender-soft)",
                 color: "var(--brand-dark)",
               }}
@@ -648,9 +769,8 @@ const Header = () => {
                       >
                         {cat.label}
                         <svg
-                          className={`inline-block ml-1 h-4 w-4 transition-transform ${
-                            isOpen ? "rotate-180" : ""
-                          }`}
+                          className={`inline-block ml-1 h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""
+                            }`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -672,14 +792,13 @@ const Header = () => {
                         {cat.label}
                       </Link>
                     )}
-                    
+
                     {/* Dropdown: visible only when clicked */}
                     {cat.sub.length > 0 && (
                       <div
-                        className={`category-dropdown absolute rounded-md border bg-white py-2 shadow-lg ${
-                          isOpen ? '' : 'hidden'
-                        }`}
-                        style={{ 
+                        className={`category-dropdown absolute rounded-md border bg-white py-2 shadow-lg ${isOpen ? '' : 'hidden'
+                          }`}
+                        style={{
                           borderColor: "var(--brand-lavender-soft)",
                           zIndex: 99999,
                           position: 'absolute',

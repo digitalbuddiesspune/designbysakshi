@@ -74,6 +74,16 @@ const CategoryPage = () => {
     }
   }, [categories, categorySlug, pathSlug, currentCategory]);
 
+  const getGuestId = () => {
+    if (typeof window === "undefined") return null;
+    let id = localStorage.getItem("guestId");
+    if (!id) {
+      id = `guest_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+      localStorage.setItem("guestId", id);
+    }
+    return id;
+  };
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -94,6 +104,49 @@ const CategoryPage = () => {
       newSearchParams.delete("subcategory");
     }
     setSearchParams(newSearchParams);
+  };
+
+  const handleAddToCart = async (productId) => {
+    try {
+      const guestId = getGuestId();
+      await fetch(`${API_URL}/cart/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId,
+          quantity: 1,
+          guestId,
+        }),
+      });
+      alert("Added to cart");
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("Could not add to cart. Please try again.");
+    }
+  };
+
+  const handleAddToWishlist = async (productId) => {
+    try {
+      const guestId = getGuestId();
+      await fetch(`${API_URL}/wishlist/add`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId,
+          guestId,
+        }),
+      });
+      alert("Added to wishlist");
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+      alert("Could not add to wishlist. Please try again.");
+    }
   };
 
   return (
@@ -175,6 +228,7 @@ const CategoryPage = () => {
                     type="button"
                     className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
                     aria-label="Add to wishlist"
+                    onClick={() => handleAddToWishlist(product._id)}
                   >
                     <svg
                       className="h-4 w-4 text-gray-600"
@@ -225,6 +279,7 @@ const CategoryPage = () => {
                         background:
                           "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
                       }}
+                      onClick={() => handleAddToCart(product._id)}
                     >
                       Add to Cart
                     </button>

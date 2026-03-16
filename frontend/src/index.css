@@ -19,22 +19,25 @@
 }
 
 body {
-  font-family: "Cormorant Garamond", "Georgia", serif;
+  font-family: serif;
   color: var(--brand-dark);
   background: var(--brand-pastel);
 }
 
 @layer components {
   .font-display {
-    font-family: "Cormorant Garamond", "Georgia", serif;
+    font-family: serif;
   }
+
   .font-script {
-    font-family: "Great Vibes", "Georgia", cursive;
+    font-family: serif;
   }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
@@ -123,6 +126,7 @@ body {
 }
 
 @media (min-width: 768px) {
+
   .swiper-button-prev-custom,
   .swiper-button-next-custom {
     width: 48px;
@@ -160,7 +164,7 @@ body {
   .collection-swiper {
     padding: 0 10px;
   }
-  
+
   .swiper-button-prev-custom,
   .swiper-button-next-custom {
     width: 40px;
@@ -175,6 +179,7 @@ body {
     opacity: 0;
     transform: translateY(30px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -187,6 +192,7 @@ body {
     opacity: 0;
     transform: translateX(100%);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -207,12 +213,14 @@ body {
 
 /* Highlight Grid Responsive */
 .highlight-product-card {
-  width: calc((100vw - 24px - 12px) / 2) !important; /* Mobile: 2 products */
+  width: calc((100vw - 24px - 12px) / 2) !important;
+  /* Mobile: 2 products */
 }
 
 @media (min-width: 1024px) {
   .highlight-product-card {
-    width: calc((100vw - 24px - 96px) / 5) !important; /* Desktop: 5 products */
+    width: calc((100vw - 24px - 96px) / 5) !important;
+    /* Desktop: 5 products */
   }
 }
 

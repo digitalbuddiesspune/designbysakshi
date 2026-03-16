@@ -21,7 +21,11 @@ import Login from "../pages/Login.jsx";
 import Signup from "../pages/Signup.jsx";
 import Profile from "../pages/Profile.jsx";
 import Orders from "../pages/Orders.jsx";
+import Cart from "../pages/Cart.jsx";
+import Wishlist from "../pages/Wishlist.jsx";
+import ProductDetail from "../pages/ProductDetail.jsx";
 import CategoryPage from "../pages/CategoryPage.jsx";
+import Checkout from "../pages/Checkout.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -35,6 +39,9 @@ const router = createBrowserRouter(
       <Route path="signup" element={<Signup />} />
       <Route path="profile" element={<Profile />} />
       <Route path="orders" element={<Orders />} />
+      <Route path="cart" element={<Cart />} />
+      <Route path="checkout" element={<Checkout />} />
+      <Route path="wishlist" element={<Wishlist />} />
       <Route path="admin/login" element={<AdminLogin />} />
       <Route path="admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
@@ -52,6 +59,7 @@ const router = createBrowserRouter(
       <Route path="pendants" element={<CategoryPage />} />
       <Route path="bridal-jewellery" element={<CategoryPage />} />
       <Route path="anklets" element={<CategoryPage />} />
+      <Route path="product/:id" element={<ProductDetail />} />
     </Route>,
   ),
 );
