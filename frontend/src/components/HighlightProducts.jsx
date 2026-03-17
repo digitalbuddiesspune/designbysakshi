@@ -4,7 +4,7 @@ import highlightData from "../data/highlightProducts.json";
 const HighlightProducts = () => {
   return (
     <section 
-      className="py-8 sm:py-12 lg:py-16"
+      className="py-8 sm:py-12 lg:py-10"
       style={{
         background: "linear-gradient(135deg, var(--brand-lavender-light) 0%, var(--brand-lavender-soft) 50%, var(--brand-lavender) 100%)"
       }}

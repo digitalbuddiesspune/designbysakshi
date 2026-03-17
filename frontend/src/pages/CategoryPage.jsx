@@ -120,7 +120,7 @@ const CategoryPage = () => {
           guestId,
         }),
       });
-      alert("Added to cart");
+     
       window.dispatchEvent(new Event("cart-updated"));
     } catch (error) {
       console.error("Error adding to cart:", error);
@@ -141,7 +141,7 @@ const CategoryPage = () => {
           guestId,
         }),
       });
-      alert("Added to wishlist");
+    
       window.dispatchEvent(new Event("wishlist-updated"));
     } catch (error) {
       console.error("Error adding to wishlist:", error);
@@ -149,53 +149,55 @@ const CategoryPage = () => {
     }
   };
 
+  const categoryImages = {
+    "necklace-sets": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773733305/High-End_Bridal_Necklace_Set__Bridal_Jewelry__Wedding_Dress_Accessory__Light_Gold_Silver_Gold-Color-removebg-preview_n4px8z.png",
+    "earrings": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773733200/High_jewelry_futuristic_earrings_made_of_silver__elements__lines__flower-removebg-preview_epryye.png",
+    "rings": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773732024/41yKk1H7s2L-removebg-preview_pakeea.png",
+    "bangles-bracelets": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773730539/bangals-removebg-preview_bv3mwx.png",
+    "pendants": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773731748/download__14_-removebg-preview_m5de9b.png",
+    "bridal-jewellery": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773731628/download__15_-removebg-preview_2_spcetj.png",
+    "anklets":"https://res.cloudinary.com/dbfooaz44/image/upload/v1773730347/If_you_prefer_silver_anklets__we_got_you____In_order_of_appearance__Bar_charm_anklet_Twist_anklet_Millipede_anklet_Chain_link_anklet_Flower_charm_anklet__Price__N1500-2000_All_non_tarnish____To_shop___iekjrt.png"
+  };
+
   return (
     <div className="min-h-screen bg-white py-8 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Subcategory Filter - single horizontal line with scroll (hidden bar) */}
-        {currentCategory && currentCategory.subcategories.length > 0 && (
-          <div className="mb-8 overflow-x-auto scrollbar-hide">
-            <div className="flex flex-nowrap items-center gap-3 w-max">
-              <button
-                onClick={() => handleSubcategoryChange("")}
-                className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                  selectedSubcategory === ""
-                    ? "text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
-                style={
-                  selectedSubcategory === ""
-                    ? {
-                        background:
-                          "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                      }
-                    : {}
-                }
-              >
-                All
-              </button>
-              {currentCategory.subcategories.map((sub) => (
+
+        {/* Category Image + Subcategory Filter — same row */}
+        {currentCategory && (
+          <div className="flex items-center gap-4 mb-4 -mt-6">
+            {categoryImages[categorySlug] && (
+              <img
+                src={categoryImages[categorySlug]}
+                alt={currentCategory?.name || categorySlug}
+                className="h-24 w-24 object-contain flex-shrink-0"
+              />
+            )}
+            {currentCategory.subcategories.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2">
                 <button
-                  key={sub.slug}
-                  onClick={() => handleSubcategoryChange(sub.slug)}
+                  onClick={() => handleSubcategoryChange("")}
                   className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    selectedSubcategory === sub.slug
-                      ? "text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    selectedSubcategory === "" ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
-                  style={
-                    selectedSubcategory === sub.slug
-                      ? {
-                          background:
-                            "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                        }
-                      : {}
-                  }
+                  style={selectedSubcategory === "" ? { background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)" } : {}}
                 >
-                  {sub.name}
+                  All
                 </button>
-              ))}
-            </div>
+                {currentCategory.subcategories.map((sub) => (
+                  <button
+                    key={sub.slug}
+                    onClick={() => handleSubcategoryChange(sub.slug)}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                      selectedSubcategory === sub.slug ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                    style={selectedSubcategory === sub.slug ? { background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)" } : {}}
+                  >
+                    {sub.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

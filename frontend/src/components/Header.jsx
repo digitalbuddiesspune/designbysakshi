@@ -376,7 +376,7 @@ const Header = () => {
             className="relative rounded p-2 no-underline transition hover:opacity-80"
             aria-label="Wishlist"
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -386,7 +386,7 @@ const Header = () => {
             </svg>
             {wishlistCount > 0 && (
               <span
-                className="absolute top-[-4px] right-[-2px] flex h-5 w-5 items-center justify-center rounded-full bg-white text-lg font-bold text-black shadow"
+                className="absolute top-[-2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-white text-sm font-bold text-black shadow"
                 style={{ lineHeight: 1 }}
               >
                 {wishlistCount}
@@ -400,12 +400,12 @@ const Header = () => {
             className="relative rounded p-2 no-underline transition hover:opacity-80"
             aria-label="Cart"
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
             </svg>
             {cartCount > 0 && (
               <span
-                className="absolute top-[-4px] right-[-2px] flex h-5 w-5 items-center justify-center rounded-full bg-white text-lg font-bold text-black shadow"
+                className="absolute top-[-2px] right-[2px] flex h-4 w-4 items-center justify-center rounded-full bg-white text-sm font-bold text-black shadow"
                 style={{ lineHeight: 1 }}
               >
                 {cartCount}

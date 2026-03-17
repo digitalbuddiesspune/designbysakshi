@@ -59,7 +59,7 @@ const Wishlist = () => {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
       
         <div className="mb-6">
-          <h1 className="text-3xl font-extrabold text-gray-900">My Wishlist</h1>
+          <h1 className="text-3xl font-bold text-gray-700">My Wishlist</h1>
          
         </div>
 

@@ -17,14 +17,12 @@ const ShopByCollection = () => {
   const [isEnd, setIsEnd] = useState(false);
 
   return (
-    <section className="bg-white pt-2 pb-4 sm:pt-4 sm:pb-12">
+    <section className="bg-white">
       <div className="w-full">
-        <h2
-          className="mb-6 text-center text-2xl font-medium sm:mb-8 sm:text-3xl px-4"
-          style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
-        >
-          Latest Collections
-        </h2>
+         <div className="mb-6">
+          <h1 className="text-3xl font-bold text-center text-gray-700">Shop By Collection</h1>
+         
+        </div>
 
         <div className="relative w-full px-3 sm:px-4 md:px-6 lg:px-8">
           <Swiper

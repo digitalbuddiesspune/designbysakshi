@@ -170,15 +170,10 @@ const Profile = () => {
       
       <div className="flex-1 p-8">
         <div className="max-w-2xl">
-          <h1
-            className="text-3xl font-medium mb-8"
-            style={{
-              color: "var(--brand-dark)",
-              fontFamily: "Cormorant Garamond, Georgia, serif",
-            }}
-          >
-            Profile
-          </h1>
+          <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-700">Profile</h1>
+         
+        </div>
 
           {message && (
             <div

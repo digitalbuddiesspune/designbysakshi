@@ -106,7 +106,7 @@ const Cart = () => {
        
 
         <div className="mb-6">
-          <h1 className="text-3xl font-extrabold text-gray-900">Shopping Cart</h1>
+          <h1 className="text-3xl font-bold text-gray-700">Shopping Cart</h1>
          
         </div>
 

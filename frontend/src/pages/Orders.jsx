@@ -87,12 +87,10 @@ const Orders = () => {
 
       <div className="flex-1 p-8">
         <div className="max-w-4xl">
-          <h1
-            className="text-3xl font-medium mb-8"
-            style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
-          >
-            My Orders
-          </h1>
+          <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-700">My Orders</h1>
+         
+        </div>
 
           {loading ? (
             <div className="bg-white rounded-lg shadow-md p-6 text-gray-600 text-sm">Loading orders...</div>

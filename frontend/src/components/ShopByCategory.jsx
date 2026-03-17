@@ -57,9 +57,11 @@ const ShopByCategory = () => {
   return (
     <section className="bg-white px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        <h2 className="mb-10 text-center text-2xl font-medium text-[var(--brand-dark)] sm:text-3xl" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>
-          Shop by Category
-        </h2>
+       
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-center text-gray-700">Shop By Category</h1>
+         
+        </div>
 
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex flex-nowrap justify-start gap-6 sm:gap-8 w-max mx-auto">

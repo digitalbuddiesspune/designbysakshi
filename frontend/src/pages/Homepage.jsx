@@ -15,10 +15,19 @@ const Homepage = () => {
       <ShopByCollection />
 
       {/* Full-width banner above Top Products */}
-      <section className="bg-white pt-20 sm:pt-24">
+      <section className="bg-white pt-16 sm:pt-24">
         <img
           src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773383397/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_7_hdf4zv.png"
           alt="DesignBySakshi seasonal collection banner"
+          className="block w-full h-auto object-cover"
+        />
+      </section>
+
+      {/* Banner after Perfect Gifts */}
+      <section className="bg-white pt-20 ">
+        <img
+          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773743922/Untitled_1000_x_500_px_1920_x_550_px_w2i3cv.png"
+          alt="DesignBySakshi collection banner"
           className="block w-full h-auto object-cover"
         />
       </section>

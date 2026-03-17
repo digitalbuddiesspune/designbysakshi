@@ -34,6 +34,7 @@ const Checkout = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [paymentMode, setPaymentMode] = useState("cash");
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
   const [addresses, setAddresses] = useState(() => getStoredAddresses(guestId));
@@ -156,7 +157,7 @@ const Checkout = () => {
         window.dispatchEvent(new Event("cart-updated"));
       }
 
-      navigate("/orders");
+      setShowConfirmModal(true);
     } catch (e) {
       console.error("Place order failed:", e);
     } finally {
@@ -417,6 +418,31 @@ const Checkout = () => {
           </div>
         </div>
       </div>
+
+      {/* Order Confirmed Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="mx-4 w-full max-w-sm rounded-2xl bg-white p-8 shadow-2xl text-center">
+            <div className="mb-4 text-5xl">🎉</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Order Confirmed!</h2>
+            <p className="text-gray-500 text-sm mb-6">Your order has been placed successfully. Keep shopping!</p>
+            <div className="flex flex-col gap-3">
+              <Link
+                to="/"
+                className="rounded-xl bg-gray-900 px-6 py-2.5 text-sm font-semibold text-white hover:bg-gray-700 transition no-underline"
+              >
+                Go to Home
+              </Link>
+              <Link
+                to="/orders"
+                className="rounded-xl border border-gray-300 px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition no-underline"
+              >
+                View My Orders
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

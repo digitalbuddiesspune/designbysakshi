@@ -13,17 +13,17 @@ const TopProducts = () => {
   };
 
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-20">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2
-          className="mb-10 text-center text-3xl font-medium sm:mb-12 sm:text-4xl"
-          style={{
-            color: "var(--brand-dark)",
-            fontFamily: "Cormorant Garamond, Georgia, serif",
-          }}
-        >
-          New Arrival
-        </h2>
+    <section className="bg-white py-12 sm:py-16 ">
+      <section className="bg-white ">
+        <img
+          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773742412/3_xx5pf1.png"
+          alt="DesignBySakshi collection banner"
+          className="block w-full h-auto object-cover"
+        />
+      </section>
+
+      <div className="mx-auto max-w-7xl lg:pt-10 px-4 sm:px-6 lg:px-8">
+        
 
         <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {products.map((product, index) => (
