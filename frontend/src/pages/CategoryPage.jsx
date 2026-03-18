@@ -21,6 +21,7 @@ const CategoryPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSubcategory, setSelectedSubcategory] = useState(subcategoryParam || "");
   const [categories, setCategories] = useState([]);
+  const [wishlistedIds, setWishlistedIds] = useState(new Set());
 
   useEffect(() => {
     fetchCategories();
@@ -131,7 +132,7 @@ const CategoryPage = () => {
   const handleAddToWishlist = async (productId) => {
     try {
       const guestId = getGuestId();
-      await fetch(`${API_URL}/wishlist/add`, {
+      const res = await fetch(`${API_URL}/wishlist/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -141,7 +142,9 @@ const CategoryPage = () => {
           guestId,
         }),
       });
-    
+      if (res.ok) {
+        setWishlistedIds((prev) => new Set([...prev, productId]));
+      }
       window.dispatchEvent(new Event("wishlist-updated"));
     } catch (error) {
       console.error("Error adding to wishlist:", error);
@@ -165,19 +168,19 @@ const CategoryPage = () => {
 
         {/* Category Image + Subcategory Filter — same row */}
         {currentCategory && (
-          <div className="flex items-center gap-4 mb-4 -mt-6">
+          <div className="flex items-center gap-3 mb-4 -mt-6">
             {categoryImages[categorySlug] && (
               <img
                 src={categoryImages[categorySlug]}
                 alt={currentCategory?.name || categorySlug}
-                className="h-24 w-24 object-contain flex-shrink-0"
+                className="h-14 w-14 sm:h-24 sm:w-24 object-contain flex-shrink-0"
               />
             )}
             {currentCategory.subcategories.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 flex-nowrap sm:flex-wrap">
                 <button
                   onClick={() => handleSubcategoryChange("")}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition flex-shrink-0 ${
                     selectedSubcategory === "" ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                   style={selectedSubcategory === "" ? { background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)" } : {}}
@@ -188,7 +191,7 @@ const CategoryPage = () => {
                   <button
                     key={sub.slug}
                     onClick={() => handleSubcategoryChange(sub.slug)}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition flex-shrink-0 ${
                       selectedSubcategory === sub.slug ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     }`}
                     style={selectedSubcategory === sub.slug ? { background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)" } : {}}
@@ -233,10 +236,11 @@ const CategoryPage = () => {
                     onClick={() => handleAddToWishlist(product._id)}
                   >
                     <svg
-                      className="h-4 w-4 text-gray-600"
-                      fill="none"
+                      className="h-4 w-4"
+                      fill={wishlistedIds.has(product._id) ? "currentColor" : "none"}
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      style={{ color: wishlistedIds.has(product._id) ? "var(--brand-purple)" : "#4b5563" }}
                     >
                       <path
                         strokeLinecap="round"

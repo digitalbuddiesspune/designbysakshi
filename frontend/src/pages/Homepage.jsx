@@ -25,10 +25,17 @@ const Homepage = () => {
 
       {/* Banner after Perfect Gifts */}
       <section className="bg-white pt-20 ">
+        {/* Desktop banner */}
         <img
           src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773743922/Untitled_1000_x_500_px_1920_x_550_px_w2i3cv.png"
           alt="DesignBySakshi collection banner"
-          className="block w-full h-auto object-cover"
+          className="hidden sm:block w-full h-auto object-cover"
+        />
+        {/* Mobile banner */}
+        <img
+          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773769833/5_b4kkui.png"
+          alt="DesignBySakshi collection banner"
+          className="block sm:hidden w-full h-auto object-cover"
         />
       </section>
 
