@@ -7,6 +7,7 @@ import TopProducts from "../components/TopProducts";
 import HighlightGrid from "../components/HighlightGrid";
 import WhyChooseUs from "../components/WhyChooseUs";
 import TestimonialSection from "../components/TestimonialSection";
+import NewCollection from "../components/NewCollection";
 
 const Homepage = () => {
   return (
@@ -32,6 +33,8 @@ const Homepage = () => {
           />
         </Link>
       </section>
+
+      <NewCollection />
 
       {/* Banner after Perfect Gifts */}
       <section className="bg-white pt-20 cursor-pointer">
