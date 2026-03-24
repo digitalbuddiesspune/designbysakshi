@@ -16,6 +16,7 @@ import MyProducts from "../pages/admin/MyProducts.jsx";
 import MyCategories from "../pages/admin/MyCategories.jsx";
 import AddCategory from "../pages/admin/AddCategory.jsx";
 import EditCategory from "../pages/admin/EditCategory.jsx";
+import AdminTestimonials from "../pages/admin/AdminTestimonials.jsx";
 import AdminLogin from "../pages/admin/AdminLogin.jsx";
 import Login from "../pages/Login.jsx";
 import Signup from "../pages/Signup.jsx";
@@ -26,6 +27,16 @@ import Wishlist from "../pages/Wishlist.jsx";
 import ProductDetail from "../pages/ProductDetail.jsx";
 import CategoryPage from "../pages/CategoryPage.jsx";
 import Checkout from "../pages/Checkout.jsx";
+import WeddingCollection from "../pages/WeddingCollection.jsx";
+import FestiveCollection from "../pages/FestiveCollection.jsx";
+import PartywearCollection from "../pages/PartywearCollection.jsx";
+import DailywearCollection from "../pages/DailywearCollection.jsx";
+import OfficewearCollection from "../pages/OfficewearCollection.jsx";
+import LuxuryAdCollection from "../pages/LuxuryAdCollection.jsx";
+import PrivacyPolicy from "../pages/PrivacyPolicy.jsx";
+import RefundPolicy from "../pages/RefundPolicy.jsx";
+import ShippingPolicy from "../pages/ShippingPolicy.jsx";
+import TermsConditions from "../pages/TermsConditions.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -50,6 +61,7 @@ const router = createBrowserRouter(
         <Route path="categories" element={<MyCategories />} />
         <Route path="add-category" element={<AddCategory />} />
         <Route path="edit-category/:id" element={<EditCategory />} />
+        <Route path="testimonials" element={<AdminTestimonials />} />
       </Route>
       <Route path="necklace-sets" element={<CategoryPage />} />
       <Route path="earrings" element={<CategoryPage />} />
@@ -59,7 +71,20 @@ const router = createBrowserRouter(
       <Route path="pendants" element={<CategoryPage />} />
       <Route path="bridal-jewellery" element={<CategoryPage />} />
       <Route path="anklets" element={<CategoryPage />} />
+      <Route path="latest-collection" element={<CategoryPage />} />
+      <Route path="bestseller" element={<CategoryPage />} />
+      <Route path="new-arrival" element={<CategoryPage />} />
       <Route path="product/:id" element={<ProductDetail />} />
+      <Route path="wedding-collection" element={<WeddingCollection />} />
+      <Route path="festive-collection" element={<FestiveCollection />} />
+      <Route path="partywear-collection" element={<PartywearCollection />} />
+      <Route path="dailywear-collection" element={<DailywearCollection />} />
+      <Route path="officewear-collection" element={<OfficewearCollection />} />
+      <Route path="luxuryad-collection" element={<LuxuryAdCollection />} />
+      <Route path="privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="refund-policy" element={<RefundPolicy />} />
+      <Route path="shipping-policy" element={<ShippingPolicy />} />
+      <Route path="terms-conditions" element={<TermsConditions />} />
     </Route>,
   ),
 );

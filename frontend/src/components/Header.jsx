@@ -145,7 +145,27 @@ const Header = () => {
     }
   };
 
-  const subHref = (catSlug, subSlug) => `/${catSlug}?subcategory=${subSlug}`;
+  // Map collection subcategory slugs to their dedicated page routes
+  const collectionRouteMap = {
+    "wedding-collection": "/wedding-collection",
+    "festive-collection": "/festive-collection",
+    "party-wear-collection": "/partywear-collection",
+    "partywear-collection": "/partywear-collection",
+    "daily-wear-collection": "/dailywear-collection",
+    "dailywear-collection": "/dailywear-collection",
+    "office-wear-collection": "/officewear-collection",
+    "officewear-collection": "/officewear-collection",
+    "luxury-ad-collection": "/luxuryad-collection",
+    "luxuryad-collection": "/luxuryad-collection",
+    "minimal-jewellery": "/shop?collection=minimal-jewellery",
+  };
+
+  const subHref = (catSlug, subSlug) => {
+    if (catSlug === "latest-collection" && collectionRouteMap[subSlug]) {
+      return collectionRouteMap[subSlug];
+    }
+    return `/${catSlug}?subcategory=${subSlug}`;
+  };
   const mainHref = (slug) => `/${slug}`;
 
   const handleSearch = (e) => {
@@ -358,6 +378,42 @@ const Header = () => {
           >
             About Us
           </Link>
+
+          {/* Latest Collection dropdown */}
+          <div className="relative group">
+            <button
+              type="button"
+              className="text-base font-medium transition hover:opacity-90 sm:text-lg flex items-center gap-1 bg-transparent border-none cursor-pointer"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              Collections
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div
+              className="absolute left-0 top-full mt-1 w-52 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
+              style={{ borderColor: "var(--brand-lavender-soft)", zIndex: 99999 }}
+            >
+              {[
+                { label: "Wedding Collection", path: "/wedding-collection" },
+                { label: "Festive Collection", path: "/festive-collection" },
+                { label: "Partywear Collection", path: "/partywear-collection" },
+                { label: "Daily Wear Collection", path: "/dailywear-collection" },
+                { label: "Office Wear Collection", path: "/officewear-collection" },
+                { label: "Luxury AD Collection", path: "/luxuryad-collection" },
+              ].map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className="block px-4 py-2 text-sm no-underline transition hover:bg-gray-50"
+                  style={{ color: "var(--brand-dark)" }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
 
           {/* Contact */}
           <Link
@@ -633,6 +689,29 @@ const Header = () => {
                 >
                   Cart
                 </Link>
+              </div>
+
+              {/* Collections */}
+              <div className="mb-4 pb-4 border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2" style={{ color: "var(--brand-muted)" }}>Collections</p>
+                {[
+                  { label: "Wedding Collection", path: "/wedding-collection" },
+                  { label: "Festive Collection", path: "/festive-collection" },
+                  { label: "Partywear Collection", path: "/partywear-collection" },
+                  { label: "Daily Wear Collection", path: "/dailywear-collection" },
+                  { label: "Office Wear Collection", path: "/officewear-collection" },
+                  { label: "Luxury AD Collection", path: "/luxuryad-collection" },
+                ].map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setShowMobileMenu(false)}
+                    className="block py-2 text-sm font-medium no-underline"
+                    style={{ color: "var(--brand-dark)" }}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
               </div>
 
               {/* Catalog Heading */}

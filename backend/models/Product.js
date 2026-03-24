@@ -27,8 +27,9 @@ const productSchema = new mongoose.Schema({
   },
   subcategory: {
     type: String,
-    required: true,
-    trim: true
+    required: false,
+    trim: true,
+    default: ""
   },
   description: {
     type: String,

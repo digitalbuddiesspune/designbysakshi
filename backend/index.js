@@ -8,6 +8,7 @@ import userRoutes from './routes/userRoutes.js'
 import cartRoutes from './routes/cartRoutes.js'
 import wishlistRoutes from './routes/wishlistRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
+import testimonialRoutes from './routes/testimonialRoutes.js'
 
 dotenv.config()
 const app = express();
@@ -38,6 +39,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/testimonials', testimonialRoutes);
 
 // Connect to MongoDB and start server
 const startServer = async () => {

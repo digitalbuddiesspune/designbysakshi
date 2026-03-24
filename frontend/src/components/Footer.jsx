@@ -16,38 +16,10 @@ const Footer = () => {
       style={{ background: "var(--brand-pastel)" }}
     >
       <div className="mx-auto max-w-7xl">
-        {/* Subscribe + Quick links row */}
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Subscribe + Quick links + Categories + Collections + Policies + Brand */}
+        <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
           {/* Subscribe to our emails */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <h3
-              className="mb-4 text-sm font-semibold uppercase tracking-wider"
-              style={{ color: "var(--brand-dark)" }}
-            >
-              Subscribe to our emails
-            </h3>
-            <form onSubmit={handleSubscribe} className="flex">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="flex-1 rounded-l border bg-white px-4 py-3 text-sm outline-none placeholder:opacity-80"
-                style={{ borderColor: "var(--brand-dark)", color: "var(--brand-dark)" }}
-                aria-label="Email for newsletter"
-              />
-              <button
-                type="submit"
-                className="rounded-r border border-l-0 px-4 py-3 transition hover:opacity-90"
-                style={{ borderColor: "var(--brand-dark)", background: "white", color: "var(--brand-dark)" }}
-                aria-label="Subscribe"
-              >
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-              </button>
-            </form>
-          </div>
+          
 
           {/* Quick links */}
           <div>
@@ -59,30 +31,18 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link
-                  to="/search"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "var(--brand-muted)" }}
-                >
-                  Search
-                </Link>
+               
+              </li>
+              <li>
+                
               </li>
               <li>
                 <Link
-                  to="/shop"
+                  to="/about"
                   className="no-underline transition hover:opacity-90"
                   style={{ color: "var(--brand-muted)" }}
                 >
-                  Shop
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/collections"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "var(--brand-muted)" }}
-                >
-                  Collections
+                  About Us
                 </Link>
               </li>
               <li>
@@ -92,6 +52,222 @@ const Footer = () => {
                   style={{ color: "var(--brand-muted)" }}
                 >
                   Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <h3
+              className="mb-4 text-sm font-semibold uppercase tracking-wider"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              Categories
+            </h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  to="/necklace-sets"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Necklace Sets
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/earrings"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Earrings
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/ring"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Rings
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/bangles-bracelets"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Bangles & Bracelets
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/pendants"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Pendants
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/bridal-jewellery"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Bridal Jewellery
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/anklets"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Anklets
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/latest-collection"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Latest Collection
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/bestseller"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Bestseller
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/new-arrival"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  New Arrival
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Collections */}
+          <div>
+            <h3
+              className="mb-4 text-sm font-semibold uppercase tracking-wider"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              Collections
+            </h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  to="/wedding-collection"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Wedding Collection
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/festive-collection"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Festive Collection
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/partywear-collection"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Partywear Collection
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/dailywear-collection"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Dailywear Collection
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/officewear-collection"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Officewear Collection
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/luxuryad-collection"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Luxury Ad Collection
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Policies */}
+          <div>
+            <h3
+              className="mb-4 text-sm font-semibold uppercase tracking-wider"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              Policies
+            </h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/refund-policy"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Refund & Cancellation
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/shipping-policy"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Shipping Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/terms-conditions"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "var(--brand-muted)" }}
+                >
+                  Terms & Conditions
                 </Link>
               </li>
             </ul>
@@ -118,12 +294,18 @@ const Footer = () => {
           <p className="text-sm">
             © {currentYear}, DesignBySakshi. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm">
-            <Link to="/privacy" className="no-underline transition hover:opacity-90" style={{ color: "var(--brand-muted)" }}>
-              Privacy policy
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm">
+            <Link to="/privacy-policy" className="no-underline transition hover:opacity-90" style={{ color: "var(--brand-muted)" }}>
+              Privacy Policy
             </Link>
-            <Link to="/terms" className="no-underline transition hover:opacity-90" style={{ color: "var(--brand-muted)" }}>
-              Terms of service
+            <Link to="/refund-policy" className="no-underline transition hover:opacity-90" style={{ color: "var(--brand-muted)" }}>
+              Refund & Cancellation
+            </Link>
+            <Link to="/shipping-policy" className="no-underline transition hover:opacity-90" style={{ color: "var(--brand-muted)" }}>
+              Shipping Policy
+            </Link>
+            <Link to="/terms-conditions" className="no-underline transition hover:opacity-90" style={{ color: "var(--brand-muted)" }}>
+              Terms & Conditions
             </Link>
           </div>
         </div>

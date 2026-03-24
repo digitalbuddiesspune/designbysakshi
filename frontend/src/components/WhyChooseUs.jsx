@@ -53,11 +53,15 @@ const WhyChooseUs = () => {
           Why Choose Us
         </h2>
 
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div 
+          className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 px-2 sm:grid sm:grid-cols-2 sm:overflow-x-visible sm:pb-0 sm:px-0 lg:grid-cols-4"
+          style={{ scrollSnapType: "x mandatory" }}
+        >
           {features.map((feature, index) => (
             <div
               key={index}
-              className="flex flex-col items-center text-center transition-transform duration-300 hover:scale-105"
+              className="flex-shrink-0 w-64 sm:w-auto flex flex-col items-center text-center transition-transform duration-300 hover:scale-105"
+              style={{ scrollSnapAlign: "start" }}
             >
               <div
                 className="mb-4 flex h-16 w-16 items-center justify-center rounded-full"

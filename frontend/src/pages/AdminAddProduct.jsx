@@ -54,6 +54,11 @@ const AdminAddProduct = () => {
         stock: parseInt(formData.stock) || 0,
       };
 
+      // Remove subcategory if it's empty (categories like Bestseller/New Arrival have none)
+      if (!productData.subcategory) {
+        delete productData.subcategory;
+      }
+
       const response = await fetch(`${API_URL}/products`, {
         method: "POST",
         headers: {

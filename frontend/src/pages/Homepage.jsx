@@ -6,6 +6,7 @@ import ShopByCollection from "../components/ShopByCollection";
 import TopProducts from "../components/TopProducts";
 import HighlightGrid from "../components/HighlightGrid";
 import WhyChooseUs from "../components/WhyChooseUs";
+import TestimonialSection from "../components/TestimonialSection";
 
 const Homepage = () => {
   return (
@@ -15,36 +16,49 @@ const Homepage = () => {
       <ShopByCollection />
 
       {/* Full-width banner above Top Products */}
-      <section className="bg-white pt-16 sm:pt-24">
-        <img
-          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773383397/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_7_hdf4zv.png"
-          alt="DesignBySakshi seasonal collection banner"
-          className="block w-full h-auto object-cover"
-        />
+      <section className="bg-white pt-16 sm:pt-24 cursor-pointer">
+        <Link to="" className="block w-full">
+          {/* Desktop banner */}
+          <img
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773383397/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_7_hdf4zv.png"
+            alt="DesignBySakshi seasonal collection banner"
+            className="hidden sm:block w-full h-auto object-cover"
+          />
+          {/* Mobile banner */}
+          <img
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774341204/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_1080_x_500_px_qbfe2a.png"
+            alt="DesignBySakshi seasonal collection banner"
+            className="block sm:hidden w-full h-auto object-cover"
+          />
+        </Link>
       </section>
 
       {/* Banner after Perfect Gifts */}
-      <section className="bg-white pt-20 ">
-        {/* Desktop banner */}
-        <img
-          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773743922/Untitled_1000_x_500_px_1920_x_550_px_w2i3cv.png"
-          alt="DesignBySakshi collection banner"
-          className="hidden sm:block w-full h-auto object-cover"
-        />
-        {/* Mobile banner */}
-        <img
-          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773769833/5_b4kkui.png"
-          alt="DesignBySakshi collection banner"
-          className="block sm:hidden w-full h-auto object-cover"
-        />
+      <section className="bg-white pt-20 cursor-pointer">
+        <Link to="/bestseller" className="block w-full">
+          {/* Desktop banner */}
+          <img
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773743922/Untitled_1000_x_500_px_1920_x_550_px_w2i3cv.png"
+            alt="DesignBySakshi collection banner"
+            className="hidden sm:block w-full h-auto object-cover"
+          />
+          {/* Mobile banner */}
+          <img
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773769833/5_b4kkui.png"
+            alt="DesignBySakshi collection banner"
+            className="block sm:hidden w-full h-auto object-cover"
+          />
+        </Link>
       </section>
 
-      {/* Highlight products image grid */}
+      {/* Highlight products image grid (now serves as Bestsellers) */}
       <HighlightGrid />
 
       <TopProducts />
 
       <WhyChooseUs />
+
+      <TestimonialSection />
 
       {/* CTA strip */}
       <section

@@ -1,10 +1,27 @@
-import React, { useState } from "react";
-import productsData from "../data/products.json";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 const TopProducts = () => {
-  const [products] = useState(productsData.products);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetchNewArrivals();
+  }, []);
+
+  const fetchNewArrivals = async () => {
+    try {
+      const response = await fetch(`${API_URL}/products?category=new-arrival`);
+      const data = await response.json();
+      setProducts(data.slice(0, 8)); // Fetch up to 8 new arrivals
+    } catch (error) {
+      console.error("Error fetching new arrival products:", error);
+    }
+  };
 
   const formatPrice = (price) => {
+    if (!price) return "";
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
@@ -12,9 +29,50 @@ const TopProducts = () => {
     }).format(price);
   };
 
+  const getGuestId = () => {
+    if (typeof window === "undefined") return null;
+    let id = localStorage.getItem("guestId");
+    if (!id) {
+      id = `guest_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+      localStorage.setItem("guestId", id);
+    }
+    return id;
+  };
+
+  const handleAddToCart = async (productId) => {
+    try {
+      const guestId = getGuestId();
+      await fetch(`${API_URL}/cart/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity: 1, guestId }),
+      });
+      window.dispatchEvent(new Event("cart-updated"));
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
+  };
+
+  const handleAddToWishlist = async (productId) => {
+    try {
+      const guestId = getGuestId();
+      await fetch(`${API_URL}/wishlist/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, guestId }),
+      });
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (error) {
+      console.error("Error adding to wishlist:", error);
+    }
+  };
+
+  if (!products.length) return null;
+
   return (
     <section className="bg-white py-0 sm:py-16 ">
       <section className="bg-white ">
+      <Link to="/new-arrival" className="block w-full">
         {/* Desktop banner */}
         <img
           src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773742412/3_xx5pf1.png"
@@ -27,15 +85,15 @@ const TopProducts = () => {
           alt="DesignBySakshi collection banner"
           className="block sm:hidden w-full h-auto object-cover"
         />
+        </Link>
       </section>
 
       <div className="mx-auto max-w-7xl pt-6 lg:pt-10 px-4 sm:px-6 lg:px-8">
         
-
         <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {products.map((product, index) => (
             <div
-              key={index}
+              key={product._id || index}
               className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
               style={{
                 animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
@@ -52,38 +110,50 @@ const TopProducts = () => {
               </div>
 
               {/* Image Container */}
-              <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                
-                {/* Heart Icon - Wishlist */}
-                <button
-                  className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300"
-                  style={{
-                    "--hover-bg": "var(--brand-lavender-soft)"
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "var(--brand-lavender-soft)"}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "white"}
-                  aria-label="Add to wishlist"
-                >
-                  <svg
-                    className="h-4 w-4 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+              <Link to={`/product/${product._id}`}>
+                <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                  <img
+                    src={product.image}
+                    alt={product.name}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  
+                  {/* Heart Icon - Wishlist */}
+                  <button
+                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300"
+                    style={{
+                      "--hover-bg": "var(--brand-lavender-soft)"
+                    }}
+                    onMouseEnter={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.backgroundColor = "var(--brand-lavender-soft)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.preventDefault();
+                      e.currentTarget.style.backgroundColor = "white";
+                    }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleAddToWishlist(product._id);
+                    }}
+                    aria-label="Add to wishlist"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                    />
-                  </svg>
-                </button>
-              </div>
+                    <svg
+                      className="h-4 w-4 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </Link>
 
               {/* Product Info */}
               <div className="p-4">
@@ -94,13 +164,13 @@ const TopProducts = () => {
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-semibold text-gray-800">{product.rating}</span>
-                  <span className="text-xs text-gray-500">({product.reviews} reviews)</span>
+                  <span className="text-sm font-semibold text-gray-800">{product.rating || "4.8"}</span>
+                  <span className="text-xs text-gray-500">({product.reviews || "925"} reviews)</span>
                 </div>
 
                 {/* Product Name */}
                 <h3
-                  className="mb-2 text-sm font-semibold text-gray-900 sm:text-base"
+                  className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-1"
                   style={{
                     fontFamily: "Cormorant Garamond, Georgia, serif",
                   }}
@@ -114,7 +184,7 @@ const TopProducts = () => {
                     {formatPrice(product.price)}
                   </span>
                   <span className="text-sm text-gray-500 line-through">
-                    {formatPrice(product.originalPrice)}
+                    {formatPrice(product.originalPrice || product.price * 1.2)}
                   </span>
                 </div>
 
@@ -123,7 +193,7 @@ const TopProducts = () => {
                   className="mb-3 text-xs font-medium"
                   style={{ color: "var(--brand-purple)" }}
                 >
-                  {product.offer}
+                  {product.discountType || product.offer || "EXTRA 15% OFF with coupon"}
                 </p>
 
                 {/* Add to Cart Button */}
@@ -141,6 +211,7 @@ const TopProducts = () => {
                     e.currentTarget.style.background = "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)";
                     e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(93, 75, 107, 0.3)";
                   }}
+                  onClick={() => handleAddToCart(product._id)}
                 >
                   Add to Cart
                 </button>

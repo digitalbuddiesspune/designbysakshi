@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
+import { Link } from "react-router-dom";
 
 const collectionImages = [
   "https://res.cloudinary.com/dbfooaz44/image/upload/v1773391977/Untitled_1000_x_500_px_13_z1xctg.png",
@@ -9,6 +10,15 @@ const collectionImages = [
   "https://res.cloudinary.com/dbfooaz44/image/upload/v1773388741/Untitled_1000_x_500_px_2_1_hxzbet.png",
   "https://res.cloudinary.com/dbfooaz44/image/upload/v1773388741/Untitled_1000_x_500_px_4_1_fvr0ij.png",
   "https://res.cloudinary.com/dbfooaz44/image/upload/v1773391975/Untitled_1000_x_500_px_14_rn2itw.png",
+];
+
+const collectionRoutes = [
+  "/wedding-collection",
+  "/festive-collection",
+  "/partywear-collection",
+  "/dailywear-collection",
+  "/officewear-collection",
+  "/luxuryad-collection",
 ];
 
 const ShopByCollection = () => {
@@ -45,9 +55,9 @@ const ShopByCollection = () => {
           >
             {collectionImages.map((image, index) => (
               <SwiperSlide key={index}>
-                <div className="w-full overflow-hidden flex items-center justify-center p-2">
+                <Link to={collectionRoutes[index]} className="block w-full overflow-hidden flex items-center justify-center p-2">
                   <img src={image} alt={`Collection ${index + 1}`} className="w-full h-auto object-contain" />
-                </div>
+                </Link>
               </SwiperSlide>
             ))}
           </Swiper>
