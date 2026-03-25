@@ -21,7 +21,7 @@ const App = () => {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {!isAdminRoute && <Header />}
-      <main style={{ flex: 1 }}>
+      <main style={{ flex: 1 }} className="pb-20 md:pb-0">
         <Outlet />
       </main>
       {!isAdminRoute && <Footer />}

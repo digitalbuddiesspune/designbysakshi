@@ -21,6 +21,7 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [cartBusy, setCartBusy] = useState(false);
   const [added, setAdded] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const guestId = useMemo(() => getGuestId(), []);
   const navigate = useNavigate();
@@ -34,6 +35,7 @@ const ProductDetail = () => {
         if (!res.ok) throw new Error("Failed to load product");
         const data = await res.json();
         setProduct(data);
+        setActiveImageIndex(0);
       } catch (err) {
         setError(err.message || "Something went wrong");
       } finally {
@@ -90,7 +92,10 @@ const ProductDetail = () => {
   }
 
   const hasDescription = !!product.description?.trim();
-  const inStock = product.inStock && product.stock > 0;
+  const remainingStock = typeof product.stock === "number" ? product.stock : 0;
+  const inStock = product.inStock && remainingStock > 0;
+  const galleryImages = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image].filter(Boolean);
+  const activeImage = galleryImages[activeImageIndex] || galleryImages[0] || product.image;
 
   return (
     <div className="min-h-screen bg-white py-6">
@@ -98,14 +103,56 @@ const ProductDetail = () => {
         <div className="grid gap-8 md:grid-cols-2 items-center">
 
           {/* ── Left: Image ── */}
-          <div className="flex items-center justify-center">
-<div className="w-full max-w-md aspect-[10/9] overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 shadow-md">              <img
-                src={product.image}
+          <div className="flex items-start justify-center gap-4 w-full">
+            {/* Thumbnails (left) */}
+            {galleryImages.length > 1 && (
+              <div className="hidden sm:flex flex-col gap-2 w-20 flex-shrink-0">
+                {galleryImages.map((src, idx) => (
+                  <button
+                    key={`${src}-${idx}`}
+                    type="button"
+                    onClick={() => setActiveImageIndex(idx)}
+                    className={`h-16 w-16 overflow-hidden rounded-lg border transition ${
+                      idx === activeImageIndex ? "border-purple-500" : "border-gray-200 hover:border-gray-300"
+                    }`}
+                    aria-label={`Select image ${idx + 1}`}
+                    style={{ background: "white" }}
+                  >
+                    <img src={src} alt={`${product.name} ${idx + 1}`} className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Main image */}
+            <div className="w-full max-w-md aspect-[10/9] overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 shadow-md">
+              <img
+                src={activeImage}
                 alt={product.name}
                 className="h-full w-full object-cover"
               />
             </div>
           </div>
+
+          {/* Mobile thumbnails row */}
+          {galleryImages.length > 1 && (
+            <div className="sm:hidden flex items-center gap-2 overflow-x-auto pb-2 px-1">
+              {galleryImages.map((src, idx) => (
+                <button
+                  key={`${src}-${idx}-mobile`}
+                  type="button"
+                  onClick={() => setActiveImageIndex(idx)}
+                  className={`h-16 w-16 overflow-hidden rounded-lg border transition flex-shrink-0 ${
+                    idx === activeImageIndex ? "border-purple-500" : "border-gray-200 hover:border-gray-300"
+                  }`}
+                  aria-label={`Select image ${idx + 1}`}
+                  style={{ background: "white" }}
+                >
+                  <img src={src} alt={`${product.name} ${idx + 1}`} className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* ── Right: Details ── */}
           {/* If no description → center vertically; if description → start from top with padding */}
@@ -128,9 +175,11 @@ const ProductDetail = () => {
             </p>
 
             {/* Stock */}
-            <p className={`text-sm font-medium ${inStock ? "text-green-600" : "text-red-500"}`}>
-              {inStock ? `In stock (${product.stock} available)` : "Out of stock"}
-            </p>
+            {remainingStock <= 0 ? (
+              <p className="text-sm font-medium text-red-500">Out of stock</p>
+            ) : remainingStock <= 3 ? (
+              <p className="text-sm font-medium text-green-600">Only {remainingStock} left</p>
+            ) : null}
 
             {/* Description — only if present */}
             {hasDescription && (

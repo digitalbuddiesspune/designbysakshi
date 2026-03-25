@@ -11,6 +11,12 @@ const productSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
+  // Optional gallery images. First image should still be stored in `image`.
+  images: {
+    type: [String],
+    required: false,
+    default: [],
+  },
   price: {
     type: Number,
     required: true,

@@ -42,6 +42,11 @@ const Orders = () => {
         if (res.ok) {
           const data = await res.json();
           setOrders(data);
+        } else if (res.status === 401) {
+          // Token missing/expired/invalid
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/login");
         }
       } catch (err) {
         console.error("Failed to fetch orders:", err);

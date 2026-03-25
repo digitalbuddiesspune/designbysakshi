@@ -37,6 +37,9 @@ import PrivacyPolicy from "../pages/PrivacyPolicy.jsx";
 import RefundPolicy from "../pages/RefundPolicy.jsx";
 import ShippingPolicy from "../pages/ShippingPolicy.jsx";
 import TermsConditions from "../pages/TermsConditions.jsx";
+import Blog from "../pages/Blog.jsx";
+import BlogDetail from "../pages/BlogDetail.jsx";
+import AddBlog from "../pages/admin/AddBlog.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -62,6 +65,7 @@ const router = createBrowserRouter(
         <Route path="add-category" element={<AddCategory />} />
         <Route path="edit-category/:id" element={<EditCategory />} />
         <Route path="testimonials" element={<AdminTestimonials />} />
+        <Route path="add-blog" element={<AddBlog />} />
       </Route>
       <Route path="necklace-sets" element={<CategoryPage />} />
       <Route path="earrings" element={<CategoryPage />} />
@@ -85,6 +89,8 @@ const router = createBrowserRouter(
       <Route path="refund-policy" element={<RefundPolicy />} />
       <Route path="shipping-policy" element={<ShippingPolicy />} />
       <Route path="terms-conditions" element={<TermsConditions />} />
+      <Route path="blog" element={<Blog />} />
+      <Route path="blog/:id" element={<BlogDetail />} />
     </Route>,
   ),
 );

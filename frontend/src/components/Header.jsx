@@ -12,6 +12,7 @@ const Header = () => {
   const [expandedMobileCategory, setExpandedMobileCategory] = useState(null);
   const [user, setUser] = useState(null);
   const [showLogoutToast, setShowLogoutToast] = useState(false);
+  const [showCatalogPopup, setShowCatalogPopup] = useState(false);
   const [categoryBar, setCategoryBar] = useState([]);
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
@@ -19,6 +20,7 @@ const Header = () => {
   const categoryRef = useRef(null);
   const userDropdownRef = useRef(null);
   const mobileMenuRef = useRef(null);
+  const catalogPopupRef = useRef(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -103,16 +105,19 @@ const Header = () => {
       if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
         setShowMobileMenu(false);
       }
+      if (catalogPopupRef.current && !catalogPopupRef.current.contains(event.target)) {
+        setShowCatalogPopup(false);
+      }
     };
 
-    if (clickedCategory || showUserDropdown || showMobileMenu) {
+    if (clickedCategory || showUserDropdown || showMobileMenu || showCatalogPopup) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [clickedCategory, showUserDropdown, showMobileMenu]);
+  }, [clickedCategory, showUserDropdown, showMobileMenu, showCatalogPopup]);
 
   // Close logout toast after 3 seconds
   useEffect(() => {
@@ -242,55 +247,6 @@ const Header = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
-
-          {/* Cart Bag Icon */}
-          <Link
-            to="/cart"
-            className="relative rounded p-2 no-underline transition hover:opacity-80"
-            aria-label="Cart"
-          >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            {cartCount > 0 && (
-              <span
-                className="absolute  top-[-6px] right-[-6px] flex h-5 w-5 items-center justify-center rounded-full bg-white text-xs font-bold text-black shadow"
-                style={{ lineHeight: 1 }}
-              >
-                {cartCount}
-              </span>
-            )}
-          </Link>
-
-          {/* User/Logout Icon */}
-          {user ? (
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="p-2 transition hover:opacity-80"
-              aria-label="Logout"
-            >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="p-2 transition hover:opacity-80"
-              aria-label="Login"
-            >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
-            </button>
-          )}
         </div>
       </div>
 
@@ -422,6 +378,15 @@ const Header = () => {
             style={{ color: "var(--brand-dark)" }}
           >
             Contact
+          </Link>
+
+          {/* Blog */}
+          <Link
+            to="/blog"
+            className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
+            style={{ color: "var(--brand-dark)" }}
+          >
+            Blog
           </Link>
         </nav>
 
@@ -580,6 +545,169 @@ const Header = () => {
         </div>
       )}
 
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+        <div className="mx-auto max-w-xl px-4">
+          <div className="flex items-center justify-between py-2">
+            {/* Home */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowCatalogPopup(false);
+                setShowMobileMenu(false);
+                navigate("/");
+              }}
+              className="flex flex-col items-center gap-1"
+              aria-label="Home"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9.5L12 3l9 6.5V21a1.5 1.5 0 01-1.5 1.5H4.5A1.5 1.5 0 013 21V9.5z" />
+              </svg>
+              <span className="text-[11px] font-medium">Home</span>
+            </button>
+
+            {/* Catalog */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowMobileMenu(false);
+                setShowCatalogPopup((prev) => !prev);
+              }}
+              className="flex flex-col items-center gap-1"
+              aria-label="Catalog"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7h16M7 4h13M4 12h16M4 17h16" />
+              </svg>
+              <span className="text-[11px] font-medium">Catalog</span>
+            </button>
+
+            {/* My Orders */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowCatalogPopup(false);
+                const token = localStorage.getItem("token");
+                if (user && token) {
+                  navigate("/orders");
+                } else {
+                  navigate("/login");
+                }
+              }}
+              className="flex flex-col items-center gap-1"
+              aria-label="My Orders"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3M6 10h12l-1 11H7L6 10z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 14h6" />
+              </svg>
+              <span className="text-[11px] font-medium">Orders</span>
+            </button>
+
+            {/* Profile */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowCatalogPopup(false);
+                const token = localStorage.getItem("token");
+                if (user && token) {
+                  navigate("/profile");
+                } else {
+                  navigate("/login");
+                }
+              }}
+              className="flex flex-col items-center gap-1"
+              aria-label="Profile"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span className="text-[11px] font-medium">Profile</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Catalog popup (small box) */}
+      {showCatalogPopup && (
+        <div
+          ref={catalogPopupRef}
+          className="md:hidden fixed bottom-16 left-0 right-0 z-[1001] w-full rounded-t-lg border bg-white shadow-lg overflow-hidden"
+          style={{ borderColor: "var(--brand-lavender-soft)" }}
+        >
+          <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+            <p className="text-sm font-semibold" style={{ color: "var(--brand-dark)" }}>Catalog</p>
+            <button
+              type="button"
+              onClick={() => setShowCatalogPopup(false)}
+              className="p-2 transition hover:opacity-80"
+              aria-label="Close catalog"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="max-h-[65vh] overflow-y-auto p-2 space-y-1">
+            {categoryBar.map((cat) => {
+              const isExpanded = expandedMobileCategory === cat.slug;
+              return (
+                <div key={cat.slug} className="rounded-md hover:bg-gray-50">
+                  {cat.sub.length > 0 ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => setExpandedMobileCategory(isExpanded ? null : cat.slug)}
+                        className="w-full flex items-center justify-between px-2 py-2 text-left"
+                        style={{ color: "var(--brand-dark)" }}
+                      >
+                        <span className="text-sm font-semibold">{cat.label}</span>
+                        <svg className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-muted)" }}>
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      {isExpanded && (
+                        <div className="pl-3 pb-2 space-y-1">
+                          {cat.sub.map((sub) => (
+                            <Link
+                              key={sub.slug}
+                              to={subHref(cat.slug, sub.slug)}
+                              onClick={() => {
+                                setShowCatalogPopup(false);
+                                setExpandedMobileCategory(null);
+                              }}
+                              className="block px-2 py-1 text-sm font-medium no-underline"
+                              style={{ color: "var(--brand-muted)" }}
+                            >
+                              {sub.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      to={mainHref(cat.slug)}
+                      onClick={() => setShowCatalogPopup(false)}
+                      className="block px-2 py-2 text-sm font-semibold no-underline"
+                      style={{ color: "var(--brand-dark)" }}
+                    >
+                      {cat.label}
+                    </Link>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Logout Toast Notification */}
       {showLogoutToast && (
         <div
@@ -646,6 +774,16 @@ const Header = () => {
                     >
                       My Orders
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMobileMenu(false);
+                        handleLogout();
+                      }}
+                      className="text-base font-semibold block text-red-600"
+                    >
+                      Logout
+                    </button>
                   </div>
                 </div>
               )}
@@ -667,6 +805,14 @@ const Header = () => {
                   style={{ color: "var(--brand-dark)" }}
                 >
                   Contact
+                </Link>
+                <Link
+                  to="/blog"
+                  onClick={() => setShowMobileMenu(false)}
+                  className="block py-2 text-base font-semibold"
+                  style={{ color: "var(--brand-dark)" }}
+                >
+                  Blog
                 </Link>
                 <Link
                   to="/wishlist"

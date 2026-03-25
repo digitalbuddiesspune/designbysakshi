@@ -21,13 +21,13 @@ const Homepage = () => {
         <Link to="" className="block w-full">
           {/* Desktop banner */}
           <img
-            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773383397/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_7_hdf4zv.png"
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774436081/Untitled_1920_x_600_px_19_pbq3mb.png"
             alt="DesignBySakshi seasonal collection banner"
             className="hidden sm:block w-full h-auto object-cover"
           />
           {/* Mobile banner */}
           <img
-            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774341204/Untitled_1920_x_200_px_1920_x_300_px_1920_x_400_px_1080_x_500_px_qbfe2a.png"
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774436080/Untitled_1920_x_600_px_1080_x_900_px_1080_x_800_px_yigche.png"
             alt="DesignBySakshi seasonal collection banner"
             className="block sm:hidden w-full h-auto object-cover"
           />

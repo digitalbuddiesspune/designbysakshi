@@ -9,6 +9,7 @@ const MyProducts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState({});
+  const [editAdditionalImageUrls, setEditAdditionalImageUrls] = useState([""]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("name");
@@ -111,6 +112,8 @@ const MyProducts = () => {
 
   const handleSaveEdit = async () => {
     try {
+      const extraImages = (editAdditionalImageUrls || []).map((s) => (s || "").trim()).filter(Boolean);
+      const images = [editFormData.image, ...extraImages];
       const response = await fetch(`${API_URL}/products/${selectedProduct._id}`, {
         method: "PUT",
         headers: {
@@ -118,6 +121,7 @@ const MyProducts = () => {
         },
         body: JSON.stringify({
           ...editFormData,
+          images,
           price: parseFloat(editFormData.price),
           stock: parseInt(editFormData.stock) || 0,
         }),
@@ -126,8 +130,11 @@ const MyProducts = () => {
       if (response.ok) {
         const updatedProduct = await response.json();
         setProducts(products.map((p) => (p._id === updatedProduct._id ? updatedProduct : p)));
-        setSelectedProduct(updatedProduct);
+        setIsModalOpen(false);
         setIsEditing(false);
+        setSelectedProduct(null);
+        setEditFormData({});
+        setEditAdditionalImageUrls([""]);
         alert("Product updated successfully!");
       } else {
         alert("Failed to update product");
@@ -357,6 +364,12 @@ const MyProducts = () => {
                           onClick={() => {
                             setSelectedProduct(product);
                             setEditFormData({ ...product });
+                            // Initialize image gallery inputs for editor
+                            const gallery = Array.isArray(product.images) && product.images.length > 0 ? product.images : (product.image ? [product.image] : []);
+                            const mainImage = gallery[0] || "";
+                            const extra = gallery.slice(1);
+                            setEditAdditionalImageUrls(extra.length > 0 ? extra : [""]);
+                            setEditFormData((prev) => ({ ...prev, image: mainImage }));
                             setIsModalOpen(true);
                             setIsEditing(true);
                           }}
@@ -462,6 +475,47 @@ const MyProducts = () => {
                       className="w-full px-3 py-2 border rounded-lg"
                       required
                     />
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <label className="block text-sm font-medium">Additional Image URLs</label>
+                      <button
+                        type="button"
+                        onClick={() => setEditAdditionalImageUrls((prev) => [...prev, ""])}
+                        className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90"
+                        style={{
+                          background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                          color: "white",
+                        }}
+                      >
+                        + Add More Image
+                      </button>
+                    </div>
+                    <div className="space-y-3">
+                      {editAdditionalImageUrls.map((val, idx) => (
+                        <div key={`edit-extra-${idx}`}>
+                          <input
+                            type="url"
+                            value={val}
+                            onChange={(e) => {
+                              const next = e.target.value;
+                              setEditAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? next : item)));
+                            }}
+                            placeholder="Image link (https://...)"
+                            className="w-full px-3 py-2 border rounded-lg"
+                          />
+                          {idx > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setEditAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))}
+                              className="mt-2 text-xs font-semibold text-red-600 hover:opacity-90"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>

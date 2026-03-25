@@ -23,6 +23,11 @@ const CategoryPage = () => {
   const [categories, setCategories] = useState([]);
   const [wishlistedIds, setWishlistedIds] = useState(new Set());
 
+  // Price filter state (min/max derived from fetched products)
+  const [priceMin, setPriceMin] = useState(null);
+  const [priceMax, setPriceMax] = useState(null);
+  const [minMaxInitialized, setMinMaxInitialized] = useState(false);
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -93,6 +98,26 @@ const CategoryPage = () => {
     }).format(price);
   };
 
+  const computeMinMax = (arr) => {
+    if (!Array.isArray(arr) || arr.length === 0) return { min: 0, max: 0 };
+    const prices = arr
+      .map((p) => (typeof p.price === "number" ? p.price : Number(p.price)))
+      .filter((n) => Number.isFinite(n));
+    if (prices.length === 0) return { min: 0, max: 0 };
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+  };
+
+  // Initialize price range whenever products change (for current category/subcategory)
+  useEffect(() => {
+    if (!loading) {
+      const { min, max } = computeMinMax(products);
+      setPriceMin(min);
+      setPriceMax(max);
+      setMinMaxInitialized(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products, loading]);
+
   const handleSubcategoryChange = (subSlug) => {
     const newSubcategory = subSlug === selectedSubcategory ? "" : subSlug;
     setSelectedSubcategory(newSubcategory);
@@ -162,65 +187,137 @@ const CategoryPage = () => {
     "anklets":"https://res.cloudinary.com/dbfooaz44/image/upload/v1773730347/If_you_prefer_silver_anklets__we_got_you____In_order_of_appearance__Bar_charm_anklet_Twist_anklet_Millipede_anklet_Chain_link_anklet_Flower_charm_anklet__Price__N1500-2000_All_non_tarnish____To_shop___iekjrt.png"
   };
 
+  const filteredProducts = products.filter((p) => {
+    const price = typeof p.price === "number" ? p.price : Number(p.price);
+    if (!Number.isFinite(price)) return false;
+    if (priceMin !== null && price < priceMin) return false;
+    if (priceMax !== null && price > priceMax) return false;
+    return true;
+  });
+
   return (
     <div className="min-h-screen bg-white py-8 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
-        {/* Category Image + Subcategory Filter — same row */}
+        {/* Sticky subcategory + filter row */}
         {currentCategory && (
-          <div className="flex items-center gap-3 mb-4 -mt-6">
-            {categoryImages[categorySlug] && (
-              <img
-                src={categoryImages[categorySlug]}
-                alt={currentCategory?.name || categorySlug}
-                className="h-14 w-14 sm:h-24 sm:w-24 object-contain flex-shrink-0"
-              />
-            )}
-            {currentCategory.subcategories.length > 0 && (
-              <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 flex-nowrap sm:flex-wrap">
-                <button
-                  onClick={() => handleSubcategoryChange("")}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition flex-shrink-0 ${
-                    selectedSubcategory === "" ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                  }`}
-                  style={selectedSubcategory === "" ? { background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)" } : {}}
-                >
-                  All
-                </button>
-                {currentCategory.subcategories.map((sub) => (
-                  <button
-                    key={sub.slug}
-                    onClick={() => handleSubcategoryChange(sub.slug)}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition flex-shrink-0 ${
-                      selectedSubcategory === sub.slug ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                    style={selectedSubcategory === sub.slug ? { background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)" } : {}}
-                  >
-                    {sub.name}
-                  </button>
-                ))}
+          <div
+            className="md:sticky md:top-10 z-40 bg-white/95 backdrop-blur"
+          >
+            <div className="py-1 px-1 sm:px-2">
+              <div className="flex items-center justify-between gap-3">
+                {/* Subcategories (left) - single line */}
+                <div className="flex-1 min-w-0 flex items-center gap-2">
+                  {categoryImages[categorySlug] && (
+                    <img
+                      src={categoryImages[categorySlug]}
+                      alt={currentCategory?.name || categorySlug}
+                      className="h-10 w-10 sm:h-12 sm:w-12 object-contain flex-shrink-0"
+                    />
+                  )}
+                  {currentCategory.subcategories.length > 0 && (
+                    <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap">
+                      <button
+                        onClick={() => handleSubcategoryChange("")}
+                        className={`rounded-full px-3 py-2 text-xs font-medium transition flex-shrink-0 ${
+                          selectedSubcategory === "" ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                        }`}
+                        style={{
+                          background:
+                            selectedSubcategory === ""
+                              ? "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)"
+                              : undefined,
+                        }}
+                      >
+                        All
+                      </button>
+                      {currentCategory.subcategories.map((sub) => (
+                        <button
+                          key={sub.slug}
+                          onClick={() => handleSubcategoryChange(sub.slug)}
+                          className={`rounded-full px-3 py-2 text-xs font-medium transition flex-shrink-0 ${
+                            selectedSubcategory === sub.slug
+                              ? "text-white"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                          }`}
+                          style={{
+                            background:
+                              selectedSubcategory === sub.slug
+                                ? "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)"
+                                : undefined,
+                          }}
+                        >
+                          {sub.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Filter (right) - small text + min/max */}
+                <div className="flex-shrink-0 flex items-center gap-2">
+                  <span className="text-[11px] font-semibold" style={{ color: "var(--brand-dark)" }}>
+                    filter
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px]" style={{ color: "var(--brand-muted)" }}>
+                        min
+                      </span>
+                      <input
+                        type="number"
+                        value={priceMin ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value === "" ? null : Number(e.target.value);
+                          setPriceMin(val);
+                        }}
+                        className="w-20 rounded-lg border px-2 py-2 text-[12px] focus:outline-none focus:ring-2"
+                        style={{ borderColor: "var(--brand-lavender-soft)" }}
+                      />
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-[10px]" style={{ color: "var(--brand-muted)" }}>
+                        max
+                      </span>
+                      <input
+                        type="number"
+                        value={priceMax ?? ""}
+                        onChange={(e) => {
+                          const val = e.target.value === "" ? null : Number(e.target.value);
+                          setPriceMax(val);
+                        }}
+                        className="w-20 rounded-lg border px-2 py-2 text-[12px] focus:outline-none focus:ring-2"
+                        style={{ borderColor: "var(--brand-lavender-soft)" }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
+            </div>
           </div>
         )}
 
         {/* Products Grid */}
-        {loading ? (
-          <div className="text-center py-12">
-            <p style={{ color: "var(--brand-dark)" }}>Loading products...</p>
-          </div>
-        ) : products.length === 0 ? (
-          <div className="text-center py-12">
-            <p style={{ color: "var(--brand-dark)" }}>No products found in this category.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-            {products.map((product) => (
-              <div
-                key={product._id}
-                to={`/product/${product._id}`}
-                className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
-              >
+        <div className="mt-4">
+          {loading ? (
+            <div className="text-center py-12">
+              <p style={{ color: "var(--brand-dark)" }}>Loading products...</p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="text-center py-12">
+              <p style={{ color: "var(--brand-dark)" }}>No products found in this category.</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="text-center py-12">
+              <p style={{ color: "var(--brand-dark)" }}>No products match your price range.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product._id}
+                  className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+                >
                 <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                   <img
                     src={product.image}
@@ -292,11 +389,12 @@ const CategoryPage = () => {
                   </div>
                 </div>
               </div>
-            ))}
+                ))}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
-    </div>
   );
 };
 

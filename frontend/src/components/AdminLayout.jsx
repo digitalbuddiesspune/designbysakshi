@@ -242,6 +242,29 @@ const AdminLayout = () => {
                 {isSidebarOpen && <span>Testimonials</span>}
               </Link>
             </li>
+
+            {/* Blog */}
+            <li>
+              <Link
+                to="/admin/add-blog"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                  isActive("/admin/add-blog")
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 19.5A2.5 2.5 0 006.5 22H20V4H6.5A2.5 2.5 0 004 6.5v13Z"
+                  />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9h8M8 13h8" />
+                </svg>
+                {isSidebarOpen && <span>Blog</span>}
+              </Link>
+            </li>
           </ul>
         </nav>
 

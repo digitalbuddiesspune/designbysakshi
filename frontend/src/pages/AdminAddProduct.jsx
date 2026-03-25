@@ -17,6 +17,8 @@ const AdminAddProduct = () => {
     inStock: true,
     stock: "",
   });
+  // Additional image URLs (comma-separated input is replaced by dynamic boxes)
+  const [additionalImageUrls, setAdditionalImageUrls] = useState([""]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -59,6 +61,10 @@ const AdminAddProduct = () => {
         delete productData.subcategory;
       }
 
+      // Build images gallery: include main `image` + optional extra URLs
+      const extraImages = (additionalImageUrls || []).map((s) => (s || "").trim()).filter(Boolean);
+      productData.images = [formData.image, ...extraImages];
+
       const response = await fetch(`${API_URL}/products`, {
         method: "POST",
         headers: {
@@ -80,6 +86,7 @@ const AdminAddProduct = () => {
           inStock: true,
           stock: "",
         });
+        setAdditionalImageUrls([""]);
         // Stay on the same page, don't redirect
       } else {
         const error = await response.json();
@@ -166,6 +173,56 @@ const AdminAddProduct = () => {
                 color: "var(--brand-dark)",
               }}
             />
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <label htmlFor="additionalImageUrls" className="block text-sm font-medium" style={{ color: "var(--brand-dark)" }}>
+                Additional Image URLs
+              </label>
+              <button
+                type="button"
+                onClick={() => setAdditionalImageUrls((prev) => [...prev, ""])}
+                className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90"
+                style={{
+                  background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                  color: "white",
+                }}
+              >
+                + Add More Image
+              </button>
+            </div>
+
+            <div className="mt-3 space-y-3">
+              {additionalImageUrls.map((val, idx) => (
+                <div key={`extra-image-${idx}`}>
+                  <input
+                    type="url"
+                    value={val}
+                    onChange={(e) => {
+                      const next = e.target.value;
+                      setAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? next : item)));
+                    }}
+                    placeholder="Image link (https://...)"
+                    className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
+                    style={{
+                      borderColor: "var(--brand-lavender-soft)",
+                      color: "var(--brand-dark)",
+                    }}
+                  />
+
+                  {idx > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))}
+                      className="mt-2 text-xs font-semibold text-red-600 hover:opacity-90"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
