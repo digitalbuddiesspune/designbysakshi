@@ -186,8 +186,7 @@ const Login = () => {
                 disabled={loading}
                 className="w-full px-4 py-2 text-sm font-semibold text-white rounded-lg transition disabled:opacity-50"
                 style={{
-                  background:
-                    "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                  background: "#3D294D",
                 }}
               >
                 {loading ? "Processing..." : "Login"}

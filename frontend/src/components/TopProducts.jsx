@@ -101,9 +101,9 @@ const TopProducts = () => {
             >
               {/* New Arrival Tag */}
               <div 
-                className="absolute left-0 top-2 z-10 px-3 py-1 text-xs font-semibold text-white"
+                className="absolute left-0 top-2 z-10 px-3 py-1 text-xs font-semibold text-white bg-green-600"
                 style={{
-                  background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)"
+                  background: "#16a34a",
                 }}
               >
                 New Arrival
@@ -120,17 +120,14 @@ const TopProducts = () => {
                   
                   {/* Heart Icon - Wishlist */}
                   <button
-                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300"
-                    style={{
-                      "--hover-bg": "var(--brand-lavender-soft)"
-                    }}
+                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#3D294D] shadow-md transition-all duration-300"
                     onMouseEnter={(e) => {
                       e.preventDefault();
-                      e.currentTarget.style.backgroundColor = "var(--brand-lavender-soft)";
+                      e.currentTarget.style.backgroundColor = "#3D294D";
                     }}
                     onMouseLeave={(e) => {
                       e.preventDefault();
-                      e.currentTarget.style.backgroundColor = "white";
+                      e.currentTarget.style.backgroundColor = "#3D294D";
                     }}
                     onClick={(e) => {
                       e.preventDefault();
@@ -139,7 +136,7 @@ const TopProducts = () => {
                     aria-label="Add to wishlist"
                   >
                     <svg
-                      className="h-4 w-4 text-gray-600"
+                      className="h-4 w-4 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -200,15 +197,15 @@ const TopProducts = () => {
                 <button 
                   className="w-full px-4 py-2 text-sm font-semibold text-white transition-all duration-300 active:scale-95"
                   style={{
-                    background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                    background: "#3D294D",
                     boxShadow: "0 4px 6px -1px rgba(93, 75, 107, 0.3)"
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "linear-gradient(135deg, var(--brand-lavender-soft) 0%, var(--brand-lavender) 100%)";
+                    e.currentTarget.style.background = "#3D294D";
                     e.currentTarget.style.boxShadow = "0 6px 8px -1px rgba(93, 75, 107, 0.4)";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)";
+                    e.currentTarget.style.background = "#3D294D";
                     e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(93, 75, 107, 0.3)";
                   }}
                   onClick={() => handleAddToCart(product._id)}

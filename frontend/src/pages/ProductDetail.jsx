@@ -113,7 +113,9 @@ const ProductDetail = () => {
                     type="button"
                     onClick={() => setActiveImageIndex(idx)}
                     className={`h-16 w-16 overflow-hidden rounded-lg border transition ${
-                      idx === activeImageIndex ? "border-purple-500" : "border-gray-200 hover:border-gray-300"
+                      idx === activeImageIndex
+                        ? "border-[#3D294D] hover:border-[#3D294D]"
+                        : "border-[#3D294D]/30 hover:border-[#3D294D]"
                     }`}
                     aria-label={`Select image ${idx + 1}`}
                     style={{ background: "white" }}
@@ -143,7 +145,9 @@ const ProductDetail = () => {
                   type="button"
                   onClick={() => setActiveImageIndex(idx)}
                   className={`h-16 w-16 overflow-hidden rounded-lg border transition flex-shrink-0 ${
-                    idx === activeImageIndex ? "border-purple-500" : "border-gray-200 hover:border-gray-300"
+                    idx === activeImageIndex
+                      ? "border-[#3D294D] hover:border-[#3D294D]"
+                      : "border-[#3D294D]/30 hover:border-[#3D294D]"
                   }`}
                   aria-label={`Select image ${idx + 1}`}
                   style={{ background: "white" }}
@@ -189,11 +193,11 @@ const ProductDetail = () => {
             {/* ── Quantity selector ── */}
             <div className="flex items-center gap-3">
               <span className="text-sm font-semibold text-gray-700">Qty:</span>
-              <div className="flex items-center overflow-hidden rounded-lg bg-gray-100">
+              <div className="flex items-center overflow-hidden rounded-lg bg-[#3D294D]/10">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="h-9 w-10 text-base font-bold text-gray-700 hover:bg-gray-200 transition disabled:opacity-40"
+                className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
                   disabled={quantity <= 1 || !inStock}
                 >
                   −
@@ -204,7 +208,7 @@ const ProductDetail = () => {
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                  className="h-9 w-10 text-base font-bold text-gray-700 hover:bg-gray-200 transition disabled:opacity-40"
+                className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
                   disabled={quantity >= product.stock || !inStock}
                 >
                   +
@@ -220,8 +224,7 @@ const ProductDetail = () => {
                 disabled={cartBusy || !inStock}
                 className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  background:
-                    "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                  background: "#3D294D",
                 }}
               >
                 {added ? "✓ Added!" : cartBusy ? "Adding..." : "Add to Cart"}
@@ -230,10 +233,11 @@ const ProductDetail = () => {
                 type="button"
                 onClick={handleBuyNow}
                 disabled={cartBusy || !inStock}
-                className="flex-1 rounded-full border px-4 py-2.5 text-sm font-semibold text-center transition hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 rounded-full border px-4 py-2.5 text-sm font-semibold text-center transition hover:bg-[#3D294D] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  borderColor: "var(--brand-lavender-soft)",
-                  color: "var(--brand-dark)",
+                  borderColor: "#3D294D",
+                  background: "#3D294D",
+                  color: "white",
                 }}
               >
                 Buy Now

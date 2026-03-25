@@ -46,9 +46,9 @@ const Footer = () => {
                 type="submit"
                 className="rounded-md px-4 py-2 text-sm transition hover:opacity-90"
                 style={{
-                  background: "var(--brand-lavender-soft)",
-                  color: "var(--brand-dark)",
-                  border: `1px solid var(--brand-lavender-soft)`,
+                  background: "#3D294D",
+                  color: "white",
+                  border: "1px solid #3D294D",
                   whiteSpace: "nowrap",
                 }}
               >

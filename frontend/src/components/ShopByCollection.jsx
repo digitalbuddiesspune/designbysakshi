@@ -66,10 +66,10 @@ const ShopByCollection = () => {
           <button
             onClick={() => swiperRef.current?.slidePrev()}
             disabled={isBeginning}
-            className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 disabled:opacity-30 cursor-pointer"
+            className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-[#3D294D] p-3 shadow-lg transition-all hover:bg-[#3D294D]/90 disabled:opacity-30 cursor-pointer"
             aria-label="Previous slide"
           >
-            <svg className="h-6 w-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -78,10 +78,10 @@ const ShopByCollection = () => {
           <button
             onClick={() => swiperRef.current?.slideNext()}
             disabled={isEnd}
-            className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white p-3 shadow-lg transition-all hover:bg-gray-50 disabled:opacity-30 cursor-pointer"
+            className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-[#3D294D] p-3 shadow-lg transition-all hover:bg-[#3D294D]/90 disabled:opacity-30 cursor-pointer"
             aria-label="Next slide"
           >
-            <svg className="h-6 w-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>

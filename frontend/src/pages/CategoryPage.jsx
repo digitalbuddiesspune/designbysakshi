@@ -225,7 +225,7 @@ const CategoryPage = () => {
                         style={{
                           background:
                             selectedSubcategory === ""
-                              ? "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)"
+                              ? "#3D294D"
                               : undefined,
                         }}
                       >
@@ -243,7 +243,7 @@ const CategoryPage = () => {
                           style={{
                             background:
                               selectedSubcategory === sub.slug
-                                ? "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)"
+                                ? "#3D294D"
                                 : undefined,
                           }}
                         >
@@ -367,10 +367,9 @@ const CategoryPage = () => {
                   <div className="mt-3 flex gap-2">
                     <Link
                       to={`/product/${product._id}`}
-                      className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition hover:bg-gray-100"
+                      className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition text-[#3D294D] hover:bg-[#3D294D] hover:text-white"
                       style={{
-                        borderColor: "var(--brand-lavender-soft)",
-                        color: "var(--brand-dark)",
+                        borderColor: "#3D294D",
                       }}
                     >
                       View Details
@@ -379,8 +378,7 @@ const CategoryPage = () => {
                       type="button"
                       className="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                       style={{
-                        background:
-                          "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                        background: "#3D294D",
                       }}
                       onClick={() => handleAddToCart(product._id)}
                     >
