@@ -3,104 +3,155 @@ import { Link } from 'react-router-dom';
 
 const NewCollection = () => {
   return (
-    <section className="bg-white py-6 sm:py-10 relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-[60px] bg-gradient-to-b from-gray-50 to-transparent"></div>
+    <section className="bg-white py-4 sm:py-6 relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-[40px] bg-gradient-to-b from-gray-50 to-transparent"></div>
       
       <div className="max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         
-        {/* Grid Layout */}
-        <div className="flex flex-col gap-10 lg:gap-12">
+        <div className="flex flex-col gap-6 lg:gap-8">
           
           {/* Top Row */}
-          <div className="flex flex-col lg:flex-row items-center gap-8">
+          <div className="grid grid-cols-2 lg:flex items-center gap-3">
+            
             {/* Left Big Image */}
-            <div className="w-full lg:w-[45%]">
+            {/* On phone we want 2 images per row, so don't let this span both columns */}
+            <div className="w-full lg:w-[45%] col-span-1">
                <div className="relative group p-1 bg-gray-50">
-                 <Link to="/ring" className="block overflow-hidden bg-gray-200 shadow-sm group-hover:shadow-md transition-shadow duration-700 h-[280px] sm:h-[320px] lg:h-[380px]">
+                 
+                 <Link to="/ring" className="block overflow-hidden bg-gray-200 h-[140px] sm:h-[160px] lg:h-[240px]">
                    <img 
                      src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/Shop_High-Quality_Fine_Jewelry_for_Sale_in_the_USA_ermptm.jpg" 
-                     className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105 object-top"
+                     className="w-full h-full object-cover"
                      alt="Gift a ring" 
-                     loading="lazy"
                    />
                  </Link>
-                 <div className="absolute -bottom-4 lg:bottom-6 lg:-right-4 bg-white p-4 shadow-md max-w-[220px] z-20 mx-4 lg:mx-0 group-hover:-translate-y-1 transition-transform duration-500">
-                   <h3 className="text-sm font-semibold mb-1.5 text-gray-900 uppercase tracking-widest border-b border-[#ebd9c8] inline-block pb-0.5">Gift a Ring</h3>
-                   <p className="text-gray-600 text-[15px] italic mb-2 leading-relaxed">Let your love shine. Gift a timeless ring to your lover.</p>
-                   <Link to="/ring" className="inline-block text-[13px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">Discover more →</Link>
+
+                 {/* ✅ MOBILE OVERLAY */}
+                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/40 text-white p-2 text-[11px]">
+                   <h3 className="uppercase tracking-widest">Gift a Ring</h3>
+                   <p className="text-[10px] italic">Timeless love</p>
+                 </div>
+
+                 {/* DESKTOP TEXT (UNCHANGED) */}
+                 <div className="hidden lg:block absolute -bottom-3 lg:bottom-4 lg:-right-3 bg-white p-3 shadow-md max-w-[200px] z-20 mx-2 lg:mx-0">
+                   <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
+                     Gift a Ring
+                   </h3>
+                   <p className="text-gray-600 text-[14px] italic mb-2 leading-relaxed">
+                     Let your love shine. Gift a timeless ring to your lover.
+                   </p>
+                   <Link to="/ring" className="inline-block text-[12px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">
+                     Discover more →
+                   </Link>
                  </div>
                </div>
             </div>
 
             {/* Right Small Image + Text */}
-            <div className="w-full lg:w-[55%] flex flex-col sm:flex-row items-center gap-5 lg:gap-8 lg:pt-8">
-               <div className="w-full sm:w-1/2 group">
-                 <Link to="/bangles-bracelets" className="block overflow-hidden bg-gray-200 h-[180px] sm:h-[220px] lg:h-[260px] shadow-sm group-hover:shadow-md transition-shadow duration-700">
+            <div className="col-span-1 lg:w-[55%] grid grid-cols-1 sm:grid-cols-2 lg:flex items-center gap-3">              
+               {/* Image */}
+               <div className="w-full group relative">                 <Link to="/bangles-bracelets" className="block overflow-hidden bg-gray-200 h-[140px] sm:h-[160px] lg:h-[180px]">
                     <img 
                       src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/t243d032hwaleawzbcxm.jpg" 
-                      className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105 object-center"
+                      className="w-full h-full object-cover"
                       alt="Beaded Bracelet" 
-                      loading="lazy"
                     />
                  </Link>
+
+                 {/* MOBILE OVERLAY */}
+                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/40 text-white p-2 text-[11px]">
+                   <h3 className="uppercase tracking-widest">Bracelets</h3>
+                   <p className="text-[10px] italic">Elegant daily wear</p>
+                 </div>
                </div>
-               <div className="w-full sm:w-1/2 text-center sm:text-left flex flex-col justify-center px-2 sm:px-0">
-                  <h3 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 mb-2 leading-relaxed">
+
+               {/* DESKTOP TEXT */}
+               <div className="hidden lg:flex w-full sm:w-1/2 text-center sm:text-left px-2 flex-col justify-center">
+                  <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
                     Affordable &<br /> Beautiful Bracelets
                   </h3>
                   <div className="w-8 h-[1px] bg-[#ebd9c8] mx-auto sm:mx-0 mb-2"></div>
-                  <p className="text-gray-500 text-[10px] sm:text-[11px] mb-4 leading-relaxed line-clamp-3">Explore our stunning beaded bracelets. Perfect for gifting or treating yourself with affordable luxury.</p>
-                  <Link to="/bangles-bracelets" className="inline-block border border-gray-300 px-4 py-1.5 text-[9px] uppercase tracking-[0.2em] text-gray-800 hover:bg-black hover:border-black hover:text-white transition-all duration-300 w-max mx-auto sm:mx-0">
-                    Discover more
+                  <p className="text-gray-600 text-[14px] italic mb-2 leading-relaxed">
+                    Explore our stunning beaded bracelets. Perfect for gifting or treating yourself.
+                  </p>
+                  <Link to="/bangles-bracelets" className="inline-block text-[12px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">
+                    Discover more →
                   </Link>
                </div>
             </div>
           </div>
 
           {/* Bottom Row */}
-          <div className="flex flex-col-reverse lg:flex-row items-center gap-8">
+          <div className="grid grid-cols-2 lg:flex items-center gap-3">
+            
             {/* Left Small Image + Text */}
-            <div className="w-full lg:w-[55%] flex flex-col-reverse sm:flex-row items-center gap-5 lg:gap-8 lg:pb-8">
-               <div className="w-full sm:w-1/2 text-center sm:text-right flex flex-col justify-center px-2 sm:px-0 items-center sm:items-end">
-                  <h3 className="text-[10px] sm:text-[11px] font-bold uppercase tracking-[0.2em] text-gray-900 mb-2 leading-relaxed">
+            <div className="col-span-1 lg:w-[55%] grid grid-cols-1 sm:grid-cols-2 lg:flex items-center gap-3">              
+               {/* DESKTOP TEXT */}
+               <div className="hidden lg:flex w-full sm:w-1/2 text-center sm:text-right px-2 flex-col justify-center items-center sm:items-end">
+                  <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
                     Jewelry Tells<br /> A Great Story
                   </h3>
                   <div className="w-8 h-[1px] bg-[#ebd9c8] mb-2"></div>
-                  <p className="text-gray-500 text-[10px] sm:text-[11px] mb-4 leading-relaxed line-clamp-3">Adorn yourself with stunning pendants that capture the essence of your style and eternal grace.</p>
-                  <Link to="/pendants" className="inline-block border border-gray-300 px-4 py-1.5 text-[9px] uppercase tracking-[0.2em] text-gray-800 hover:bg-black hover:border-black hover:text-white transition-all duration-300">
-                    Discover more
+                  <p className="text-gray-600 text-[14px] italic mb-2 leading-relaxed">
+                    Adorn yourself with stunning pendants that capture your style.
+                  </p>
+                  <Link to="/pendants" className="inline-block text-[12px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">
+                    Discover more →
                   </Link>
                </div>
-               <div className="w-full sm:w-1/2 group">
-                 <Link to="/pendants" className="block overflow-hidden bg-gray-200 h-[180px] sm:h-[220px] lg:h-[260px] shadow-sm group-hover:shadow-md transition-shadow duration-700">
+
+               {/* Image */}
+               <div className="w-full sm:w-1/2 group relative">
+                 <Link to="/pendants" className="block overflow-hidden bg-gray-200 h-[140px] sm:h-[160px] lg:h-[180px]">
                     <img 
                       src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/download_18_j4ggfd.jpg" 
-                      className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105 object-center"
+                      className="w-full h-full object-cover"
                       alt="Pendants" 
-                      loading="lazy"
                     />
                  </Link>
+
+                 {/* MOBILE OVERLAY */}
+                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/40 text-white p-2 text-[11px]">
+                   <h3 className="uppercase tracking-widest">Pendants</h3>
+                   <p className="text-[10px] italic">Grace & style</p>
+                 </div>
                </div>
             </div>
 
             {/* Right Big Image */}
-            <div className="w-full lg:w-[45%] mt-8 sm:mt-0">
+            {/* On phone we want 2 images per row, so don't let this span both columns */}
+            <div className="w-full lg:w-[45%] col-span-1">
                <div className="relative group p-1 bg-gray-50">
-                 <Link to="/bridal-jewellery" className="block overflow-hidden bg-gray-200 shadow-sm group-hover:shadow-md transition-shadow duration-700 h-[280px] sm:h-[320px] lg:h-[380px]">
+                 
+                 <Link to="/bridal-jewellery" className="block overflow-hidden bg-gray-200 h-[140px] sm:h-[160px] lg:h-[240px]">
                    <img 
                      src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/download_19_jo3szm.jpg" 
-                     className="w-full h-full object-cover transition-transform duration-[1.5s] group-hover:scale-105 object-top"
+                     className="w-full h-full object-cover"
                      alt="Bridal Jewellery" 
-                     loading="lazy"
                    />
                  </Link>
-                 <div className="absolute -top-4 lg:top-6 lg:-left-4 bg-white p-4 shadow-md max-w-[220px] z-20 mx-4 lg:mx-0 group-hover:-translate-y-1 transition-transform duration-500">
-                   <h3 className="text-[11px] font-semibold mb-1.5 text-gray-900 uppercase tracking-widest border-b border-[#ebd9c8] inline-block pb-0.5">Bridal Elegance</h3>
-                   <p className="text-gray-600 text-[10px] italic mb-2 leading-relaxed">Celebrate your big day with exquisite bridal jewelry. Joyous memories.</p>
-                   <Link to="/bridal-jewellery" className="inline-block text-[9px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">Discover more →</Link>
+
+                 {/* MOBILE OVERLAY */}
+                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/40 text-white p-2 text-[11px]">
+                   <h3 className="uppercase tracking-widest">Bridal</h3>
+                   <p className="text-[10px] italic">Wedding elegance</p>
+                 </div>
+
+                 {/* DESKTOP TEXT */}
+                 <div className="hidden lg:block absolute -top-3 lg:top-4 lg:-left-3 bg-white p-3 shadow-md max-w-[200px] z-20 mx-2 lg:mx-0">
+                   <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
+                     Bridal Elegance
+                   </h3>
+                   <p className="text-gray-600 text-[14px] italic mb-2 leading-relaxed">
+                     Celebrate your big day with exquisite bridal jewelry.
+                   </p>
+                   <Link to="/bridal-jewellery" className="inline-block text-[12px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">
+                     Discover more →
+                   </Link>
                  </div>
                </div>
             </div>
+
           </div>
 
         </div>
