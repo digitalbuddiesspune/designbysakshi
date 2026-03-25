@@ -22,6 +22,15 @@ const Header = () => {
   const mobileMenuRef = useRef(null);
   const catalogPopupRef = useRef(null);
 
+  const isLoggedIn = () => {
+    // Use localStorage directly so the UI stays correct even if `user` state is stale.
+    try {
+      return Boolean(localStorage.getItem("token") && localStorage.getItem("user"));
+    } catch {
+      return false;
+    }
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -199,8 +208,8 @@ const Header = () => {
       style={{ background: "var(--brand-pastel)", borderColor: "var(--brand-lavender-soft)" }}
     >
       {/* Mobile Header */}
-      <div className="md:hidden mx-auto flex h-16 items-center justify-between px-4">
-        {/* Left side: Hamburger and Logo */}
+      <div className="lg:hidden mx-auto relative flex h-16 items-center justify-between px-4">
+        {/* Left side: Hamburger */}
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -212,27 +221,19 @@ const Header = () => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-
-          {/* Logo - On the left */}
-          <Link
-            to="/"
-            className="flex items-center gap-1 no-underline transition opacity-90 hover:opacity-100"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            <span
-              className="text-xl font-semibold tracking-wide"
-              style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
-            >
-              DesignBy
-            </span>
-            <span
-              className="text-2xl"
-              style={{ fontFamily: "Great Vibes, Georgia, cursive" }}
-            >
-              Sakshi
-            </span>
-          </Link>
         </div>
+
+        {/* Logo - Center (absolute so it stays in middle) */}
+        <Link
+          to="/"
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 no-underline transition opacity-90 hover:opacity-100"
+        >
+          <img
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774441947/Screenshot_2026-03-25_174920-removebg-preview_5_gwltrx.png"
+            alt="DesignBy Sakshi"
+            className="h-10 lg:h-[22px] w-auto object-contain"
+          />
+        </Link>
 
         {/* Right side icons */}
         <div className="flex items-center gap-2" style={{ color: "var(--brand-dark)" }}>
@@ -251,24 +252,17 @@ const Header = () => {
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex mx-auto h-20 max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8 md:h-24">
+      <div className="hidden lg:flex mx-auto h-20 max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8 md:h-24">
         <Link
           to="/"
           className="flex items-center gap-1 no-underline transition opacity-90 hover:opacity-100"
           style={{ color: "var(--brand-dark)" }}
         >
-          <span
-            className="text-2xl font-semibold tracking-wide sm:text-3xl"
-            style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
-          >
-            DesignBy
-          </span>
-          <span
-            className="text-3xl sm:text-4xl"
-            style={{ fontFamily: "Great Vibes, Georgia, cursive" }}
-          >
-            Sakshi
-          </span>
+          <img
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774441947/Screenshot_2026-03-25_174920-removebg-preview_5_gwltrx.png"
+            alt="DesignBy Sakshi"
+            className="h-22 w-22 object-contain"
+          />
         </Link>
 
         <nav className="flex items-center gap-6" aria-label="Main">
@@ -439,7 +433,7 @@ const Header = () => {
             <button
               type="button"
               onClick={() => {
-                if (user) {
+                if (isLoggedIn()) {
                   setShowUserDropdown(!showUserDropdown);
                 } else {
                   navigate("/login");
@@ -459,7 +453,7 @@ const Header = () => {
             </button>
 
             {/* User Dropdown Menu */}
-            {user && showUserDropdown && (
+            {isLoggedIn() && showUserDropdown && (
               <div
                 className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border"
                 style={{
@@ -504,7 +498,7 @@ const Header = () => {
 
       {/* Mobile Search Bar - Below Header */}
       {showSearch && (
-        <div className="md:hidden border-b px-4 py-3" style={{ borderColor: "var(--brand-lavender-soft)", background: "var(--brand-pastel)" }}>
+        <div className="lg:hidden border-b px-4 py-3" style={{ borderColor: "var(--brand-lavender-soft)", background: "var(--brand-pastel)" }}>
           <form onSubmit={handleSearch} className="flex items-center gap-2">
             <input
               type="text"
@@ -546,7 +540,7 @@ const Header = () => {
       )}
 
       {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t" style={{ borderColor: "var(--brand-lavender-soft)" }}>
         <div className="mx-auto max-w-xl px-4">
           <div className="flex items-center justify-between py-2">
             {/* Home */}
@@ -589,8 +583,7 @@ const Header = () => {
               type="button"
               onClick={() => {
                 setShowCatalogPopup(false);
-                const token = localStorage.getItem("token");
-                if (user && token) {
+              if (isLoggedIn()) {
                   navigate("/orders");
                 } else {
                   navigate("/login");
@@ -612,8 +605,7 @@ const Header = () => {
               type="button"
               onClick={() => {
                 setShowCatalogPopup(false);
-                const token = localStorage.getItem("token");
-                if (user && token) {
+                if (isLoggedIn()) {
                   navigate("/profile");
                 } else {
                   navigate("/login");
@@ -637,7 +629,7 @@ const Header = () => {
       {showCatalogPopup && (
         <div
           ref={catalogPopupRef}
-          className="md:hidden fixed bottom-16 left-0 right-0 z-[1001] w-full rounded-t-lg border bg-white shadow-lg overflow-hidden"
+          className="lg:hidden fixed bottom-16 left-0 right-0 z-[1001] w-full rounded-t-lg border bg-white shadow-lg overflow-hidden"
           style={{ borderColor: "var(--brand-lavender-soft)" }}
         >
           <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
@@ -725,7 +717,7 @@ const Header = () => {
       {showMobileMenu && (
         <div
           ref={mobileMenuRef}
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden"
           onClick={() => setShowMobileMenu(false)}
         >
           <div

@@ -19,7 +19,43 @@ const Footer = () => {
         {/* Subscribe + Quick links + Categories + Collections + Policies + Brand */}
         <div className="grid gap-10 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
           {/* Subscribe to our emails */}
-          
+          <div>
+            <h3
+              className="mb-4 text-sm font-semibold uppercase tracking-wider"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              Subscribe
+            </h3>
+            <p className="mb-4 text-sm" style={{ color: "var(--brand-muted)" }}>
+              Get updates on new arrivals, offers, and collections.
+            </p>
+            <form onSubmit={handleSubscribe} className="flex flex-col gap-2 sm:flex-row">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                required
+                className="w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                style={{
+                  borderColor: "var(--brand-lavender-soft)",
+                  color: "var(--brand-dark)",
+                }}
+              />
+              <button
+                type="submit"
+                className="rounded-md px-4 py-2 text-sm transition hover:opacity-90"
+                style={{
+                  background: "var(--brand-lavender-soft)",
+                  color: "var(--brand-dark)",
+                  border: `1px solid var(--brand-lavender-soft)`,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
 
           {/* Quick links */}
           <div>
@@ -30,12 +66,6 @@ const Footer = () => {
               Quick links
             </h3>
             <ul className="space-y-2 text-sm">
-              <li>
-               
-              </li>
-              <li>
-                
-              </li>
               <li>
                 <Link
                   to="/about"

@@ -45,6 +45,12 @@ const Cart = () => {
     0
   );
 
+  // Free delivery above ₹699 (matches Checkout.jsx)
+  const freeDeliveryThreshold = 699;
+  const isDeliveryFree = total > freeDeliveryThreshold;
+  const deliveryFee = isDeliveryFree ? 0 : 50;
+  const grandTotal = total + deliveryFee;
+
   const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
   const changeQty = async (productId, delta) => {
@@ -237,12 +243,21 @@ const Cart = () => {
                 </div>
                 <div className="flex items-center justify-between text-gray-700">
                   <span>Delivery Charges</span>
-                  <span className="font-semibold text-green-600">Free</span>
+                  {isDeliveryFree ? (
+                    <span className="font-semibold text-green-600">Free</span>
+                  ) : (
+                    <span className="font-semibold text-gray-900">₹{deliveryFee}</span>
+                  )}
                 </div>
+                {!isDeliveryFree && (
+                  <div className="text-xs text-green-600 mt-1">
+                    Add ₹{(freeDeliveryThreshold - total).toLocaleString("en-IN")} more for free delivery!
+                  </div>
+                )}
               </div>
               <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-4 text-base font-semibold text-gray-900">
                 <span>Total</span>
-                <span>₹{total.toLocaleString("en-IN")}</span>
+                <span>₹{grandTotal.toLocaleString("en-IN")}</span>
               </div>
               <button
                 type="button"

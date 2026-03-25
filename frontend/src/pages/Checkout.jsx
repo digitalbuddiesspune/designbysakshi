@@ -103,7 +103,9 @@ const Checkout = () => {
   };
 
   // Price calculation
-  const isDeliveryFree = subtotal > 500;
+  // Free delivery above ₹699 (so ₹700+ will get free shipping)
+  const freeDeliveryThreshold = 699;
+  const isDeliveryFree = subtotal > freeDeliveryThreshold;
   const deliveryFee = isDeliveryFree ? 0 : 50;
   const grandTotal = subtotal + deliveryFee;
 
@@ -390,7 +392,7 @@ const Checkout = () => {
                 </div>
                 {!isDeliveryFree && (
                   <div className="text-xs text-green-600 mt-1">
-                    Add ₹{(500 - subtotal).toLocaleString("en-IN")} more for free delivery!
+                    Add ₹{(freeDeliveryThreshold - subtotal).toLocaleString("en-IN")} more for free delivery!
                   </div>
                 )}
                 
