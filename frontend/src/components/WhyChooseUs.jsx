@@ -41,7 +41,7 @@ const WhyChooseUs = () => {
   ];
 
   return (
-    <section className="bg-white py-12 sm:py-16 lg:py-20">
+    <section className=" py-12 sm:py-16 lg:py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <h2
           className="mb-10 text-center text-3xl font-medium sm:mb-12 sm:text-4xl"

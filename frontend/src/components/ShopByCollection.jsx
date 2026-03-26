@@ -27,7 +27,7 @@ const ShopByCollection = () => {
   const [isEnd, setIsEnd] = useState(false);
 
   return (
-    <section className="bg-white">
+    <section className="">
       <div className="w-full">
          <div className="mb-6">
          <h1 

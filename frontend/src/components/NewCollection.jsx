@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const NewCollection = () => {
   return (
-    <section className="bg-white py-4 sm:py-6 relative overflow-hidden">
+    <section className="py-4 sm:py-6 relative overflow-hidden">
       <div className="absolute top-0 left-0 w-full h-[40px] bg-gradient-to-b from-gray-50 to-transparent"></div>
       
       <div className="max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 relative z-10">

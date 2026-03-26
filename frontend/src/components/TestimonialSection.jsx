@@ -32,7 +32,7 @@ const TestimonialSection = () => {
   `;
 
   return (
-    <section className="relative bg-white py-6 sm:py-8 lg:py-10 overflow-hidden">
+    <section className="relative  py-6 sm:py-8 lg:py-10 overflow-hidden">
       <style>
         {`
           @keyframes testimonialGradientShift {

@@ -43,6 +43,7 @@ import BlogDetail from "../pages/BlogDetail.jsx";
 import AddBlog from "../pages/admin/AddBlog.jsx";
 import MyOrders from "../pages/admin/MyOrders.jsx";
 import AdminOrderDetails from "../pages/admin/OrderDetails.jsx";
+import Users from "../pages/admin/Users.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -64,6 +65,7 @@ const router = createBrowserRouter(
       <Route path="admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="orders" element={<MyOrders />} />
+        <Route path="users" element={<Users />} />
         <Route path="order-details/:id" element={<AdminOrderDetails />} />
         <Route path="add-product" element={<AdminAddProduct />} />
         <Route path="products" element={<MyProducts />} />

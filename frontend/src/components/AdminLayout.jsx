@@ -250,6 +250,27 @@ const AdminLayout = () => {
 
             <li>
               <Link
+                to="/admin/users"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                  isActive("/admin/users")
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 20h5V9a2 2 0 00-2-2h-3m0 13v-3a2 2 0 00-2-2H9a2 2 0 00-2 2v3m10 0H7m10 0a2 2 0 002-2v-3.5M7 20a2 2 0 01-2-2v-3.5M7 7a4 4 0 118 0 4 4 0 01-8 0zM3 7h2m0 0a3 3 0 013 3v.5M5 7a3 3 0 00-3 3v.5"
+                  />
+                </svg>
+                {isSidebarOpen && <span>Users</span>}
+              </Link>
+            </li>
+
+            <li>
+              <Link
                 to="/admin/testimonials"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
                   isActive("/admin/testimonials")

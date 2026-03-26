@@ -30,7 +30,7 @@ const HighlightGrid = () => {
   if (!products.length) return null;
 
   return (
-    <section className="bg-white py-10 sm:py-12 lg:py-14">
+    <section className="py-10 sm:py-12 lg:py-14">
       {/* Horizontal Scrollable Container */}
       <div 
         className="overflow-x-auto scrollbar-hide"

@@ -69,7 +69,7 @@ const ShopByCategory = () => {
           </h1>
         </div>
 
-        <div className="overflow-x-auto scrollbar-hide py-4 px-2">
+        <div className="overflow-x-auto scrollbar-hide py-4 px-0">
           <div className="flex flex-nowrap justify-start lg:justify-center gap-6 sm:gap-10 w-max lg:w-full mx-auto">
             {categories.map((cat) => (
               <Link

@@ -15,10 +15,12 @@ const Homepage = () => {
       <Hero />
       <div className="space-y-6 sm:space-y-10">
         <ShopByCategory />
-        <ShopByCollection />
+        <div className="-mt-8 sm:-mt-6 lg:-mt-8">
+          <ShopByCollection />
+        </div>
 
         {/* Full-width banner above Top Products */}
-        <section className="bg-white cursor-pointer">
+        <section className="mt-10 cursor-pointer">
           <Link to="" className="block w-full">
             {/* Desktop banner */}
             <img
@@ -34,11 +36,12 @@ const Homepage = () => {
             />
           </Link>
         </section>
-
-        <NewCollection />
+        <div className="-mt-4 sm:-mt-6 lg:-mt-8">
+          <NewCollection />
+        </div>
 
         {/* Banner after Perfect Gifts */}
-        <section className="bg-white cursor-pointer">
+        <section className="cursor-pointer mt-10 sm:-mt-6 lg:-mt-0">
           <Link to="/bestseller" className="block w-full">
             {/* Desktop banner */}
             <img
@@ -55,14 +58,23 @@ const Homepage = () => {
           </Link>
         </section>
 
-        {/* Highlight products image grid (now serves as Bestsellers) */}
+        {/* Highlight prod
+        ucts image grid (now serves as Bestsellers) */}
+
+<div className="-mt-8 sm:-mt-6 lg:-mt-15">
         <HighlightGrid />
+        </div>
 
-        <TopProducts />
-
+        <div className="-mt-6 sm:-mt-6 lg:-mt-15">
+          <TopProducts />
+        </div>
+        <div className="-mt-6 sm:-mt-6 lg:-mt-15">
         <WhyChooseUs />
+        </div>
 
-        <section className="bg-white">
+        
+ 
+        <section className="-mt-12 sm:-mt-6 lg:-mt-0 ">
           <img
             src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774522729/Untitled_1920_x_500_px_1_rmkrkg.png"
             alt="DesignBySakshi featured banner"
@@ -74,13 +86,17 @@ const Homepage = () => {
             className="block sm:hidden w-full h-auto object-cover"
           />
         </section>
-
-        <TestimonialSection />
+        <div className="-mt-10 sm:-mt-6 lg:-mt-4">
+          <TestimonialSection />
+        </div>
 
         {/* CTA strip */}
+
+        <div className="-mt-6 sm:-mt-6 lg:-mt-4">
         <section
-          className="px-4 py-12 text-center sm:py-16"
-          style={{ background: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+          className="px-4 py-10 text-center sm:py-16"
+          style={{        background: "linear-gradient(180deg, #c5a2d7 0%, #dcc7e6 58%, #ffffff 100%)",
+          }}
         >
           <p
             className="mx-auto max-w-2xl text-lg font-medium sm:text-xl"
@@ -96,6 +112,7 @@ const Homepage = () => {
             Shop All
           </Link>
         </section>
+        </div>
       </div>
     </div>
   );

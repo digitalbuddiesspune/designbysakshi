@@ -582,7 +582,9 @@ const Header = () => {
               style={{ color: "var(--brand-dark)" }}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7h16M7 4h13M4 12h16M4 17h16" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5.5h7a1.5 1.5 0 011.5 1.5v11.5A1.5 1.5 0 0111.5 20H4.5A1.5 1.5 0 013 18.5V7a1.5 1.5 0 011.5-1.5z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 8h7.5A1.5 1.5 0 0122 9.5V20h-9V8z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 9h3.5M6 12h3.5M16 12h3" />
               </svg>
               <span className="text-[11px] font-medium">Catalog</span>
             </button>
@@ -603,8 +605,8 @@ const Header = () => {
               style={{ color: "var(--brand-dark)" }}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3M6 10h12l-1 11H7L6 10z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 14h6" />
+                <circle cx="12" cy="12" r="9" strokeWidth={1.5} />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 7v5l3.5 2" />
               </svg>
               <span className="text-[11px] font-medium">Orders</span>
             </button>
