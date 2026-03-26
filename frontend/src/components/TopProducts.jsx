@@ -70,7 +70,7 @@ const TopProducts = () => {
   if (!products.length) return null;
 
   return (
-    <section className="bg-white py-0 sm:py-16 ">
+    <section className="bg-white py-0 sm:pt-6 sm:pb-16 ">
       <section className="bg-white ">
       <Link to="/new-arrival" className="block w-full">
         {/* Desktop banner */}
@@ -88,7 +88,7 @@ const TopProducts = () => {
         </Link>
       </section>
 
-      <div className="mx-auto max-w-7xl pt-6 lg:pt-10 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl pt-10 lg:pt-2 px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {products.map((product, index) => (
@@ -120,14 +120,17 @@ const TopProducts = () => {
                   
                   {/* Heart Icon - Wishlist */}
                   <button
-                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-[#3D294D] shadow-md transition-all duration-300"
+                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300"
+                    style={{
+                      "--hover-bg": "var(--brand-lavender-soft)"
+                    }}
                     onMouseEnter={(e) => {
                       e.preventDefault();
-                      e.currentTarget.style.backgroundColor = "#3D294D";
+                      e.currentTarget.style.backgroundColor = "var(--brand-lavender-soft)";
                     }}
                     onMouseLeave={(e) => {
                       e.preventDefault();
-                      e.currentTarget.style.backgroundColor = "#3D294D";
+                      e.currentTarget.style.backgroundColor = "white";
                     }}
                     onClick={(e) => {
                       e.preventDefault();
@@ -136,7 +139,7 @@ const TopProducts = () => {
                     aria-label="Add to wishlist"
                   >
                     <svg
-                      className="h-4 w-4 text-white"
+                      className="h-4 w-4 text-gray-600"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"

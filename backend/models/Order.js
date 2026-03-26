@@ -21,6 +21,21 @@ const orderItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const statusHistorySchema = new mongoose.Schema(
+  {
+    status: {
+      type: String,
+      enum: ['confirm', 'processing', 'shipped', 'delivered', 'returnable', 'cancelled', 'pending'],
+      required: true,
+    },
+    changedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     orderNumber: {
@@ -48,8 +63,17 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
-      default: 'pending',
+      enum: ['confirm', 'processing', 'shipped', 'delivered', 'returnable', 'cancelled', 'pending'],
+      default: 'confirm',
+    },
+    statusHistory: {
+      type: [statusHistorySchema],
+      default: [],
+    },
+    paymentStatus: {
+      type: String,
+      enum: ['paid', 'unpaid', 'failed'],
+      default: 'unpaid',
     },
     totalAmount: {
       type: Number,

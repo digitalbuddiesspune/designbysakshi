@@ -30,8 +30,14 @@ const ShopByCollection = () => {
     <section className="bg-white">
       <div className="w-full">
          <div className="mb-6">
-          <h1 className="text-3xl font-bold text-center text-gray-700">Shop By Collection</h1>
-         
+         <h1 
+            className="text-3xl lg:text-4xl font-semibold text-center" 
+            style={{ 
+              color: "var(--brand-dark)",
+              fontFamily: "Cormorant Garamond, Georgia, serif" 
+            }}>
+            Shop By Collection
+          </h1>         
         </div>
 
         <div className="relative w-full px-3 sm:px-4 md:px-6 lg:px-8">

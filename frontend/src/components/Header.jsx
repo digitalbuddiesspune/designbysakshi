@@ -205,7 +205,10 @@ const Header = () => {
   return (
     <header
       className="sticky top-0 z-[100] w-full border-b"
-      style={{ background: "var(--brand-pastel)", borderColor: "var(--brand-lavender-soft)" }}
+      style={{
+        background: "linear-gradient(180deg, #c5a2d7 0%, #dcc7e6 58%, #ffffff 100%)",
+        borderColor: "rgba(91, 71, 109, 0.22)",
+      }}
     >
       {/* Mobile Header */}
       <div className="lg:hidden mx-auto relative flex h-16 items-center justify-between px-4">
@@ -498,7 +501,13 @@ const Header = () => {
 
       {/* Mobile Search Bar - Below Header */}
       {showSearch && (
-        <div className="lg:hidden border-b px-4 py-3" style={{ borderColor: "var(--brand-lavender-soft)", background: "var(--brand-pastel)" }}>
+        <div
+          className="lg:hidden border-b px-4 py-3"
+          style={{
+            borderColor: "rgba(91, 71, 109, 0.22)",
+            background: "linear-gradient(180deg, #c5a2d7 0%, #dcc7e6 58%, #ffffff 100%)",
+          }}
+        >
           <form onSubmit={handleSearch} className="flex items-center gap-2">
             <input
               type="text"

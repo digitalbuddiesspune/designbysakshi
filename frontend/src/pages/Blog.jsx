@@ -34,10 +34,12 @@ const Blog = () => {
     <div className="min-h-screen" style={{ background: "var(--brand-pastel)" }}>
       <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <h1
-            className="mb-2 text-center text-sm uppercase tracking-[0.2em]"
-            style={{ color: "var(--brand-muted)" }}
-          >
+        <h1 
+            className="text-3xl lg:text-4xl font-semibold text-center" 
+            style={{ 
+              color: "var(--brand-dark)",
+              fontFamily: "Cormorant Garamond, Georgia, serif" 
+            }}>
             Blog
           </h1>
           <p

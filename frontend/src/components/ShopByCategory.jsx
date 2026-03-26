@@ -78,7 +78,7 @@ const ShopByCategory = () => {
                 className="group flex w-[120px] sm:w-[140px] flex-shrink-0 flex-col items-center gap-4 transition-transform hover:-translate-y-2"
               >
               <div
-                className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] overflow-hidden rounded-full ring-2 ring-offset-4 ring-[var(--brand-lavender)] bg-[var(--brand-lavender-soft)] shadow-md transition-shadow group-hover:shadow-xl"
+                className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] overflow-hidden rounded-full ring-2 ring-offset-4 ring-[#3D294D] bg-[var(--brand-lavender-soft)] shadow-md transition-shadow group-hover:shadow-xl"
               >
                 <img
                   src={cat.image}
@@ -94,11 +94,11 @@ const ShopByCategory = () => {
                   className="category-fallback absolute inset-0 hidden items-center justify-center bg-[var(--brand-lavender)] text-[var(--brand-dark)]"
                   aria-hidden
                 >
-                  <span className="text-xs font-medium text-center px-2">{cat.label}</span>
+                  <span className="text-3xl font-bold text-center px-2">{cat.label}</span>
                 </div>
               </div>
               <span 
-                className="text-center text-sm font-medium tracking-wide"
+                className="text-center text-sm font-bold tracking-wide"
                 style={{ 
                   color: "var(--brand-dark)",
                   fontFamily: "Cormorant Garamond, Georgia, serif"
@@ -113,7 +113,7 @@ const ShopByCategory = () => {
 
         <div
           className="mt-12 h-px w-full max-w-4xl mx-auto"
-          style={{ background: "linear-gradient(to right, transparent, var(--brand-lavender), transparent)" }}
+          style={{ background: "linear-gradient(to right, transparent, var(--brand-muted), transparent)" }}
           aria-hidden
         />
       </div>

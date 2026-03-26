@@ -172,8 +172,14 @@ const Checkout = () => {
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 flex flex-col items-center">
         
         <div className="w-full mb-6 text-left">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">Checkout</h1>
-        </div>
+        <h1 
+            className="text-3xl lg:text-4xl font-semibold text-center" 
+            style={{ 
+              color: "var(--brand-dark)",
+              fontFamily: "Cormorant Garamond, Georgia, serif" 
+            }}>
+            Checkout
+          </h1>        </div>
 
         <div className="w-full flex flex-col lg:flex-row gap-8 justify-between items-start">
           {/* Left: Payment & Address */}

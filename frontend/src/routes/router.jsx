@@ -22,6 +22,7 @@ import Login from "../pages/Login.jsx";
 import Signup from "../pages/Signup.jsx";
 import Profile from "../pages/Profile.jsx";
 import Orders from "../pages/Orders.jsx";
+import OrderDetail from "../pages/OrderDetail.jsx";
 import Cart from "../pages/Cart.jsx";
 import Wishlist from "../pages/Wishlist.jsx";
 import ProductDetail from "../pages/ProductDetail.jsx";
@@ -40,6 +41,8 @@ import TermsConditions from "../pages/TermsConditions.jsx";
 import Blog from "../pages/Blog.jsx";
 import BlogDetail from "../pages/BlogDetail.jsx";
 import AddBlog from "../pages/admin/AddBlog.jsx";
+import MyOrders from "../pages/admin/MyOrders.jsx";
+import AdminOrderDetails from "../pages/admin/OrderDetails.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -53,12 +56,15 @@ const router = createBrowserRouter(
       <Route path="signup" element={<Signup />} />
       <Route path="profile" element={<Profile />} />
       <Route path="orders" element={<Orders />} />
+      <Route path="orders/:id" element={<OrderDetail />} />
       <Route path="cart" element={<Cart />} />
       <Route path="checkout" element={<Checkout />} />
       <Route path="wishlist" element={<Wishlist />} />
       <Route path="admin/login" element={<AdminLogin />} />
       <Route path="admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<Dashboard />} />
+        <Route path="orders" element={<MyOrders />} />
+        <Route path="order-details/:id" element={<AdminOrderDetails />} />
         <Route path="add-product" element={<AdminAddProduct />} />
         <Route path="products" element={<MyProducts />} />
         <Route path="categories" element={<MyCategories />} />

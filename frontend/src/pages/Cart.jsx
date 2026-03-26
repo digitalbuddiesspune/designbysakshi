@@ -112,8 +112,14 @@ const Cart = () => {
        
 
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-700">Shopping Cart</h1>
-         
+        <h1 
+            className="text-3xl lg:text-4xl font-semibold text-center" 
+            style={{ 
+              color: "var(--brand-dark)",
+              fontFamily: "Cormorant Garamond, Georgia, serif" 
+            }}>
+            Shopping Cart
+          </h1>         
         </div>
 
         {/* ── Empty state: full-width centered card ── */}

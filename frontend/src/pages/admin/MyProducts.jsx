@@ -63,14 +63,16 @@ const MyProducts = () => {
     // Sort
     const sorted = [...filtered].sort((a, b) => {
       let aVal, bVal;
+      let isNumeric = false;
       switch (sortBy) {
         case "name":
           aVal = a.name?.toLowerCase() || "";
           bVal = b.name?.toLowerCase() || "";
           break;
         case "price":
-          aVal = a.price || 0;
-          bVal = b.price || 0;
+          aVal = Number(a.price) || 0;
+          bVal = Number(b.price) || 0;
+          isNumeric = true;
           break;
         case "category":
           aVal = a.category?.toLowerCase() || "";
@@ -81,11 +83,12 @@ const MyProducts = () => {
           bVal = b.name?.toLowerCase() || "";
       }
 
-      if (sortOrder === "asc") {
-        return aVal > bVal ? 1 : aVal < bVal ? -1 : 0;
-      } else {
-        return aVal < bVal ? 1 : aVal > bVal ? -1 : 0;
+      if (isNumeric) {
+        return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
       }
+
+      const cmp = String(aVal).localeCompare(String(bVal), undefined, { sensitivity: "base" });
+      return sortOrder === "asc" ? cmp : -cmp;
     });
 
     return sorted;

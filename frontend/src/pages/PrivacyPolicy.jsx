@@ -2,10 +2,18 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 const PrivacyPolicy = () => {
+  const sections = [
+    { id: "privacy-introduction", label: "1) Introduction" },
+    { id: "privacy-information", label: "2) Information We Collect" },
+    { id: "privacy-usage", label: "3) How We Use Information" },
+    { id: "privacy-sharing", label: "4) Information Sharing" },
+    { id: "privacy-other", label: "5) Other Policies" },
+  ];
+
   return (
     <div className="min-h-screen" style={{ background: "var(--brand-pastel)" }}>
-      <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-        <div className="mx-auto max-w-3xl">
+      <section className="px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        <div className="mx-auto max-w-7xl">
           <h1
             className="mb-2 text-center text-sm uppercase tracking-[0.2em]"
             style={{ color: "var(--brand-muted)" }}
@@ -13,15 +21,36 @@ const PrivacyPolicy = () => {
             Legal
           </h1>
           <p
-            className="mb-12 text-center text-3xl font-medium sm:text-4xl"
+            className="mb-8 text-center text-3xl lg:text-4xl font-semibold"
             style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
           >
             Privacy Policy
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-base leading-relaxed text-gray-600">
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-[250px_1fr] lg:gap-8">
+            <aside className="lg:sticky lg:top-36 lg:self-start">
+              <div className="rounded-2xl bg-white/85 p-4 shadow-sm">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--brand-muted)" }}>
+                  On this page
+                </p>
+                <div className="flex gap-2 overflow-x-auto lg:flex-col">
+                  {sections.map((section) => (
+                    <a
+                      key={section.id}
+                      href={`#${section.id}`}
+                      className="whitespace-nowrap rounded-full border px-3 py-1.5 text-sm no-underline transition hover:bg-[#3D294D] hover:text-white lg:rounded-xl"
+                      style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+                    >
+                      {section.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </aside>
+
+            <div className="grid grid-cols-1 gap-6 text-base leading-relaxed text-gray-600 md:grid-cols-2">
             {/* Box 1 */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+            <div id="privacy-introduction" className="scroll-mt-40 bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
               <div className="absolute -right-8 -top-8 w-24 h-24 bg-purple-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex items-center gap-4 mb-5">
@@ -39,7 +68,7 @@ const PrivacyPolicy = () => {
             </div>
 
             {/* Box 2 */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+            <div id="privacy-information" className="scroll-mt-40 bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
               <div className="absolute -right-8 -top-8 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex items-center gap-4 mb-5">
@@ -61,7 +90,7 @@ const PrivacyPolicy = () => {
             </div>
 
             {/* Box 3 */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+            <div id="privacy-usage" className="scroll-mt-40 bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
               <div className="absolute -right-8 -top-8 w-24 h-24 bg-green-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex items-center gap-4 mb-5">
@@ -82,7 +111,7 @@ const PrivacyPolicy = () => {
             </div>
 
             {/* Box 4 */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
+            <div id="privacy-sharing" className="scroll-mt-40 bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
               <div className="absolute -right-8 -top-8 w-24 h-24 bg-pink-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-700"></div>
               <div className="relative z-10 flex flex-col h-full">
                 <div className="flex items-center gap-4 mb-5">
@@ -100,7 +129,7 @@ const PrivacyPolicy = () => {
             </div>
 
             {/* Box 5 */}
-            <div className="bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden md:col-span-2">
+            <div id="privacy-other" className="scroll-mt-40 bg-white p-8 rounded-3xl shadow-sm border border-purple-50 hover:shadow-xl transition-all duration-500 group relative overflow-hidden md:col-span-2">
               <div className="absolute -right-8 -top-8 w-32 h-32 bg-amber-50 rounded-full opacity-50 group-hover:scale-[3] transition-transform duration-700"></div>
               <div className="relative z-10 flex flex-col h-full md:flex-row md:items-center gap-6">
                 <div className="flex-shrink-0 flex items-center gap-4 md:w-1/3">
@@ -129,6 +158,7 @@ const PrivacyPolicy = () => {
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </section>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import UserSidebar from "../components/UserSidebar";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
@@ -153,25 +152,21 @@ const Profile = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    navigate("/");
-    window.location.reload();
-  };
-
   if (!user) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <UserSidebar onLogout={handleLogout} />
-      
-      <div className="flex-1 p-8">
-        <div className="max-w-2xl">
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-2xl">
           <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-700">Profile</h1>
+          <h1
+            className="text-3xl lg:text-4xl font-semibold text-center"
+            style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
+          >
+            Profile
+          </h1>
          
         </div>
 

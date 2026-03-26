@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import UserSidebar from "../components/UserSidebar";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
@@ -13,19 +12,13 @@ const getGuestId = () => {
   }
   return id;
 };
+const normalizeStatus = (s) => (s === "pending" ? "confirm" : s);
 
 const Orders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const guestId = useMemo(() => getGuestId(), []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    navigate("/");
-    window.location.reload();
-  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -54,8 +47,11 @@ const Orders = () => {
         setLoading(false);
       }
     };
+
     fetchOrders();
-  }, [guestId]);
+    const t = setInterval(fetchOrders, 3000);
+    return () => clearInterval(t);
+  }, [guestId, navigate]);
 
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
@@ -76,24 +72,29 @@ const Orders = () => {
   };
 
   const statusColor = (status) => {
+    const s = normalizeStatus(status);
     const map = {
-      pending: "bg-yellow-100 text-yellow-800",
+      confirm: "bg-blue-100 text-blue-800",
       processing: "bg-blue-100 text-blue-800",
       shipped: "bg-purple-100 text-purple-800",
       delivered: "bg-green-100 text-green-800",
+      returnable: "bg-teal-100 text-teal-800",
       cancelled: "bg-red-100 text-red-800",
     };
-    return map[status] || "bg-gray-100 text-gray-800";
+    return map[s] || "bg-gray-100 text-gray-800";
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <UserSidebar onLogout={handleLogout} />
-
-      <div className="flex-1 p-8">
-        <div className="max-w-4xl">
+    <div className="min-h-screen bg-gray-50">
+      <div className="p-4 sm:p-6 lg:p-8">
+        <div className="mx-auto max-w-4xl">
           <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-700">My Orders</h1>
+          <h1
+            className="text-3xl lg:text-4xl font-semibold text-center"
+            style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
+          >
+            My Orders
+          </h1>
          
         </div>
 
@@ -124,9 +125,22 @@ const Orders = () => {
         </div>
         <div className="text-sm font-bold text-gray-900">₹{order.totalAmount.toLocaleString("en-IN")}</div>
       </div>
-      <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${statusColor(order.status)}`}>
-        {order.status}
-      </span>
+      <div className="flex items-center gap-2">
+        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${statusColor(order.status)}`}>
+          {normalizeStatus(order.status)}
+        </span>
+        <span
+          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
+            order.paymentStatus === "paid"
+              ? "bg-green-100 text-green-800"
+              : order.paymentStatus === "failed"
+                ? "bg-red-100 text-red-800"
+                : "bg-yellow-100 text-yellow-800"
+          }`}
+        >
+          {order.paymentStatus || "unpaid"}
+        </span>
+      </div>
     </div>
   </div>
 
@@ -158,7 +172,7 @@ const Orders = () => {
     <button
       type="button"
       onClick={() => cancelOrder(order._id)}
-      disabled={["shipped", "delivered", "cancelled"].includes(order.status)}
+      disabled={["processing", "shipped", "delivered", "returnable", "cancelled"].includes(normalizeStatus(order.status))}
       className="rounded-lg border border-red-200 px-4 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
     >
       Cancel Order

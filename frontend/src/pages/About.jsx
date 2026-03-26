@@ -4,16 +4,18 @@ import { Link } from "react-router-dom";
 const About = () => {
   return (
     <div className="min-h-screen" style={{ background: "var(--brand-pastel)" }}>
-      <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+      <section className="px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-24 lg:px-8">
         <div className="mx-auto max-w-3xl">
-          <h1
-            className="mb-2 text-center text-sm uppercase tracking-[0.2em]"
-            style={{ color: "var(--brand-muted)" }}
-          >
+        <h1 
+            className="text-3xl lg:text-4xl font-semibold text-center" 
+            style={{ 
+              color: "var(--brand-dark)",
+              fontFamily: "Cormorant Garamond, Georgia, serif" 
+            }}>
             About
           </h1>
           <p
-            className="mb-12 text-center text-3xl font-medium sm:text-4xl"
+            className="mb-12 text-center text-3xl lg:text-4xl font-semibold"
             style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
           >
             The story behind DesignBySakshi
