@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const getGuestId = () => {
   if (typeof window === "undefined") return null;
@@ -23,8 +23,33 @@ const getStoredAddresses = (guestId) => {
   }
 };
 
-const saveStoredAddresses = (guestId, addresses) => {
-  localStorage.setItem(`addresses_${guestId}`, JSON.stringify(addresses));
+const getAddressStorageKey = () => {
+  try {
+    const rawUser = localStorage.getItem("user");
+    const parsed = rawUser ? JSON.parse(rawUser) : null;
+    const userId = parsed?._id || parsed?.id;
+    const email = (parsed?.email || "").toLowerCase().trim();
+    if (userId) return `addresses_user_${userId}`;
+    if (email) return `addresses_email_${email}`;
+  } catch {
+    // ignore parse error and fall back
+  }
+  const guestId = getGuestId();
+  return `addresses_guest_${guestId}`;
+};
+
+const getStoredAddressesByKey = (storageKey) => {
+  try {
+    const raw = localStorage.getItem(storageKey);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveStoredAddresses = (storageKey, addresses) => {
+  localStorage.setItem(storageKey, JSON.stringify(addresses));
 };
 
 const Checkout = () => {
@@ -37,9 +62,13 @@ const Checkout = () => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
-  const [addresses, setAddresses] = useState(() => getStoredAddresses(guestId));
+  const addressStorageKey = useMemo(() => getAddressStorageKey(), []);
+  const [addresses, setAddresses] = useState(() => getStoredAddressesByKey(addressStorageKey));
   const [selectedAddressId, setSelectedAddressId] = useState(
-    () => getStoredAddresses(guestId).find((a) => a?.isDefault)?.id || getStoredAddresses(guestId)[0]?.id || ""
+    () =>
+      getStoredAddressesByKey(addressStorageKey).find((a) => a?.isDefault)?.id ||
+      getStoredAddressesByKey(addressStorageKey)[0]?.id ||
+      ""
   );
 
   const [showNewAddress, setShowNewAddress] = useState(false);
@@ -72,8 +101,8 @@ const Checkout = () => {
   }, []);
 
   useEffect(() => {
-    saveStoredAddresses(guestId, addresses);
-  }, [addresses, guestId]);
+    saveStoredAddresses(addressStorageKey, addresses);
+  }, [addresses, addressStorageKey]);
 
   const items = buyNowItem ? [buyNowItem] : (cart?.items || []);
   const subtotal = items.reduce(

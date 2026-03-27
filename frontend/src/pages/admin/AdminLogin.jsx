@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AdminLogin = () => {
   const [formData, setFormData] = useState({
@@ -59,7 +59,7 @@ const AdminLogin = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/admin-login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,16 +73,12 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Check if user is admin
-        if (data.user && data.user.role === "admin") {
-          localStorage.setItem("user", JSON.stringify(data.user));
-          setMessage("Login successful! Redirecting...");
-          setTimeout(() => {
-            navigate("/admin/dashboard");
-          }, 1000);
-        } else {
-          setMessage("Access denied. Admin role required.");
-        }
+        localStorage.setItem("user", JSON.stringify(data.user));
+        if (data.token) localStorage.setItem("token", data.token);
+        setMessage("Login successful! Redirecting...");
+        setTimeout(() => {
+          navigate("/admin/dashboard");
+        }, 1000);
       } else {
         setMessage(data.error || "Login failed");
       }

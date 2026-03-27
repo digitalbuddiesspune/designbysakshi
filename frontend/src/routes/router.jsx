@@ -1,6 +1,7 @@
 import {
   createBrowserRouter,
   createRoutesFromElements,
+  Navigate,
   Route,
 } from "react-router-dom";
 import App from "../App.jsx";
@@ -44,6 +45,7 @@ import AddBlog from "../pages/admin/AddBlog.jsx";
 import MyOrders from "../pages/admin/MyOrders.jsx";
 import AdminOrderDetails from "../pages/admin/OrderDetails.jsx";
 import Users from "../pages/admin/Users.jsx";
+import AdminProfile from "../pages/admin/AdminProfile.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -63,9 +65,11 @@ const router = createBrowserRouter(
       <Route path="wishlist" element={<Wishlist />} />
       <Route path="admin/login" element={<AdminLogin />} />
       <Route path="admin" element={<AdminLayout />}>
+        <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="orders" element={<MyOrders />} />
         <Route path="users" element={<Users />} />
+        <Route path="profile" element={<AdminProfile />} />
         <Route path="order-details/:id" element={<AdminOrderDetails />} />
         <Route path="add-product" element={<AdminAddProduct />} />
         <Route path="products" element={<MyProducts />} />
@@ -73,7 +77,7 @@ const router = createBrowserRouter(
         <Route path="add-category" element={<AddCategory />} />
         <Route path="edit-category/:id" element={<EditCategory />} />
         <Route path="testimonials" element={<AdminTestimonials />} />
-        <Route path="add-blog" element={<AddBlog />} />
+        <Route path="blogs" element={<AddBlog />} />
       </Route>
       <Route path="necklace-sets" element={<CategoryPage />} />
       <Route path="earrings" element={<CategoryPage />} />

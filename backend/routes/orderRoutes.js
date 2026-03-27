@@ -36,12 +36,17 @@ router.post('/', async (req, res) => {
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'No order items' });
     }
+    if (!shippingAddress) {
+      return res.status(400).json({ message: 'Shipping address is required' });
+    }
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     const nameParts = (shippingAddress.fullName || '').split(' ');
     const createdAddress = await Address.create({
+      fullName: shippingAddress.fullName || user.name || '',
+      email: user.email || '',
       firstName: nameParts[0] || 'Unknown',
       lastName: nameParts.slice(1).join(' ') || '',
       phone: shippingAddress.phone || '',

@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 
 const App = () => {
   const location = useLocation();
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+  const API_URL = import.meta.env.VITE_API_URL;
   // Hide header/footer for all admin routes including admin/login
   const isAdminRoute = location.pathname.startsWith('/admin');
   

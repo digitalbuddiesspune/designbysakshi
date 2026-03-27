@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { openInvoiceWindow } from "../../utils/invoice";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 const normalizeStatus = (s) => (s === "pending" ? "confirm" : s);
 const formatDateTime = (v) =>
   v
@@ -48,8 +49,7 @@ const OrderDetails = () => {
 
   useEffect(() => {
     fetchOrder();
-    const t = setInterval(fetchOrder, 3000);
-    return () => clearInterval(t);
+    return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -116,7 +116,18 @@ const OrderDetails = () => {
             </p>
           </div>
         </div>
-        <div className="hidden md:flex items-center gap-3"></div>
+        <div className="hidden md:flex items-center gap-3">
+          {!loading && order ? (
+            <button
+              type="button"
+              onClick={() => openInvoiceWindow(order)}
+              className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
+              style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+            >
+              Bill Invoice
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {loading || !order ? (

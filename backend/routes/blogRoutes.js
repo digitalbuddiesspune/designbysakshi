@@ -35,5 +35,30 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Update blog
+router.put("/:id", async (req, res) => {
+  try {
+    const updated = await Blog.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updated) return res.status(404).json({ error: "Blog not found" });
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Delete blog
+router.delete("/:id", async (req, res) => {
+  try {
+    const deleted = await Blog.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: "Blog not found" });
+    res.json({ message: "Blog deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
 

@@ -5,10 +5,10 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto w-full bg-[#001e38] px-3 py-10  sm:px-6 lg:px-8">
+    <footer className="mt-auto w-full bg-[#001e38] px-3 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         {/* Brand + contact + Quick links + Categories + Collections + Policies + Brand */}
-        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left md:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-5 lg:gap-10">
           {/* Left side logo + contact */}
           <div>
             <Link to="/" className="inline-block no-underline">
@@ -60,6 +60,15 @@ const Footer = () => {
                   style={{ color: "rgba(255,255,255,0.85)" }}
                 >
                   Contact
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/blog"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "rgba(255,255,255,0.85)" }}
+                >
+                  Blog
                 </Link>
               </li>
             </ul>
@@ -272,19 +281,7 @@ const Footer = () => {
           </div>
 
           {/* Brand */}
-          <div>
-            <Link to="/" className="inline-block no-underline" style={{ color: "#FFFFFF" }}>
-              <span className="text-lg font-semibold tracking-wide" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>
-                DesignBy
-              </span>
-              <span className="text-xl" style={{ fontFamily: "Great Vibes, Georgia, cursive" }}>
-                Sakshi
-              </span>
-            </Link>
-            <p className="mt-3 max-w-xs text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-              Handcrafted jewellery for the modern soul.
-            </p>
-          </div>
+         
         </div>
 
         {/* Bottom bar – copyright + legal */}

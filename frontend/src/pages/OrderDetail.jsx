@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { openInvoiceWindow } from "../utils/invoice";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 const normalizeStatus = (s) => (s === "pending" ? "confirm" : s);
 const formatDateTime = (v) =>
   v
@@ -54,8 +55,7 @@ const OrderDetail = () => {
       return;
     }
     fetchOrder();
-    const t = setInterval(fetchOrder, 3000);
-    return () => clearInterval(t);
+    return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, token]);
 
@@ -103,14 +103,26 @@ const OrderDetail = () => {
     <div className="min-h-screen bg-white">
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <button
-            type="button"
-            onClick={() => navigate("/orders")}
-            className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
-            style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
-          >
-            ← My Orders
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigate("/orders")}
+              className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
+              style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+            >
+              ← My Orders
+            </button>
+            {!loading && order ? (
+              <button
+                type="button"
+                onClick={() => openInvoiceWindow(order)}
+                className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
+                style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+              >
+                Bill Invoice
+              </button>
+            ) : null}
+          </div>
           <div>
             <h1
               className="text-3xl lg:text-4xl font-semibold text-center md:text-left"

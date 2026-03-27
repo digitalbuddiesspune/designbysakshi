@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const getGuestId = () => {
   if (typeof window === "undefined") return null;
@@ -56,10 +56,16 @@ const Cart = () => {
   const changeQty = async (productId, delta) => {
     try {
       setBusyProductId(productId);
-      await fetch(`${API_URL}/cart/add`, {
+      const currentItem = items.find(
+        (it) => String(it.product?._id || it.product) === String(productId)
+      );
+      const currentQty = Number(currentItem?.quantity || 0);
+      const nextQty = currentQty + delta;
+
+      await fetch(`${API_URL}/cart/set-quantity`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: delta, guestId }),
+        body: JSON.stringify({ productId, quantity: nextQty, guestId }),
       });
       window.dispatchEvent(new Event("cart-updated"));
       await fetchCart();

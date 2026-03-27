@@ -59,13 +59,9 @@ router.post('/add', async (req, res) => {
     );
 
     if (existingItem) {
-      existingItem.quantity += quantity;
-      // If quantity goes to 0 or below, remove the item
-      if (existingItem.quantity <= 0) {
-        cart.items = cart.items.filter(
-          (item) => item.product.toString() !== productId
-        );
-      }
+      // Product already in cart: keep single add behavior (do not increase again).
+      const populated = await cart.populate('items.product');
+      return res.status(200).json(populated);
     } else {
       // Only add if quantity is positive
       if (quantity > 0) {

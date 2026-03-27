@@ -7,6 +7,17 @@ const addressSchema = new mongoose.Schema(
       ref: 'User',
       required: false, // Made optional for guest checkouts
     },
+    fullName: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    email: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      default: '',
+    },
     firstName: {
       type: String,
       required: true,

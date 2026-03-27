@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const BlogDetail = () => {
   const { id } = useParams();
@@ -36,18 +36,21 @@ const BlogDetail = () => {
 
   return (
     <div className="min-h-screen" style={{ background: "var(--brand-pastel)" }}>
-      <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-6">
-            <Link
-              to="/blog"
-              className="text-sm font-medium no-underline transition hover:opacity-80"
-              style={{ color: "var(--brand-dark)" }}
-            >
-              ← Back to Blog
-            </Link>
+      <section className="px-4 py-0 pb-24 sm:px-6 sm:py-1 sm:pb-20 lg:px-8">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-2">
+            <div className="mb-2">
+              <Link
+                to="/blog"
+                className="text-sm font-medium no-underline transition hover:opacity-80"
+                style={{ color: "var(--brand-dark)" }}
+              >
+                ← Back to Blog
+              </Link>
+            </div>
           </div>
 
+          <div className="mx-auto max-w-3xl">
           {loading ? (
             <div className="rounded-2xl border bg-white p-6 text-center" style={{ color: "var(--brand-muted)" }}>
               Loading...
@@ -91,6 +94,7 @@ const BlogDetail = () => {
               </div>
             </article>
           )}
+          </div>
         </div>
       </section>
     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Header = () => {
   const [clickedCategory, setClickedCategory] = useState(null);
@@ -25,7 +25,7 @@ const Header = () => {
   const isLoggedIn = () => {
     // Use localStorage directly so the UI stays correct even if `user` state is stale.
     try {
-      return Boolean(localStorage.getItem("token") && localStorage.getItem("user"));
+      return Boolean(localStorage.getItem("user"));
     } catch {
       return false;
     }
@@ -144,14 +144,23 @@ const Header = () => {
       const categories = await response.json();
 
       // Transform backend categories to match frontend structure
-      const transformedCategories = categories.map((cat) => ({
-        label: cat.name,
-        slug: cat.slug,
-        sub: (cat.subcategories || []).map((sub) => ({
-          label: sub.name,
-          slug: sub.slug,
-        })),
-      }));
+      const transformedCategories = categories.map((cat) => {
+        const subcategories = (cat.subcategories || []).filter((sub) => {
+          if (cat.slug !== "latest-collection") return true;
+          const slug = String(sub.slug || "").toLowerCase();
+          const name = String(sub.name || "").toLowerCase();
+          return slug !== "minimal-jewellery" && slug !== "minimal-jewelry" && !name.includes("minimal");
+        });
+
+        return {
+          label: cat.name,
+          slug: cat.slug,
+          sub: subcategories.map((sub) => ({
+            label: sub.name,
+            slug: sub.slug,
+          })),
+        };
+      });
 
       setCategoryBar(transformedCategories);
     } catch (error) {
@@ -171,7 +180,6 @@ const Header = () => {
     "officewear-collection": "/officewear-collection",
     "luxury-ad-collection": "/luxuryad-collection",
     "luxuryad-collection": "/luxuryad-collection",
-    "minimal-jewellery": "/shop?collection=minimal-jewellery",
   };
 
   const subHref = (catSlug, subSlug) => {
@@ -206,7 +214,7 @@ const Header = () => {
     <header
       className="sticky top-0 z-[100] w-full border-b"
       style={{
-        background: "linear-gradient(180deg, #c5a2d7 0%, #dcc7e6 58%, #ffffff 100%)",
+        background: "linear-gradient(180deg, #c5a2d7 )",
         borderColor: "rgba(91, 71, 109, 0.22)",
       }}
     >

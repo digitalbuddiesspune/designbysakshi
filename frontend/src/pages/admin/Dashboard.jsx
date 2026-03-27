@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -15,6 +15,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [salesData, setSalesData] = useState([]);
+  const [recentOrders, setRecentOrders] = useState([]);
 
   useEffect(() => {
     fetchStats();
@@ -23,27 +24,39 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
-      const [productsRes, categoriesRes] = await Promise.all([
+      const [productsRes, categoriesRes, ordersRes] = await Promise.all([
         fetch(`${API_URL}/products`),
         fetch(`${API_URL}/categories`),
+        fetch(`${API_URL}/orders/admin`),
       ]);
 
       const products = await productsRes.json();
       const categories = await categoriesRes.json();
+      const orders = ordersRes.ok ? await ordersRes.json() : [];
 
-      // Mock order data - replace with actual API when ready
-      const today = new Date().toISOString().split("T")[0];
-      const mockOrders = [
-        { date: today, status: "pending" },
-        { date: today, status: "delivered" },
-        { date: today, status: "delivered" },
-        { date: today, status: "canceled" },
-      ];
+      const today = new Date();
+      const isToday = (v) => {
+        const d = new Date(v);
+        return (
+          d.getFullYear() === today.getFullYear() &&
+          d.getMonth() === today.getMonth() &&
+          d.getDate() === today.getDate()
+        );
+      };
 
-      const todayOrders = mockOrders.filter((o) => o.date === today);
-      const todayPending = todayOrders.filter((o) => o.status === "pending").length;
-      const todayDelivered = todayOrders.filter((o) => o.status === "delivered").length;
-      const todayCanceled = todayOrders.filter((o) => o.status === "canceled").length;
+      const todayOrders = (Array.isArray(orders) ? orders : []).filter((o) => isToday(o.createdAt));
+      const pendingStatuses = new Set(["pending", "confirm", "processing", "shipped", "shipping"]);
+      const todayPending = todayOrders.filter((o) =>
+        pendingStatuses.has((o.status || "").toLowerCase()),
+      ).length;
+      const todayDelivered = todayOrders.filter((o) => (o.status || "").toLowerCase() === "delivered").length;
+      const todayCanceled = todayOrders.filter((o) => (o.status || "").toLowerCase() === "cancelled").length;
+
+      const todaysPlaced = todayOrders
+        .slice()
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 8);
+      setRecentOrders(todaysPlaced);
 
       setStats({
         totalProducts: products.length || 0,
@@ -60,8 +73,7 @@ const Dashboard = () => {
     }
   };
 
-  const fetchSalesData = () => {
-    // Mock sales data - replace with actual API when ready
+  const fetchSalesData = async () => {
     const months = [
       "Jan",
       "Feb",
@@ -76,17 +88,41 @@ const Dashboard = () => {
       "Nov",
       "Dec",
     ];
-    const mockSales = months.map((month, index) => ({
-      month,
-      sales: Math.floor(Math.random() * 50000) + 10000,
-    }));
-    setSalesData(mockSales);
+    const emptySales = months.map((month) => ({ month, sales: 0 }));
+    setSalesData(emptySales);
+    try {
+      const res = await fetch(`${API_URL}/orders/admin`);
+      const orders = res.ok ? await res.json() : [];
+      const monthlyTotals = Array(12).fill(0);
+
+      (Array.isArray(orders) ? orders : []).forEach((order) => {
+        if (!order?.createdAt) return;
+        const status = String(order.status || "").toLowerCase();
+        // Cancelled orders should not contribute to revenue chart.
+        if (status === "cancelled") return;
+        const createdAt = new Date(order.createdAt);
+        if (createdAt.getFullYear() !== selectedYear) return;
+        const monthIndex = createdAt.getMonth();
+        monthlyTotals[monthIndex] += Number(order.totalAmount || 0);
+      });
+
+      setSalesData(
+        months.map((month, index) => ({
+          month,
+          sales: monthlyTotals[index],
+        })),
+      );
+    } catch (error) {
+      console.error("Error fetching sales data:", error);
+      setSalesData(emptySales);
+    }
   };
 
   const maxSales = Math.max(...salesData.map((d) => d.sales), 1);
   const chartHeight = 300;
-  const chartWidth = 800;
+  const chartWidth = 620;
   const barWidth = chartWidth / salesData.length - 10;
+  const firstProductName = (o) => o?.items?.[0]?.product?.name || "Product";
 
   return (
     <div className="p-6 sm:p-8">
@@ -106,9 +142,7 @@ const Dashboard = () => {
         <>
           {/* Today's Orders Section */}
           <div className="mb-8">
-            <h2 className="text-xl font-semibold mb-4" style={{ color: "var(--brand-dark)" }}>
-              Today's Orders
-            </h2>
+           
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div className="bg-white rounded-lg shadow-md p-6">
                 <div className="flex items-center justify-between">
@@ -196,6 +230,71 @@ const Dashboard = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Totals (moved above graph) */}
+          <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Total Products</p>
+                  <p className="text-3xl font-bold mt-2" style={{ color: "var(--brand-dark)" }}>
+                    {stats.totalProducts}
+                  </p>
+                </div>
+                <div
+                  className="p-4 rounded-full"
+                  style={{ background: "var(--brand-lavender-soft)" }}
+                >
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <Link
+                to="/admin/products"
+                className="mt-4 inline-block text-sm font-medium"
+                style={{ color: "var(--brand-purple)" }}
+              >
+                View All →
+              </Link>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 text-sm">Total Categories</p>
+                  <p className="text-3xl font-bold mt-2" style={{ color: "var(--brand-dark)" }}>
+                    {stats.totalCategories}
+                  </p>
+                </div>
+                <div
+                  className="p-4 rounded-full"
+                  style={{ background: "var(--brand-lavender-soft)" }}
+                >
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <Link
+                to="/admin/categories"
+                className="mt-4 inline-block text-sm font-medium"
+                style={{ color: "var(--brand-purple)" }}
+              >
+                View All →
+              </Link>
             </div>
           </div>
 
@@ -289,95 +388,60 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Other Stats */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm">Total Products</p>
-                  <p className="text-3xl font-bold mt-2" style={{ color: "var(--brand-dark)" }}>
-                    {stats.totalProducts}
-                  </p>
-                </div>
-                <div
-                  className="p-4 rounded-full"
-                  style={{ background: "var(--brand-lavender-soft)" }}
-                >
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                    />
-                  </svg>
-                </div>
+          {/* Recent Today's Orders */}
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <h2 className="text-xl font-semibold mb-4" style={{ color: "var(--brand-dark)" }}>
+              Recent Today's Placed Orders
+            </h2>
+            {recentOrders.length === 0 ? (
+              <div className="text-sm" style={{ color: "var(--brand-muted)" }}>
+                No orders placed today.
               </div>
-              <Link
-                to="/admin/products"
-                className="mt-4 inline-block text-sm font-medium"
-                style={{ color: "var(--brand-purple)" }}
-              >
-                View All →
-              </Link>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 text-sm">Total Categories</p>
-                  <p className="text-3xl font-bold mt-2" style={{ color: "var(--brand-dark)" }}>
-                    {stats.totalCategories}
-                  </p>
-                </div>
-                <div
-                  className="p-4 rounded-full"
-                  style={{ background: "var(--brand-lavender-soft)" }}
-                >
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                    />
-                  </svg>
-                </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs uppercase tracking-wider" style={{ color: "var(--brand-muted)" }}>
+                      <th className="text-left px-3 py-2">Order ID</th>
+                      <th className="text-left px-3 py-2">Customer</th>
+                      <th className="text-left px-3 py-2">Product</th>
+                      <th className="text-left px-3 py-2">Qty</th>
+                      <th className="text-left px-3 py-2">Amount</th>
+                      <th className="text-left px-3 py-2">Time</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentOrders.map((o) => (
+                      <tr key={o._id} className="border-t">
+                        <td className="px-3 py-2" style={{ color: "var(--brand-dark)" }}>
+                          #{o.orderNumber || o._id?.slice(-6)}
+                        </td>
+                        <td className="px-3 py-2" style={{ color: "var(--brand-dark)" }}>
+                          {o.name || "Customer"}
+                        </td>
+                        <td className="px-3 py-2" style={{ color: "var(--brand-dark)" }}>
+                          {firstProductName(o)}
+                        </td>
+                        <td className="px-3 py-2" style={{ color: "var(--brand-dark)" }}>
+                          {(o.items || []).reduce((s, it) => s + (it.quantity || 0), 0)}
+                        </td>
+                        <td className="px-3 py-2" style={{ color: "var(--brand-dark)" }}>
+                          ₹{(o.totalAmount || 0).toLocaleString("en-IN")}
+                        </td>
+                        <td className="px-3 py-2" style={{ color: "var(--brand-muted)" }}>
+                          {o.createdAt
+                            ? new Date(o.createdAt).toLocaleTimeString("en-IN", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <Link
-                to="/admin/categories"
-                className="mt-4 inline-block text-sm font-medium"
-                style={{ color: "var(--brand-purple)" }}
-              >
-                View All →
-              </Link>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <p className="text-gray-600 text-sm mb-4">Quick Actions</p>
-              <div className="space-y-3">
-                <Link
-                  to="/admin/add-product"
-                  className="block w-full px-4 py-2 text-sm font-semibold text-white rounded-lg transition"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                  }}
-                >
-                  Add New Product
-                </Link>
-                <Link
-                  to="/admin/add-category"
-                  className="block w-full px-4 py-2 text-sm font-semibold text-white rounded-lg transition"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                  }}
-                >
-                  Add New Category
-                </Link>
-              </div>
-            </div>
+            )}
           </div>
         </>
       )}

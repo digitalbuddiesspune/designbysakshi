@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { openInvoiceWindow } from "../../utils/invoice";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const normalizeStatus = (s) => (s === "pending" ? "confirm" : s);
 
@@ -61,8 +62,7 @@ const MyOrders = () => {
 
   useEffect(() => {
     fetchOrders();
-    const t = setInterval(fetchOrders, 3000);
-    return () => clearInterval(t);
+    return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryString]);
 
@@ -182,13 +182,14 @@ const MyOrders = () => {
               <th className="text-left px-5 py-4">Status</th>
               <th className="text-left px-5 py-4">Payment</th>
               <th className="text-left px-5 py-4">Date</th>
+              <th className="text-left px-5 py-4">Invoice</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={8} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>Loading...</td></tr>
+              <tr><td colSpan={9} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>Loading...</td></tr>
             ) : orders.length === 0 ? (
-              <tr><td colSpan={8} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>No orders found</td></tr>
+              <tr><td colSpan={9} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>No orders found</td></tr>
             ) : (
               orders.map((o) => {
                 const dateLabel = o?.createdAt ? new Date(o.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "";
@@ -237,6 +238,16 @@ const MyOrders = () => {
                       })()}
                     </td>
                     <td className="px-5 py-4"><div className="text-xs" style={{ color: "var(--brand-muted)" }}>{dateLabel}</div></td>
+                    <td className="px-5 py-4">
+                      <button
+                        type="button"
+                        onClick={() => openInvoiceWindow(o)}
+                        className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-gray-50"
+                        style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+                      >
+                        Bill Invoice
+                      </button>
+                    </td>
                   </tr>
                 );
               })

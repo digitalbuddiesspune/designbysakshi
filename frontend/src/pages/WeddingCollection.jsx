@@ -2,7 +2,7 @@ import CollectionPage from "./CollectionPage";
 
 const WeddingCollection = () => (
   <CollectionPage
-    heroImage="https://res.cloudinary.com/dbfooaz44/image/upload/v1773818417/5_lgpkcf.png"
+    heroImage="https://res.cloudinary.com/dbfooaz44/image/upload/v1774607345/5_jg79qv.png"
     subcategoryName="Wedding Collection"
     title="Wedding Collection"
   />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const getGuestId = () => {
   if (typeof window === "undefined") return null;
@@ -11,6 +11,14 @@ const getGuestId = () => {
     localStorage.setItem("guestId", id);
   }
   return id;
+};
+
+const getAddressStorageKeyForUser = (userData) => {
+  const userId = userData?._id || userData?.id;
+  const email = (userData?.email || "").toLowerCase().trim();
+  if (userId) return `addresses_user_${userId}`;
+  if (email) return `addresses_email_${email}`;
+  return `addresses_guest_${getGuestId()}`;
 };
 
 const Profile = () => {
@@ -37,9 +45,10 @@ const Profile = () => {
         email: userData.email || "",
         phone: userData.phone || "",
       });
-      const guestId = getGuestId();
+
       try {
-        const raw = localStorage.getItem(`addresses_${guestId}`);
+        const key = getAddressStorageKeyForUser(userData);
+        const raw = localStorage.getItem(key);
         const parsed = raw ? JSON.parse(raw) : [];
         setAddresses(Array.isArray(parsed) ? parsed : []);
       } catch {
@@ -212,11 +221,11 @@ const Profile = () => {
                   </p>
                 </div>
 
-                {addresses.length > 0 && (
-                  <div className="pt-4 border-t" style={{ borderColor: "var(--brand-lavender-soft)" }}>
-                    <label className="block text-sm font-medium mb-3" style={{ color: "var(--brand-muted)" }}>
-                      Saved Addresses
-                    </label>
+                <div className="pt-4 border-t" style={{ borderColor: "var(--brand-lavender-soft)" }}>
+                  <label className="block text-sm font-medium mb-3" style={{ color: "var(--brand-muted)" }}>
+                    Saved Addresses
+                  </label>
+                  {addresses.length > 0 ? (
                     <div className="space-y-3">
                       {addresses.map((addr) => (
                         <div key={addr.id} className="rounded-lg border p-3" style={{ borderColor: "var(--brand-lavender-soft)" }}>
@@ -233,8 +242,10 @@ const Profile = () => {
                         </div>
                       ))}
                     </div>
-                  </div>
-                )}
+                  ) : (
+                    <p className="text-sm text-gray-500">Address not available</p>
+                  )}
+                </div>
 
                 <button
                   onClick={() => setIsEditing(true)}

@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const AdminLayout = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [authChecking, setAuthChecking] = useState(true);
+
+  const handleAdminLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/admin/login");
+  };
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + "/");
 
@@ -18,13 +27,62 @@ const AdminLayout = () => {
     }
   }, [location.pathname]);
 
+  useEffect(() => {
+    const verifyAdmin = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const rawUser = localStorage.getItem("user");
+        const user = rawUser ? JSON.parse(rawUser) : null;
+
+        if (!token || !user || user.role !== "admin") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/admin/login", { replace: true });
+          return;
+        }
+
+        const res = await fetch(`${API_URL}/users/auth-check`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/admin/login", { replace: true });
+          return;
+        }
+        const data = await res.json();
+        if (data?.role !== "admin") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          navigate("/admin/login", { replace: true });
+        }
+      } catch (_error) {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        navigate("/admin/login", { replace: true });
+      } finally {
+        setAuthChecking(false);
+      }
+    };
+
+    verifyAdmin();
+  }, [API_URL, navigate]);
+
+  if (authChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-700">
+        Checking admin access...
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen overflow-hidden bg-gray-50">
       {/* Sidebar */}
       <aside
         className={`${
           isSidebarOpen ? "w-64" : "w-20"
-        } bg-gray-900 text-white transition-all duration-300 flex flex-col`}
+        } h-screen shrink-0 bg-gray-900 text-white transition-all duration-300 flex flex-col`}
       >
         {/* Logo */}
         <div className="p-4 border-b border-gray-700">
@@ -54,7 +112,7 @@ const AdminLayout = () => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto p-4">
+        <nav className="flex-1 p-4">
           <ul className="space-y-2">
             {/* Dashboard */}
             <li>
@@ -288,9 +346,9 @@ const AdminLayout = () => {
             {/* Blog */}
             <li>
               <Link
-                to="/admin/add-blog"
+                to="/admin/blogs"
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                  isActive("/admin/add-blog")
+                  isActive("/admin/blogs")
                     ? "bg-purple-600 text-white"
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
@@ -311,7 +369,17 @@ const AdminLayout = () => {
         </nav>
 
         {/* Logout/Back to Site */}
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-gray-700 space-y-2">
+          <button
+            type="button"
+            onClick={handleAdminLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-300 hover:bg-red-900/30 transition"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+            </svg>
+            {isSidebarOpen && <span>Logout</span>}
+          </button>
           <Link
             to="/"
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition"
@@ -330,7 +398,21 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden">
+        <div className="sticky top-0 z-20 flex justify-end border-b bg-white px-4 py-3 sm:px-6">
+          <Link
+            to="/admin/profile"
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50 ${
+              isActive("/admin/profile") ? "bg-gray-100" : ""
+            }`}
+            style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+          >
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+            Admin
+          </Link>
+        </div>
         <Outlet />
       </main>
     </div>

@@ -1,24 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
-const getGuestId = () => {
-  if (typeof window === "undefined") return null;
-  let id = localStorage.getItem("guestId");
-  if (!id) {
-    id = `guest_${Math.random().toString(36).slice(2)}_${Date.now()}`;
-    localStorage.setItem("guestId", id);
-  }
-  return id;
-};
 const normalizeStatus = (s) => (s === "pending" ? "confirm" : s);
 
 const Orders = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const guestId = useMemo(() => getGuestId(), []);
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -49,9 +39,7 @@ const Orders = () => {
     };
 
     fetchOrders();
-    const t = setInterval(fetchOrders, 3000);
-    return () => clearInterval(t);
-  }, [guestId, navigate]);
+  }, [navigate]);
 
   const cancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;

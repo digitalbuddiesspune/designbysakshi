@@ -92,4 +92,40 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Admin-only login
+router.post('/admin-login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+    if (user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied. Admin role required.' });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    return res.json({
+      message: 'Admin login successful',
+      token,
+      user: userResponse,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

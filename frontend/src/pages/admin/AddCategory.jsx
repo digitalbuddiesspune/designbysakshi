@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AddCategory = () => {
   const navigate = useNavigate();
@@ -17,6 +17,7 @@ const AddCategory = () => {
   const [newSubcategory, setNewSubcategory] = useState({ name: "", slug: "" });
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -81,6 +82,7 @@ const AddCategory = () => {
 
       if (response.ok) {
         setMessage("Category added successfully!");
+        setShowSuccessModal(true);
         setFormData({
           name: "",
           slug: "",
@@ -90,9 +92,6 @@ const AddCategory = () => {
           priority: "",
           description: "",
         });
-        setTimeout(() => {
-          navigate("/admin/categories");
-        }, 2000);
       } else {
         const error = await response.json();
         setMessage(`Error: ${error.error || "Failed to add category"}`);
@@ -248,8 +247,7 @@ const AddCategory = () => {
                 onClick={handleAddSubcategory}
                 className="px-4 py-2 text-sm font-medium text-white rounded-md transition"
                 style={{
-                  background:
-                    "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                  background: "#111111",
                 }}
               >
                 Add
@@ -335,8 +333,7 @@ const AddCategory = () => {
             disabled={loading}
             className="flex-1 px-6 py-3 text-sm font-semibold text-white rounded-md transition disabled:opacity-50"
             style={{
-              background:
-                "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+              background: "#16a34a",
             }}
           >
             {loading ? "Adding..." : "Add Category"}
@@ -346,14 +343,36 @@ const AddCategory = () => {
             onClick={() => navigate("/admin/categories")}
             className="px-6 py-3 text-sm font-semibold rounded-md border transition"
             style={{
-              borderColor: "var(--brand-lavender-soft)",
-              color: "var(--brand-dark)",
+              borderColor: "#111111",
+              color: "#111111",
             }}
           >
             Cancel
           </button>
         </div>
       </form>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/45 px-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-2xl text-green-700">
+              ✓
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900">Category added successfully</h3>
+            <p className="mt-2 text-sm text-gray-600">Your category has been saved.</p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowSuccessModal(false);
+                navigate("/admin/categories");
+              }}
+              className="mt-5 rounded-md bg-black px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

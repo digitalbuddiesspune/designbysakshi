@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useSearchParams, Link, useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const CategoryPage = () => {
   const location = useLocation();
@@ -28,6 +28,13 @@ const CategoryPage = () => {
   const [priceMax, setPriceMax] = useState(null);
   const [minMaxInitialized, setMinMaxInitialized] = useState(false);
 
+  const normalizeSlug = (value) =>
+    String(value || "")
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+
   useEffect(() => {
     fetchCategories();
   }, []);
@@ -38,6 +45,11 @@ const CategoryPage = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [categorySlug, selectedSubcategory]);
+
+  // Keep selected subcategory in sync with URL when user navigates via navbar links.
+  useEffect(() => {
+    setSelectedSubcategory(subcategoryParam || "");
+  }, [subcategoryParam]);
 
   const fetchCategories = async () => {
     try {
@@ -52,13 +64,27 @@ const CategoryPage = () => {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      let url = `${API_URL}/products?category=${categorySlug}`;
-      if (selectedSubcategory) {
-        url += `&subcategory=${selectedSubcategory}`;
-      }
-      const response = await fetch(url);
+      const response = await fetch(`${API_URL}/products`);
       const data = await response.json();
-      setProducts(data);
+
+      const normalizedCategorySlug = normalizeSlug(categorySlug);
+      const normalizedSelectedSub = normalizeSlug(selectedSubcategory);
+
+      const filtered = (Array.isArray(data) ? data : []).filter((product) => {
+        const productCategorySlug = normalizeSlug(product?.category);
+        if (productCategorySlug !== normalizedCategorySlug) return false;
+
+        if (!normalizedSelectedSub) return true;
+        const productSubcategorySlug = normalizeSlug(product?.subcategory);
+        if (productSubcategorySlug === normalizedSelectedSub) return true;
+
+        // Fallback to text-normalized comparison for mixed slug/name formats.
+        const productSubText = String(product?.subcategory || "").toLowerCase().replace(/[_-]+/g, " ").trim();
+        const selectedSubText = String(selectedSubcategory || "").toLowerCase().replace(/[_-]+/g, " ").trim();
+        return productSubText === selectedSubText;
+      });
+
+      setProducts(filtered);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -70,6 +96,17 @@ const CategoryPage = () => {
   const currentCategory = categories.find(
     (cat) => cat.slug === categorySlug || cat.slug === pathSlug
   );
+  const visibleSubcategories =
+    currentCategory?.slug === "latest-collection"
+      ? (currentCategory.subcategories || []).filter((sub) => {
+          const slug = String(sub.slug || "").toLowerCase();
+          const name = String(sub.name || "").toLowerCase();
+          return slug !== "minimal-jewellery" && slug !== "minimal-jewelry" && !name.includes("minimal");
+        })
+      : (currentCategory?.subcategories || []);
+
+  // Do not auto-clear URL-selected subcategory.
+  // Backend/category data can have slug variations; keep user's selected URL filter intact.
 
   // Debug: Log category info
   useEffect(() => {
@@ -202,11 +239,12 @@ const CategoryPage = () => {
         {/* Sticky subcategory + filter row */}
         {currentCategory && (
           <div
-            className="md:sticky md:top-10 z-40 bg-white/95 backdrop-blur"
+            className="sticky top-[64px] md:top-[130px] z-40 bg-white/95 backdrop-blur border-b"
+            style={{ borderColor: "rgba(91, 71, 109, 0.16)" }}
           >
-            <div className="py-1 px-1 sm:px-2">
-              <div className="flex items-center justify-between gap-3">
-                {/* Subcategories (left) - single line */}
+            <div className="py-1 px-1 sm:px-2 space-y-2">
+              {/* Row 1: Subcategories in one line */}
+              <div className="flex items-center gap-2">
                 <div className="flex-1 min-w-0 flex items-center gap-2">
                   {categoryImages[categorySlug] && (
                     <img
@@ -215,7 +253,7 @@ const CategoryPage = () => {
                       className="h-10 w-10 sm:h-12 sm:w-12 object-contain flex-shrink-0"
                     />
                   )}
-                  {currentCategory.subcategories.length > 0 && (
+                  {visibleSubcategories.length > 0 && (
                     <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap">
                       <button
                         onClick={() => handleSubcategoryChange("")}
@@ -231,18 +269,18 @@ const CategoryPage = () => {
                       >
                         All
                       </button>
-                      {currentCategory.subcategories.map((sub) => (
+                      {visibleSubcategories.map((sub) => (
                         <button
                           key={sub.slug}
                           onClick={() => handleSubcategoryChange(sub.slug)}
                           className={`rounded-full px-3 py-2 text-xs font-medium transition flex-shrink-0 ${
-                            selectedSubcategory === sub.slug
+                            normalizeSlug(selectedSubcategory) === normalizeSlug(sub.slug)
                               ? "text-white"
                               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                           }`}
                           style={{
                             background:
-                              selectedSubcategory === sub.slug
+                              normalizeSlug(selectedSubcategory) === normalizeSlug(sub.slug)
                                 ? "#3D294D"
                                 : undefined,
                           }}
@@ -254,8 +292,11 @@ const CategoryPage = () => {
                   )}
                 </div>
 
-                {/* Filter (right) - small text + min/max */}
-                <div className="flex-shrink-0 flex items-center gap-2">
+              </div>
+
+              {/* Row 2: Filter under "All" chips area */}
+              <div className={`flex justify-start ${categoryImages[categorySlug] ? "ml-12 sm:ml-14" : ""}`}>
+                <div className="flex items-center gap-2">
                   <span className="text-[11px] font-semibold" style={{ color: "var(--brand-dark)" }}>
                     filter
                   </span>

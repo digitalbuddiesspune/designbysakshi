@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Blog = () => {
   const [blogs, setBlogs] = useState([]);
@@ -31,74 +31,84 @@ const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--brand-pastel)" }}>
-      <section className="px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-        <h1 
-            className="text-3xl lg:text-4xl font-semibold text-center" 
-            style={{ 
-              color: "var(--brand-dark)",
-              fontFamily: "Cormorant Garamond, Georgia, serif" 
-            }}>
-            Blog
-          </h1>
-          <p
-            className="mx-auto max-w-2xl text-center text-3xl font-medium sm:text-4xl"
-            style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
+    <div className="min-h-screen pb-16" style={{ background: "#f2f0ec" }}>
+      <section className="w-full">
+        <div className="flex h-[150px] items-center justify-center bg-black sm:hidden">
+          <h1
+            className="text-5xl font-semibold tracking-[0.08em]"
+            style={{ color: "#ffffff", fontFamily: "Cormorant Garamond, Georgia, serif" }}
           >
-            Stories, care tips, and new inspirations
-          </p>
+            THE BLOG
+          </h1>
+        </div>
+        <img
+          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774592546/Untitled_1920_x_500_px_e5ielu.svg"
+          alt="Blog banner"
+          className="hidden h-[180px] w-full object-cover sm:block sm:h-[240px] md:h-[320px] lg:h-[390px]"
+        />
+      </section>
+
+      <section className="px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        <div className="mx-auto max-w-6xl">
+         
 
           {loading ? (
-            <div className="mt-12 text-center text-sm" style={{ color: "var(--brand-muted)" }}>
+            <div className="py-10 text-center text-sm" style={{ color: "var(--brand-muted)" }}>
               Loading blogs...
             </div>
           ) : blogs.length === 0 ? (
-            <div className="mt-12 text-center rounded-2xl border bg-white px-6 py-12" style={{ color: "var(--brand-muted)" }}>
+            <div className="rounded-lg border bg-white px-6 py-12 text-center" style={{ borderColor: "rgba(0,0,0,0.08)" }}>
               <p className="text-lg font-semibold" style={{ color: "var(--brand-dark)" }}>
                 No blogs yet
               </p>
-              <p className="mt-2 text-sm">Please check back soon.</p>
+              <p className="mt-2 text-sm" style={{ color: "var(--brand-muted)" }}>
+                Please check back soon.
+              </p>
             </div>
           ) : (
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-3">
               {blogs.map((blog) => (
                 <Link
                   key={blog._id}
                   to={`/blog/${blog._id}`}
-                  className="group overflow-hidden rounded-2xl bg-white shadow-sm transition hover:shadow-lg"
+                  className={`group w-full ${
+                    blogs.length === 1
+                      ? "col-span-2 mx-auto max-w-[300px] lg:col-span-3"
+                      : "max-w-none lg:mx-auto lg:max-w-[300px]"
+                  }`}
                   style={{ textDecoration: "none" }}
                 >
-                  <div className="relative h-44 w-full overflow-hidden bg-gray-100">
-                    <img
-                      src={blog.image}
-                      alt={blog.title}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/10 to-transparent" />
+                  <div className="relative">
+                    <div className="h-[185px] w-full overflow-hidden bg-white sm:h-[220px]">
+                      <img
+                        src={blog.image}
+                        alt={blog.title}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                  
                   </div>
 
-                  <div className="p-5">
+                  <div className="px-2 pt-4 text-center">
                     <h2
-                      className="mb-2 text-lg font-semibold"
-                      style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
+                      className="mx-auto max-w-[260px] text-[24px] leading-[1.08] sm:text-[28px] lg:text-[33px]"
+                      style={{ color: "#262626", fontFamily: "Cormorant Garamond, Georgia, serif" }}
                     >
                       {blog.title}
                     </h2>
-                    {blog.bloggerName ? (
-                      <div
-                        className="mb-3 text-xs font-medium inline-block px-2.5 py-1 rounded-full"
-                        style={{ background: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
-                      >
-                        By {blog.bloggerName}
-                      </div>
-                    ) : null}
-                    <p className="text-sm leading-relaxed" style={{ color: "var(--brand-muted)" }}>
+                    <p className="mx-auto mt-2 max-w-[260px] text-[12px] leading-5 sm:mt-3 sm:text-[13px] sm:leading-6" style={{ color: "#474747" }}>
                       {formatExcerpt(blog.content)}
                     </p>
-
-                    <div className="mt-4 inline-flex items-center gap-2 text-sm font-medium" style={{ color: "var(--brand-purple)" }}>
-                      Read more →
+                    <div className="mt-4 text-center">
+                      <span
+                        className="inline-block text-[16px] italic"
+                        style={{ color: "#2f2f2f", fontFamily: "Cormorant Garamond, Georgia, serif" }}
+                      >
+                        Read More
+                      </span>
+                      <span className="ml-2 inline-block text-base" style={{ color: "#2f2f2f" }}>
+                        &rarr;
+                      </span>
                     </div>
                   </div>
                 </Link>

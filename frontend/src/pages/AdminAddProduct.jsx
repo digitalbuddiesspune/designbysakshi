@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const AdminAddProduct = () => {
   const navigate = useNavigate();
@@ -21,6 +21,7 @@ const AdminAddProduct = () => {
   const [additionalImageUrls, setAdditionalImageUrls] = useState([""]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     fetchCategories();
@@ -75,6 +76,7 @@ const AdminAddProduct = () => {
 
       if (response.ok) {
         setMessage("Product added successfully!");
+        setShowSuccessModal(true);
         setFormData({
           name: "",
           image: "",
@@ -185,7 +187,7 @@ const AdminAddProduct = () => {
                 onClick={() => setAdditionalImageUrls((prev) => [...prev, ""])}
                 className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90"
                 style={{
-                  background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                  background: "#111111",
                   color: "white",
                 }}
               >
@@ -420,8 +422,7 @@ const AdminAddProduct = () => {
               disabled={loading}
               className="flex-1 rounded-md px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-50"
               style={{
-                background:
-                  "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                background: "#16a34a",
               }}
             >
               {loading ? "Adding..." : "Add Product"}
@@ -431,8 +432,8 @@ const AdminAddProduct = () => {
               onClick={() => navigate("/admin/products")}
               className="rounded-md border px-6 py-3 text-sm font-semibold transition hover:opacity-90"
               style={{
-                borderColor: "var(--brand-lavender-soft)",
-                color: "var(--brand-dark)",
+                borderColor: "#111111",
+                color: "#111111",
               }}
             >
               Cancel
@@ -440,6 +441,25 @@ const AdminAddProduct = () => {
           </div>
         </form>
       </div>
+
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/45 px-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 text-center shadow-2xl">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-2xl text-green-700">
+              ✓
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900">Product added successfully</h3>
+            <p className="mt-2 text-sm text-gray-600">Your product has been saved.</p>
+            <button
+              type="button"
+              onClick={() => setShowSuccessModal(false)}
+              className="mt-5 rounded-md bg-black px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

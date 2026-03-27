@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const getGuestId = () => {
   if (typeof window === "undefined") return null;
@@ -20,7 +20,9 @@ const ProductDetail = () => {
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [cartBusy, setCartBusy] = useState(false);
-  const [added, setAdded] = useState(false);
+  const [wishlistBusy, setWishlistBusy] = useState(false);
+  const [inCart, setInCart] = useState(false);
+  const [inWishlist, setInWishlist] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const guestId = useMemo(() => getGuestId(), []);
@@ -45,7 +47,42 @@ const ProductDetail = () => {
     if (id) fetchProduct();
   }, [id]);
 
+  useEffect(() => {
+    const loadState = async () => {
+      if (!product?._id) return;
+      try {
+        const [cartRes, wishlistRes] = await Promise.all([
+          fetch(`${API_URL}/cart?guestId=${encodeURIComponent(guestId)}`),
+          fetch(`${API_URL}/wishlist?guestId=${encodeURIComponent(guestId)}`),
+        ]);
+        const cartData = cartRes.ok ? await cartRes.json() : { items: [] };
+        const wishlistData = wishlistRes.ok ? await wishlistRes.json() : { products: [] };
+
+        const cartIds = new Set(
+          (cartData?.items || [])
+            .map((it) => it?.product?._id || it?.product)
+            .filter(Boolean)
+            .map(String),
+        );
+        const wishlistIds = new Set(
+          (wishlistData?.products || [])
+            .map((p) => p?._id || p)
+            .filter(Boolean)
+            .map(String),
+        );
+
+        setInCart(cartIds.has(String(product._id)));
+        setInWishlist(wishlistIds.has(String(product._id)));
+      } catch (e) {
+        console.error("Load product state failed:", e);
+      }
+    };
+
+    loadState();
+  }, [product?._id, guestId]);
+
   const handleAddToCart = async () => {
+    if (inCart) return;
     try {
       setCartBusy(true);
       await fetch(`${API_URL}/cart/add`, {
@@ -54,12 +91,31 @@ const ProductDetail = () => {
         body: JSON.stringify({ productId: product._id, quantity, guestId }),
       });
       window.dispatchEvent(new Event("cart-updated"));
-      setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
+      setInCart(true);
     } catch (e) {
       console.error("Add to cart failed:", e);
     } finally {
       setCartBusy(false);
+    }
+  };
+
+  const handleAddToWishlist = async () => {
+    if (inWishlist) return;
+    try {
+      setWishlistBusy(true);
+      const res = await fetch(`${API_URL}/wishlist/add`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product._id, guestId }),
+      });
+      if (res.ok) {
+        setInWishlist(true);
+      }
+      window.dispatchEvent(new Event("wishlist-updated"));
+    } catch (e) {
+      console.error("Add to wishlist failed:", e);
+    } finally {
+      setWishlistBusy(false);
     }
   };
 
@@ -221,13 +277,26 @@ const ProductDetail = () => {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={cartBusy || !inStock}
+                disabled={cartBusy || !inStock || inCart}
                 className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: "#3D294D",
                 }}
               >
-                {added ? "✓ Added!" : cartBusy ? "Adding..." : "Add to Cart"}
+                {inCart ? "Added" : cartBusy ? "Adding..." : "Add to Cart"}
+              </button>
+              <button
+                type="button"
+                onClick={handleAddToWishlist}
+                disabled={wishlistBusy || inWishlist}
+                className="flex-1 rounded-full border px-4 py-2.5 text-sm font-semibold text-center transition disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  borderColor: "#3D294D",
+                  background: inWishlist ? "#3D294D" : "white",
+                  color: inWishlist ? "white" : "#3D294D",
+                }}
+              >
+                {inWishlist ? "Wishlist Added" : wishlistBusy ? "Adding..." : "Add to Wishlist"}
               </button>
               <button
                 type="button"
