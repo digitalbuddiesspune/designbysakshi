@@ -13,7 +13,7 @@ const getGuestId = () => {
   return id;
 };
 
-const CollectionPage = ({ heroImage, subcategoryName, title }) => {
+const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -153,7 +153,14 @@ const CollectionPage = ({ heroImage, subcategoryName, title }) => {
     <div className="bg-white">
       {/* Hero Banner */}
       <div className="flex justify-center">
-        <img src={heroImage} alt={title} className="block h-auto" />
+        {mobileHeroImage ? (
+          <>
+            <img src={heroImage} alt={title} className="hidden h-auto sm:block" />
+            <img src={mobileHeroImage} alt={title} className="block h-auto sm:hidden" />
+          </>
+        ) : (
+          <img src={heroImage} alt={title} className="block h-auto" />
+        )}
       </div>
 
       {/* Products */}
