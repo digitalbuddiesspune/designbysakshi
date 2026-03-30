@@ -29,12 +29,7 @@ import Wishlist from "../pages/Wishlist.jsx";
 import ProductDetail from "../pages/ProductDetail.jsx";
 import CategoryPage from "../pages/CategoryPage.jsx";
 import Checkout from "../pages/Checkout.jsx";
-import WeddingCollection from "../pages/WeddingCollection.jsx";
-import FestiveCollection from "../pages/FestiveCollection.jsx";
-import PartywearCollection from "../pages/PartywearCollection.jsx";
-import DailywearCollection from "../pages/DailywearCollection.jsx";
-import OfficewearCollection from "../pages/OfficewearCollection.jsx";
-import LuxuryAdCollection from "../pages/LuxuryAdCollection.jsx";
+import LatestCollectionSlugRedirect from "../pages/LatestCollectionSlugRedirect.jsx";
 import PrivacyPolicy from "../pages/PrivacyPolicy.jsx";
 import RefundPolicy from "../pages/RefundPolicy.jsx";
 import ShippingPolicy from "../pages/ShippingPolicy.jsx";
@@ -46,6 +41,9 @@ import MyOrders from "../pages/admin/MyOrders.jsx";
 import AdminOrderDetails from "../pages/admin/OrderDetails.jsx";
 import Users from "../pages/admin/Users.jsx";
 import AdminProfile from "../pages/admin/AdminProfile.jsx";
+import AdminBanners from "../pages/admin/AdminBanners.jsx";
+import AdminCollections from "../pages/admin/AdminCollections.jsx";
+import AdminPayments from "../pages/admin/Payments.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -68,6 +66,7 @@ const router = createBrowserRouter(
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="orders" element={<MyOrders />} />
+        <Route path="payments" element={<AdminPayments />} />
         <Route path="users" element={<Users />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="order-details/:id" element={<AdminOrderDetails />} />
@@ -78,6 +77,8 @@ const router = createBrowserRouter(
         <Route path="edit-category/:id" element={<EditCategory />} />
         <Route path="testimonials" element={<AdminTestimonials />} />
         <Route path="blogs" element={<AddBlog />} />
+        <Route path="banners" element={<AdminBanners />} />
+        <Route path="collections-showcase" element={<AdminCollections />} />
       </Route>
       <Route path="necklace-sets" element={<CategoryPage />} />
       <Route path="earrings" element={<CategoryPage />} />
@@ -91,12 +92,14 @@ const router = createBrowserRouter(
       <Route path="bestseller" element={<CategoryPage />} />
       <Route path="new-arrival" element={<CategoryPage />} />
       <Route path="product/:id" element={<ProductDetail />} />
-      <Route path="wedding-collection" element={<WeddingCollection />} />
-      <Route path="festive-collection" element={<FestiveCollection />} />
-      <Route path="partywear-collection" element={<PartywearCollection />} />
-      <Route path="dailywear-collection" element={<DailywearCollection />} />
-      <Route path="officewear-collection" element={<OfficewearCollection />} />
-      <Route path="luxuryad-collection" element={<LuxuryAdCollection />} />
+      <Route path="latest-collection/:slug" element={<LatestCollectionSlugRedirect />} />
+      {/* Backward-compat redirects from old routes */}
+      <Route path="wedding-collection" element={<Navigate to="/latest-collection?subcategory=wedding-collection" replace />} />
+      <Route path="festive-collection" element={<Navigate to="/latest-collection?subcategory=festive-collection" replace />} />
+      <Route path="partywear-collection" element={<Navigate to="/latest-collection?subcategory=partywear-collection" replace />} />
+      <Route path="dailywear-collection" element={<Navigate to="/latest-collection?subcategory=dailywear-collection" replace />} />
+      <Route path="officewear-collection" element={<Navigate to="/latest-collection?subcategory=officewear-collection" replace />} />
+      <Route path="luxuryad-collection" element={<Navigate to="/latest-collection?subcategory=luxuryad-collection" replace />} />
       <Route path="privacy-policy" element={<PrivacyPolicy />} />
       <Route path="refund-policy" element={<RefundPolicy />} />
       <Route path="shipping-policy" element={<ShippingPolicy />} />

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ImageUploader from "../../components/admin/ImageUploader.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -256,26 +257,13 @@ const AddCategory = () => {
           </div>
         </div>
 
-        {/* Image URL - Optional */}
+        {/* Image - Optional */}
         <div>
-          <label
-            htmlFor="image"
-            className="block text-sm font-medium mb-1"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Image URL
-          </label>
-          <input
-            type="url"
-            id="image"
-            name="image"
+          <ImageUploader
+            label="Category Image (optional)"
             value={formData.image}
-            onChange={handleChange}
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-            style={{
-              borderColor: "var(--brand-lavender-soft)",
-              color: "var(--brand-dark)",
-            }}
+            onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+            folder="designbysakshi/categories"
           />
         </div>
 

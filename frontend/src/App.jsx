@@ -8,6 +8,7 @@ const App = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   // Hide header/footer for all admin routes including admin/login
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
   
 
 
@@ -53,7 +54,7 @@ const App = () => {
       <main style={{ flex: 1 }} className="pb-20 md:pb-0">
         <Outlet />
       </main>
-      <div className="-mt-16 sm:-mt-6 lg:-mt-6">
+      <div className={isAuthPage ? "mt-6 sm:mt-8 lg:mt-10" : "-mt-16 sm:-mt-6 lg:-mt-6"}>
       {!isAdminRoute && <Footer />}
       </div>
     </div>

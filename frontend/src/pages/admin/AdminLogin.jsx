@@ -73,8 +73,8 @@ const AdminLogin = () => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("user", JSON.stringify(data.user));
-        if (data.token) localStorage.setItem("token", data.token);
+        localStorage.setItem("adminUser", JSON.stringify(data.user));
+        if (data.token) localStorage.setItem("adminToken", data.token);
         setMessage("Login successful! Redirecting...");
         setTimeout(() => {
           navigate("/admin/dashboard");

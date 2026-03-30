@@ -5,20 +5,11 @@ import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 
-const desktopBanners = [
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227061/Gold_luxury_jewelry_banner_1920_x_600_px_2_bk5rad.png",
-
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773226925/Untitled_1920_x_600_px_15_spu6hk.png",
-];
-
-const mobileBanners = [
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773226954/Untitled_1920_x_600_px_1080_x_1080_px_1_ohtdgu.png",
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227061/Gold_luxury_jewelry_banner_1920_x_600_px_1080_x_1080_px_1_s4kdz9.png"
-]
-
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Hero = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [banners, setBanners] = useState([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -29,7 +20,32 @@ const Hero = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const banners = isMobile ? mobileBanners : desktopBanners;
+  useEffect(() => {
+    const loadBanners = async () => {
+      try {
+        const res = await fetch(`${API_URL}/banners`);
+        const data = await res.json();
+        const mapped = (Array.isArray(data) ? data : []).map((b) => {
+          const desktop = (b.imageDesktop || b.imageMobile || "").trim();
+          const mobile = (b.imageMobile || b.imageDesktop || "").trim();
+          return {
+            desktop,
+            mobile,
+            link: b.link || "",
+            title: b.title || "",
+          };
+        });
+        // Only keep banners that actually have a usable image to avoid empty src warnings
+        const filtered = mapped.filter((m) => (m.desktop || m.mobile));
+        setBanners(filtered);
+      } catch {
+        setBanners([]);
+      }
+    };
+    loadBanners();
+  }, []);
+
+  const hasLoop = banners.length > 1;
 
   return (
     <section className="w-full overflow-hidden">
@@ -39,7 +55,7 @@ const Hero = () => {
           delay: 4000,
           disableOnInteraction: false,
         }}
-        loop={true}
+        loop={hasLoop}
         pagination={{ clickable: true }}
         className="w-full"
       >
@@ -47,11 +63,13 @@ const Hero = () => {
           <SwiperSlide key={index}>
             {/* Mobile: 1080×1080 (square). Desktop: 1920×600 (wide) */}
             <div className="relative w-full aspect-square md:aspect-[32/10]">
-              <img
-                src={banner}
-                alt={`Banner ${index + 1}`}
-                className="absolute inset-0 h-full w-full object-cover"
-              />
+              <a href={banner.link || "#"}>
+                <img
+                  src={isMobile ? (banner.mobile || banner.desktop) : (banner.desktop || banner.mobile)}
+                  alt={banner.title || `Banner ${index + 1}`}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+              </a>
             </div>
           </SwiperSlide>
         ))}

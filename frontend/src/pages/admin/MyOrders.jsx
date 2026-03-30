@@ -4,7 +4,11 @@ import { openInvoiceWindow } from "../../utils/invoice";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const normalizeStatus = (s) => (s === "pending" ? "confirm" : s);
+const normalizeStatus = (s) => {
+  if (s === "pending") return "confirm";
+  if (s === "returnable") return "refundable";
+  return s;
+};
 
 const prettyStatus = (s) => {
   const normalized = normalizeStatus(s || "");
@@ -20,7 +24,7 @@ const statusBadgeClass = (status) => {
   if (s === "processing") return "bg-yellow-100 text-yellow-800";
   if (s === "shipped") return "bg-purple-100 text-purple-800";
   if (s === "delivered") return "bg-green-100 text-green-800";
-  if (s === "returnable") return "bg-teal-100 text-teal-800";
+  if (s === "refundable") return "bg-teal-100 text-teal-800";
   if (s === "cancelled") return "bg-red-100 text-red-800";
   return "bg-gray-100 text-gray-800";
 };
@@ -137,7 +141,7 @@ const MyOrders = () => {
               <option value="shipped">Shipping</option>
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
-              <option value="returnable">Returnable</option>
+              <option value="refundable">Refundable</option>
             </select>
           </div>
 
@@ -194,14 +198,34 @@ const MyOrders = () => {
               orders.map((o) => {
                 const dateLabel = o?.createdAt ? new Date(o.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "";
                 return (
-                  <tr key={o._id} className="border-t hover:bg-gray-50">
-                    <td className="px-5 py-4">
-                      <button type="button" onClick={() => navigate(`/admin/order-details/${o._id}`)} className="text-left underline underline-offset-2 hover:opacity-90" style={{ color: "var(--brand-dark)" }}>
+                  <tr
+                    key={o._id}
+                    className="border-t hover:bg-gray-50 cursor-pointer"
+                    onClick={() => navigate(`/admin/order-details/${o._id}`)}
+                  >
+                    <td className="px-5 py-4 ">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/admin/order-details/${o._id}`);
+                        }}
+                        className="text-left underline underline-offset-2 hover:opacity-90"
+                        style={{ color: "var(--brand-dark)" }}
+                      >
                         #{o.orderNumber || o._id.slice(-6)}
                       </button>
                     </td>
                     <td className="px-5 py-4">
-                      <button type="button" onClick={() => navigate(`/admin/order-details/${o._id}`)} className="text-left hover:opacity-90" style={{ color: "var(--brand-dark)" }}>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/admin/order-details/${o._id}`);
+                        }}
+                        className="text-left hover:opacity-90"
+                        style={{ color: "var(--brand-dark)" }}
+                      >
                         <div className="font-semibold">{o.name || "Customer"}</div>
                         <div className="text-xs" style={{ color: "var(--brand-muted)" }}>{o.phone || o.email}</div>
                       </button>
@@ -241,7 +265,10 @@ const MyOrders = () => {
                     <td className="px-5 py-4">
                       <button
                         type="button"
-                        onClick={() => openInvoiceWindow(o)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openInvoiceWindow(o);
+                        }}
                         className="rounded-lg border px-3 py-1.5 text-xs font-semibold hover:bg-gray-50"
                         style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
                       >

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
 
 const getGuestId = () => {
   if (typeof window === "undefined") return null;
@@ -138,6 +139,148 @@ const Checkout = () => {
   const deliveryFee = isDeliveryFree ? 0 : 50;
   const grandTotal = subtotal + deliveryFee;
 
+  const loadRazorpayScript = () =>
+    new Promise((resolve) => {
+      if (window.Razorpay) {
+        resolve(true);
+        return;
+      }
+
+      const existing = document.querySelector(`script[src="${RAZORPAY_SCRIPT_URL}"]`);
+      if (existing) {
+        existing.addEventListener("load", () => resolve(true), { once: true });
+        existing.addEventListener("error", () => resolve(false), { once: true });
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = RAZORPAY_SCRIPT_URL;
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+
+  const createOrderInSystem = async (token, mode, transactionId = "") => {
+    const orderPayload = {
+      items: items.map((item) => ({
+        product: item.product?._id || item.product,
+        quantity: item.quantity || 1,
+        price: item.priceAtAddTime || 0,
+      })),
+      shippingAddress: selectedAddress,
+      paymentMethod: mode,
+      totalAmount: grandTotal,
+      transactionId,
+    };
+
+    const orderRes = await fetch(`${API_URL}/orders`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(orderPayload),
+    });
+
+    if (!orderRes.ok) {
+      const err = await orderRes.json().catch(() => ({}));
+      throw new Error(err?.message || "Failed to create order");
+    }
+
+    if (!buyNowItem) {
+      await fetch(`${API_URL}/cart/clear`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ guestId }),
+      });
+      window.dispatchEvent(new Event("cart-updated"));
+    }
+  };
+
+  const handleOnlinePayment = async (token) => {
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      alert("Unable to load Razorpay. Please try again.");
+      return;
+    }
+
+    const [keyRes, razorOrderRes] = await Promise.all([
+      fetch(`${API_URL}/orders/payment/razorpay/key`),
+      fetch(`${API_URL}/orders/payment/razorpay/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ amount: grandTotal }),
+      }),
+    ]);
+
+    const keyData = await keyRes.json().catch(() => ({}));
+    const razorOrder = await razorOrderRes.json().catch(() => ({}));
+
+    if (!keyRes.ok || !keyData?.key) {
+      throw new Error(keyData?.message || "Razorpay key fetch failed");
+    }
+    if (!razorOrderRes.ok || !razorOrder?.id) {
+      throw new Error(razorOrder?.message || "Razorpay order creation failed");
+    }
+
+    const paymentResponse = await new Promise((resolve, reject) => {
+      const rzp = new window.Razorpay({
+        key: keyData.key,
+        amount: razorOrder.amount,
+        currency: razorOrder.currency || "INR",
+        name: "Design By Sakshi",
+        description: "Order Payment",
+        order_id: razorOrder.id,
+        handler: async (response) => {
+          try {
+            const verifyRes = await fetch(`${API_URL}/orders/payment/razorpay/verify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+              body: JSON.stringify(response),
+            });
+            const verifyData = await verifyRes.json().catch(() => ({}));
+            if (!verifyRes.ok || !verifyData?.verified) {
+              reject(new Error(verifyData?.message || "Payment verification failed"));
+              return;
+            }
+            resolve(response);
+          } catch (error) {
+            reject(error);
+          }
+        },
+        modal: {
+          ondismiss: () => reject(new Error("Payment cancelled by user")),
+        },
+        prefill: {
+          name: selectedAddress?.fullName || "",
+          contact: selectedAddress?.phone || "",
+        },
+        theme: {
+          color: "#111827",
+        },
+      });
+
+      rzp.on("payment.failed", (resp) => {
+        const reason = resp?.error?.description || "Payment failed";
+        reject(new Error(reason));
+      });
+
+      rzp.open();
+    });
+
+    return paymentResponse;
+  };
+
+  const logPaymentAttempt = async (token, payload) => {
+    try {
+      await fetch(`${API_URL}/orders/payment/attempt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      console.error("Failed to store payment attempt:", error);
+    }
+  };
+
   const handlePlaceOrder = async () => {
     if (!items.length) return;
 
@@ -155,42 +298,32 @@ const Checkout = () => {
     try {
       setLoading(true);
 
-      const orderPayload = {
-        items: items.map(item => ({
-          product: item.product?._id || item.product,
-          quantity: item.quantity || 1,
-          price: item.priceAtAddTime || 0,
-        })),
-        shippingAddress: selectedAddress,
-        paymentMethod: paymentMode,
-        totalAmount: grandTotal,
-      };
-
-      const orderRes = await fetch(`${API_URL}/orders`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(orderPayload),
-      });
-
-      if (!orderRes.ok) {
-        const err = await orderRes.json();
-        console.error("Order creation failed:", err);
-        return;
+      let transactionId = "";
+      if (paymentMode === "online") {
+        const paymentResponse = await handleOnlinePayment(token);
+        transactionId = paymentResponse?.razorpay_payment_id || "";
       }
 
-      // Only clear the full cart if this was a normal cart checkout
-      if (!buyNowItem) {
-        await fetch(`${API_URL}/cart/clear`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ guestId }),
-        });
-        window.dispatchEvent(new Event("cart-updated"));
-      }
-
+      await createOrderInSystem(token, paymentMode, transactionId);
       setShowConfirmModal(true);
     } catch (e) {
       console.error("Place order failed:", e);
+      if (paymentMode === "online" && e?.message !== "Payment cancelled by user") {
+        await logPaymentAttempt(token, {
+          items: items.map((item) => ({
+            product: item.product?._id || item.product,
+            quantity: item.quantity || 1,
+            name: item.product?.name || "",
+          })),
+          totalAmount: grandTotal,
+          paymentStatus: "failed",
+          paymentMethod: "online",
+          errorMessage: e?.message || "Payment failed",
+        });
+      }
+      if (e?.message && e.message !== "Payment cancelled by user") {
+        alert(e.message);
+      }
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import ImageUploader from "../../components/admin/ImageUploader.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -9,15 +10,11 @@ const MyProducts = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editFormData, setEditFormData] = useState({});
-  const [editAdditionalImageUrls, setEditAdditionalImageUrls] = useState([""]);
+  const [editAdditionalImageUrls, setEditAdditionalImageUrls] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
-
-  useEffect(() => {
-    fetchProducts();
-  }, []);
 
   const fetchProducts = async () => {
     try {
@@ -30,6 +27,19 @@ const MyProducts = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const onStockUpdated = () => {
+      fetchProducts();
+    };
+    window.addEventListener("product-stock-updated", onStockUpdated);
+    return () => window.removeEventListener("product-stock-updated", onStockUpdated);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Calculate category summary
   const categorySummary = useMemo(() => {
@@ -306,6 +316,9 @@ const MyProducts = () => {
                     Price
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
+                    Stock
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
                     Actions
                   </th>
                 </tr>
@@ -336,6 +349,11 @@ const MyProducts = () => {
                     <td className="px-4 py-3">
                       <div className="text-sm font-semibold">{formatPrice(product.price)}</div>
                     </td>
+                  <td className="px-4 py-3">
+                    <div className="text-sm" style={{ color: product.stock > 0 ? "var(--brand-dark)" : "#ef4444" }}>
+                      {Number.isFinite(product.stock) ? product.stock : 0}
+                    </div>
+                  </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-3 items-center">
                         <button
@@ -468,56 +486,50 @@ const MyProducts = () => {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Image URL *</label>
-                    <input
-                      type="url"
-                      name="image"
-                      value={editFormData.image || ""}
-                      onChange={handleEditChange}
-                      className="w-full px-3 py-2 border rounded-lg"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between gap-3 mb-2">
-                      <label className="block text-sm font-medium">Additional Image URLs</label>
+                  <ImageUploader
+                    label="Main Image *"
+                    value={editFormData.image || ""}
+                    onChange={(url) => setEditFormData((prev) => ({ ...prev, image: url }))}
+                    folder="designbysakshi/products/main"
+                  />
+                  <div className="space-y-4">
+                    {editAdditionalImageUrls.map((val, idx) => (
+                      <div key={`edit-extra-${idx}`} className="space-y-2">
+                        <ImageUploader
+                          label={`Additional Image ${idx + 1}`}
+                          value={val}
+                          onChange={(url) =>
+                            setEditAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? url : item)))
+                          }
+                          folder="designbysakshi/products/extra"
+                        />
+                        <div className="flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setEditAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))}
+                            className="text-xs font-semibold text-red-600 hover:opacity-90"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="flex">
                       <button
                         type="button"
-                        onClick={() => setEditAdditionalImageUrls((prev) => [...prev, ""])}
-                        className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90"
+                        onClick={() =>
+                          setEditAdditionalImageUrls((prev) => (prev.length >= 4 ? prev : [...prev, ""]))
+                        }
+                        disabled={editAdditionalImageUrls.length >= 4}
+                        className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90 disabled:opacity-40"
                         style={{
-                          background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
+                          background:
+                            "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
                           color: "white",
                         }}
                       >
-                        + Add More Image
+                        + Add Image
                       </button>
-                    </div>
-                    <div className="space-y-3">
-                      {editAdditionalImageUrls.map((val, idx) => (
-                        <div key={`edit-extra-${idx}`}>
-                          <input
-                            type="url"
-                            value={val}
-                            onChange={(e) => {
-                              const next = e.target.value;
-                              setEditAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? next : item)));
-                            }}
-                            placeholder="Image link (https://...)"
-                            className="w-full px-3 py-2 border rounded-lg"
-                          />
-                          {idx > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => setEditAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))}
-                              className="mt-2 text-xs font-semibold text-red-600 hover:opacity-90"
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </div>
-                      ))}
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">

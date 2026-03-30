@@ -25,7 +25,7 @@ const statusHistorySchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      enum: ['confirm', 'processing', 'shipped', 'delivered', 'returnable', 'cancelled', 'pending'],
+      enum: ['confirm', 'processing', 'shipped', 'delivered', 'refundable', 'returnable', 'cancelled', 'pending'],
       required: true,
     },
     changedAt: {
@@ -63,7 +63,7 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['confirm', 'processing', 'shipped', 'delivered', 'returnable', 'cancelled', 'pending'],
+      enum: ['confirm', 'processing', 'shipped', 'delivered', 'refundable', 'returnable', 'cancelled', 'pending'],
       default: 'confirm',
     },
     statusHistory: {
@@ -74,6 +74,11 @@ const orderSchema = new mongoose.Schema(
       type: String,
       enum: ['paid', 'unpaid', 'failed'],
       default: 'unpaid',
+    },
+    transactionId: {
+      type: String,
+      trim: true,
+      default: '',
     },
     totalAmount: {
       type: Number,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import ImageUploader from "../components/admin/ImageUploader.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -17,8 +18,8 @@ const AdminAddProduct = () => {
     inStock: true,
     stock: "",
   });
-  // Additional image URLs (comma-separated input is replaced by dynamic boxes)
-  const [additionalImageUrls, setAdditionalImageUrls] = useState([""]);
+  // Additional image URLs (dynamically add up to 4)
+  const [additionalImageUrls, setAdditionalImageUrls] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -154,76 +155,53 @@ const AdminAddProduct = () => {
             />
           </div>
 
-          <div>
-            <label
-              htmlFor="image"
-              className="block text-sm font-medium"
-              style={{ color: "var(--brand-dark)" }}
-            >
-              Image URL *
-            </label>
-            <input
-              type="url"
-              id="image"
-              name="image"
-              required
-              value={formData.image}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-              style={{
-                borderColor: "var(--brand-lavender-soft)",
-                color: "var(--brand-dark)",
-              }}
-            />
-          </div>
+          <ImageUploader
+            label="Main Image *"
+            value={formData.image}
+            onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+            folder="designbysakshi/products/main"
+          />
 
           <div>
-            <div className="flex items-center justify-between gap-3">
-              <label htmlFor="additionalImageUrls" className="block text-sm font-medium" style={{ color: "var(--brand-dark)" }}>
-                Additional Image URLs
-              </label>
-              <button
-                type="button"
-                onClick={() => setAdditionalImageUrls((prev) => [...prev, ""])}
-                className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90"
-                style={{
-                  background: "#111111",
-                  color: "white",
-                }}
-              >
-                + Add More Image
-              </button>
-            </div>
-
-            <div className="mt-3 space-y-3">
+            <div className="mt-3 space-y-4">
               {additionalImageUrls.map((val, idx) => (
-                <div key={`extra-image-${idx}`}>
-                  <input
-                    type="url"
+                <div key={`extra-uploader-${idx}`} className="space-y-2">
+                  <ImageUploader
+                    label={`Additional Image ${idx + 1}`}
                     value={val}
-                    onChange={(e) => {
-                      const next = e.target.value;
-                      setAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? next : item)));
-                    }}
-                    placeholder="Image link (https://...)"
-                    className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-                    style={{
-                      borderColor: "var(--brand-lavender-soft)",
-                      color: "var(--brand-dark)",
-                    }}
+                    onChange={(url) =>
+                      setAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? url : item)))
+                    }
+                    folder="designbysakshi/products/extra"
                   />
-
-                  {idx > 0 && (
+                  <div className="flex justify-end">
                     <button
                       type="button"
-                      onClick={() => setAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))}
-                      className="mt-2 text-xs font-semibold text-red-600 hover:opacity-90"
+                      onClick={() =>
+                        setAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))
+                      }
+                      className="text-xs font-semibold text-red-600 hover:opacity-90"
                     >
                       Remove
                     </button>
-                  )}
+                  </div>
                 </div>
               ))}
+              <div className="flex">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setAdditionalImageUrls((prev) =>
+                      prev.length >= 4 ? prev : [...prev, ""]
+                    )
+                  }
+                  disabled={additionalImageUrls.length >= 4}
+                  className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90 disabled:opacity-40"
+                  style={{ background: "#111111", color: "white" }}
+                >
+                  + Add Image
+                </button>
+              </div>
             </div>
           </div>
 

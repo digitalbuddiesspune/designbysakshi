@@ -3,6 +3,39 @@ import { Link, useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const DynamicCollectionsDropdown = () => {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_URL}/collection-showcase`);
+        const data = await res.json();
+        setItems(Array.isArray(data) ? data : []);
+      } catch {
+        setItems([]);
+      }
+    };
+    load();
+  }, []);
+  return (
+    <div
+      className="absolute left-0 top-full mt-1 w-52 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
+      style={{ borderColor: "var(--brand-lavender-soft)", zIndex: 99999 }}
+    >
+      {items.map((item) => (
+        <Link
+          key={item._id}
+          to={item.route || "#"}
+          className="block px-4 py-2 text-sm no-underline transition hover:bg-gray-50"
+          style={{ color: "var(--brand-dark)" }}
+        >
+          {item.title}
+        </Link>
+      ))}
+    </div>
+  );
+};
+
 const Header = () => {
   const [clickedCategory, setClickedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -144,23 +177,41 @@ const Header = () => {
       const categories = await response.json();
 
       // Transform backend categories to match frontend structure
-      const transformedCategories = categories.map((cat) => {
-        const subcategories = (cat.subcategories || []).filter((sub) => {
-          if (cat.slug !== "latest-collection") return true;
-          const slug = String(sub.slug || "").toLowerCase();
-          const name = String(sub.name || "").toLowerCase();
-          return slug !== "minimal-jewellery" && slug !== "minimal-jewelry" && !name.includes("minimal");
-        });
+      const transformedCategories = categories.map((cat) => ({
+        label: cat.name,
+        slug: cat.slug,
+        sub: (cat.subcategories || []).map((sub) => ({
+          label: sub.name,
+          slug: sub.slug,
+        })),
+      }));
 
-        return {
-          label: cat.name,
-          slug: cat.slug,
-          sub: subcategories.map((sub) => ({
-            label: sub.name,
-            slug: sub.slug,
-          })),
-        };
-      });
+      // Also merge in collection-showcase items under latest-collection,
+      // so navbar reflects configured collections even if category data wasn't updated yet.
+      try {
+        const csRes = await fetch(`${API_URL}/collection-showcase`);
+        const cs = await csRes.json();
+        const items = Array.isArray(cs) ? cs : [];
+        if (items.length > 0) {
+          const latestIdx = transformedCategories.findIndex((c) => c.slug === "latest-collection");
+          if (latestIdx !== -1) {
+            const existing = new Map(
+              transformedCategories[latestIdx].sub.map((s) => [String(s.slug).toLowerCase(), s]),
+            );
+            // Preserve API order (already priority-sorted)
+            for (const it of items) {
+              const slug = String((it.route || "").split("/").pop() || "").toLowerCase();
+              const title = it.title || slug.replace(/-/g, " ");
+              if (slug && !existing.has(slug)) {
+                existing.set(slug, { label: title, slug });
+              }
+            }
+            transformedCategories[latestIdx].sub = Array.from(existing.values());
+          }
+        }
+      } catch {
+        // ignore merge errors silently
+      }
 
       setCategoryBar(transformedCategories);
     } catch (error) {
@@ -168,23 +219,10 @@ const Header = () => {
     }
   };
 
-  // Map collection subcategory slugs to their dedicated page routes
-  const collectionRouteMap = {
-    "wedding-collection": "/wedding-collection",
-    "festive-collection": "/festive-collection",
-    "party-wear-collection": "/partywear-collection",
-    "partywear-collection": "/partywear-collection",
-    "daily-wear-collection": "/dailywear-collection",
-    "dailywear-collection": "/dailywear-collection",
-    "office-wear-collection": "/officewear-collection",
-    "officewear-collection": "/officewear-collection",
-    "luxury-ad-collection": "/luxuryad-collection",
-    "luxuryad-collection": "/luxuryad-collection",
-  };
-
   const subHref = (catSlug, subSlug) => {
-    if (catSlug === "latest-collection" && collectionRouteMap[subSlug]) {
-      return collectionRouteMap[subSlug];
+    if (catSlug === "latest-collection") {
+      // Always route to /latest-collection/<slug> for latest collection items
+      return `/latest-collection/${subSlug}`;
     }
     return `/${catSlug}?subcategory=${subSlug}`;
   };
@@ -214,7 +252,7 @@ const Header = () => {
     <header
       className="sticky top-0 z-[100] w-full border-b"
       style={{
-        background: "linear-gradient(180deg, #c5a2d7 )",
+        background: "#845183",
         borderColor: "rgba(91, 71, 109, 0.22)",
       }}
     >
@@ -228,7 +266,7 @@ const Header = () => {
             className="p-2 transition hover:opacity-80"
             aria-label="Menu"
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -247,7 +285,7 @@ const Header = () => {
         </Link>
 
         {/* Right side icons */}
-        <div className="flex items-center gap-2" style={{ color: "var(--brand-dark)" }}>
+        <div className="flex items-center gap-2" style={{ color: "#ffffff" }}>
           {/* Search Icon */}
           <button
             type="button"
@@ -255,7 +293,7 @@ const Header = () => {
             className="p-2 transition hover:opacity-80"
             aria-label="Search"
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
@@ -267,7 +305,7 @@ const Header = () => {
         <Link
           to="/"
           className="flex items-center gap-1 no-underline transition opacity-90 hover:opacity-100"
-          style={{ color: "var(--brand-dark)" }}
+          style={{ color: "#ffffff" }}
         >
           <img
             src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774441947/Screenshot_2026-03-25_174920-removebg-preview_5_gwltrx.png"
@@ -289,7 +327,7 @@ const Header = () => {
                   className="px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2"
                   style={{
                     borderColor: "var(--brand-lavender-soft)",
-                    color: "var(--brand-dark)",
+                    color: "#ffffff",
                     minWidth: "200px"
                   }}
                   autoFocus
@@ -299,7 +337,7 @@ const Header = () => {
                   className="rounded p-2 transition hover:opacity-80"
                   aria-label="Search"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
@@ -312,7 +350,7 @@ const Header = () => {
                   className="rounded p-2 transition hover:opacity-80"
                   aria-label="Close search"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -324,7 +362,7 @@ const Header = () => {
                 className="rounded p-2 transition hover:opacity-80"
                 aria-label="Search"
               >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
@@ -335,7 +373,7 @@ const Header = () => {
           <Link
             to="/about"
             className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
-            style={{ color: "var(--brand-dark)" }}
+            style={{ color: "#ffffff" }}
           >
             About Us
           </Link>
@@ -345,42 +383,21 @@ const Header = () => {
             <button
               type="button"
               className="text-base font-medium transition hover:opacity-90 sm:text-lg flex items-center gap-1 bg-transparent border-none cursor-pointer"
-              style={{ color: "var(--brand-dark)" }}
+              style={{ color: "#ffffff" }}
             >
               Collections
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div
-              className="absolute left-0 top-full mt-1 w-52 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200"
-              style={{ borderColor: "var(--brand-lavender-soft)", zIndex: 99999 }}
-            >
-              {[
-                { label: "Wedding Collection", path: "/wedding-collection" },
-                { label: "Festive Collection", path: "/festive-collection" },
-                { label: "Partywear Collection", path: "/partywear-collection" },
-                { label: "Daily Wear Collection", path: "/dailywear-collection" },
-                { label: "Office Wear Collection", path: "/officewear-collection" },
-                { label: "Luxury AD Collection", path: "/luxuryad-collection" },
-              ].map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className="block px-4 py-2 text-sm no-underline transition hover:bg-gray-50"
-                  style={{ color: "var(--brand-dark)" }}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
+            <DynamicCollectionsDropdown />
           </div>
 
           {/* Contact */}
           <Link
             to="/contact"
             className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
-            style={{ color: "var(--brand-dark)" }}
+            style={{ color: "#ffffff" }}
           >
             Contact
           </Link>
@@ -389,13 +406,13 @@ const Header = () => {
           <Link
             to="/blog"
             className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
-            style={{ color: "var(--brand-dark)" }}
+            style={{ color: "#ffffff" }}
           >
             Blog
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4" style={{ color: "var(--brand-dark)" }}>
+        <div className="flex items-center gap-4" style={{ color: "#ffffff" }}>
           {/* Wishlist Icon */}
           <Link
             to="/wishlist"
@@ -548,7 +565,7 @@ const Header = () => {
               className="p-2 transition hover:opacity-80"
               aria-label="Close search"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "var(--brand-dark)" }}>
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -1002,13 +1019,25 @@ const Header = () => {
                         </svg>
                       </button>
                     ) : (
-                      <Link
-                        to={mainHref(cat.slug)}
-                        className="py-1.5 text-sm font-medium no-underline transition hover:opacity-90 whitespace-nowrap"
-                        style={{ color: "#ffffff" }}
-                      >
-                        {cat.label}
-                      </Link>
+                      <>
+                        {cat.slug === "latest-collection" ? (
+                          <span
+                            className="py-1.5 text-sm font-medium whitespace-nowrap cursor-default opacity-70"
+                            style={{ color: "#ffffff" }}
+                            aria-disabled="true"
+                          >
+                            {cat.label}
+                          </span>
+                        ) : (
+                          <Link
+                            to={mainHref(cat.slug)}
+                            className="py-1.5 text-sm font-medium no-underline transition hover:opacity-90 whitespace-nowrap"
+                            style={{ color: "#ffffff" }}
+                          >
+                            {cat.label}
+                          </Link>
+                        )}
+                      </>
                     )}
 
                     {/* Dropdown: visible only when clicked */}

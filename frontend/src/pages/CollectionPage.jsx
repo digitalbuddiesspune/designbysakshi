@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,11 +15,37 @@ const getGuestId = () => {
 
 const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [inCartIds, setInCartIds] = useState(new Set());
   const [wishlistedIds, setWishlistedIds] = useState(new Set());
   const guestId = useMemo(() => getGuestId(), []);
+  const [pageHero, setPageHero] = useState({ desktop: heroImage || "", mobile: mobileHeroImage || "" });
+
+  // Load hero from backend if not provided
+  useEffect(() => {
+    if (heroImage || mobileHeroImage) {
+      setPageHero({ desktop: heroImage || "", mobile: mobileHeroImage || "" });
+      return;
+    }
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_URL}/collection-showcase`);
+        const data = await res.json();
+        const path = location.pathname;
+        const item = (Array.isArray(data) ? data : []).find((it) => it.route === path);
+        if (item) {
+          setPageHero({ desktop: item.heroDesktop || "", mobile: item.heroMobile || "" });
+        } else {
+          setPageHero({ desktop: "", mobile: "" });
+        }
+      } catch {
+        setPageHero({ desktop: "", mobile: "" });
+      }
+    };
+    load();
+  }, [heroImage, mobileHeroImage, location.pathname]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -152,16 +178,18 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
   return (
     <div className="bg-white">
       {/* Hero Banner */}
-      <div className="flex justify-center">
-        {mobileHeroImage ? (
-          <>
-            <img src={heroImage} alt={title} className="hidden h-auto sm:block" />
-            <img src={mobileHeroImage} alt={title} className="block h-auto sm:hidden" />
-          </>
-        ) : (
-          <img src={heroImage} alt={title} className="block h-auto" />
-        )}
-      </div>
+      {(pageHero.desktop || pageHero.mobile) && (
+        <div className="flex justify-center">
+          {pageHero.mobile ? (
+            <>
+              <img src={pageHero.desktop || pageHero.mobile} alt={title} className="hidden h-auto sm:block" />
+              <img src={pageHero.mobile} alt={title} className="block h-auto sm:hidden" />
+            </>
+          ) : (
+            <img src={pageHero.desktop} alt={title} className="block h-auto" />
+          )}
+        </div>
+      )}
 
       {/* Products */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">

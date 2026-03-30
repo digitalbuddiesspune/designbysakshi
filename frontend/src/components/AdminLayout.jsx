@@ -10,6 +10,8 @@ const AdminLayout = () => {
   const [authChecking, setAuthChecking] = useState(true);
 
   const handleAdminLogout = () => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("adminUser");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/admin/login");
@@ -30,11 +32,13 @@ const AdminLayout = () => {
   useEffect(() => {
     const verifyAdmin = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const rawUser = localStorage.getItem("user");
+        const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+        const rawUser = localStorage.getItem("adminUser") || localStorage.getItem("user");
         const user = rawUser ? JSON.parse(rawUser) : null;
 
         if (!token || !user || user.role !== "admin") {
+          localStorage.removeItem("adminToken");
+          localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           navigate("/admin/login", { replace: true });
@@ -45,6 +49,8 @@ const AdminLayout = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) {
+          localStorage.removeItem("adminToken");
+          localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           navigate("/admin/login", { replace: true });
@@ -52,14 +58,14 @@ const AdminLayout = () => {
         }
         const data = await res.json();
         if (data?.role !== "admin") {
+          localStorage.removeItem("adminToken");
+          localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
           navigate("/admin/login", { replace: true });
         }
       } catch (_error) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        navigate("/admin/login", { replace: true });
+        // Keep current admin session on transient network errors.
       } finally {
         setAuthChecking(false);
       }
@@ -304,6 +310,91 @@ const AdminLayout = () => {
                 </svg>
                 {isSidebarOpen && <span>Orders</span>}
               </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/admin/payments"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                  isActive("/admin/payments")
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 10h18M7 15h.01M11 15h2m-8 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                {isSidebarOpen && <span>Payments</span>}
+              </Link>
+            </li>
+
+            {/* Homepage */}
+            <li>
+              <div className="mb-2">
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === "homepage" ? null : "homepage")}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                    isActive("/admin/banners") || isActive("/admin/collections-showcase")
+                      ? "bg-purple-600 text-white"
+                      : "text-gray-300 hover:bg-gray-800"
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3" />
+                  </svg>
+                  {isSidebarOpen && (
+                    <>
+                      <span className="flex-1 text-left">Homepage</span>
+                      <svg
+                        className={`w-4 h-4 transition-transform ${
+                          openDropdown === "homepage" ? "rotate-180" : ""
+                        }`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+                {isSidebarOpen && openDropdown === "homepage" && (
+                  <ul className="mt-2 ml-8 space-y-1">
+                    <li>
+                      <Link
+                        to="/admin/banners"
+                        className={`block px-4 py-2 rounded-lg transition ${
+                          isActive("/admin/banners")
+                            ? "bg-purple-700 text-white"
+                            : "text-gray-400 hover:bg-gray-800"
+                        }`}
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        Banners
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        to="/admin/collections-showcase"
+                        className={`block px-4 py-2 rounded-lg transition ${
+                          isActive("/admin/collections-showcase")
+                            ? "bg-purple-700 text-white"
+                            : "text-gray-400 hover:bg-gray-800"
+                        }`}
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        Shop By Collection
+                      </Link>
+                    </li>
+                  </ul>
+                )}
+              </div>
             </li>
 
             <li>

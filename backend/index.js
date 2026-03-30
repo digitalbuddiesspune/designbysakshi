@@ -10,6 +10,9 @@ import wishlistRoutes from './routes/wishlistRoutes.js'
 import orderRoutes from './routes/orderRoutes.js'
 import testimonialRoutes from './routes/testimonialRoutes.js'
 import blogRoutes from './routes/blogRoutes.js'
+import bannerRoutes from './routes/bannerRoutes.js'
+import collectionShowcaseRoutes from './routes/collectionShowcaseRoutes.js'
+import uploadRoutes from './routes/uploadRoutes.js'
 
 dotenv.config()
 const app = express();
@@ -42,6 +45,9 @@ app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/banners', bannerRoutes);
+app.use('/api/collection-showcase', collectionShowcaseRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Connect to MongoDB and start server
 const startServer = async () => {

@@ -1,59 +1,37 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-const categories = [
-  {
-    id: "necklace-sets",
-    label: "Necklace Sets",
-    href: "/necklace-sets",
-    image:
-      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773396951/necklace.jpg_cm747b.jpg",
-  },
-  {
-    id: "earrings",
-    label: "Earrings",
-    href: "/earrings",
-    image:
-      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227350/826a94f52e1b2e636bfe7b444f6c7133_p4z0b1_licyph.jpg",
-  },
-  {
-    id: "rings",
-    label: "Rings",
-    href: "/rings",
-    image:
-      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773396952/rings.jpg_stwjj7.jpg",
-  },
-  {
-    id: "bangles-bracelets",
-    label: "Bangles & Bracelets",
-    href: "/bangles-bracelets",
-    image:
-      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227353/c0358e5333f3f2a3ef34f4365f745819_oc7z80_mpspdh.jpg",
-  },
-  {
-    id: "pendants",
-    label: "Pendants",
-    href: "/pendants",
-    image:
-      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773227351/23469a8f-9683-4f46-bfd8-2fe7091da443_v5yzqs.png",
-  },
-  {
-    id: "bridal-jewellery",
-    label: "Bridal Jewellery",
-    href: "/bridal-jewellery",
-    image:
-      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773396951/bridal.jpg_hyx0ih.jpg",
-  },
-  {
-    id: "anklets",
-    label: "Anklets",
-    href: "/anklets",
-    image:
-      "https://res.cloudinary.com/dbfooaz44/image/upload/v1773396951/anklet.jpg_kcy23y.jpg",
-  },
-];
+const API_URL = import.meta.env.VITE_API_URL;
 
 const ShopByCategory = () => {
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_URL}/categories`);
+        const data = await res.json();
+        const excluded = new Set(["latest-collection", "bestseller", "new-arrival"]);
+        const mapped = (Array.isArray(data) ? data : [])
+          .filter((cat) => !excluded.has(String(cat?.slug || "").toLowerCase()))
+          .map((cat) => ({
+            id: String(cat?.slug || ""),
+            label: cat?.name || "",
+            href: `/${cat?.slug || ""}`,
+            image: cat?.image || "",
+            priority: Number.isFinite(cat?.priority) ? cat.priority : 999,
+          }))
+          .filter((cat) => cat.id)
+          .sort((a, b) => a.priority - b.priority);
+
+        setCategories(mapped);
+      } catch {
+        setCategories([]);
+      }
+    };
+    load();
+  }, []);
+
   return (
     <section className="bg-[var(--brand-pastel)] px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
       <div className="mx-auto max-w-7xl">
@@ -80,18 +58,22 @@ const ShopByCategory = () => {
               <div
                 className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] overflow-hidden rounded-full ring-2 ring-offset-4 ring-[#3D294D] bg-[var(--brand-lavender-soft)] shadow-md transition-shadow group-hover:shadow-xl"
               >
-                <img
-                  src={cat.image}
-                  alt={cat.label}
-                  className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
-                  onError={(e) => {
-                    e.target.style.display = "none";
-                    const fallback = e.target.parentElement?.querySelector(".category-fallback");
-                    if (fallback) fallback.classList.remove("hidden");
-                  }}
-                />
+                {cat.image ? (
+                  <img
+                    src={cat.image}
+                    alt={cat.label}
+                    className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                      const fallback = e.target.parentElement?.querySelector(".category-fallback");
+                      if (fallback) fallback.classList.remove("hidden");
+                    }}
+                  />
+                ) : null}
                 <div
-                  className="category-fallback absolute inset-0 hidden items-center justify-center bg-[var(--brand-lavender)] text-[var(--brand-dark)]"
+                  className={`category-fallback absolute inset-0 items-center justify-center bg-[var(--brand-lavender)] text-[var(--brand-dark)] ${
+                    cat.image ? "hidden" : "flex"
+                  }`}
                   aria-hidden
                 >
                   <span className="text-3xl font-bold text-center px-2">{cat.label}</span>

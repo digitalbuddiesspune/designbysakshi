@@ -96,14 +96,7 @@ const CategoryPage = () => {
   const currentCategory = categories.find(
     (cat) => cat.slug === categorySlug || cat.slug === pathSlug
   );
-  const visibleSubcategories =
-    currentCategory?.slug === "latest-collection"
-      ? (currentCategory.subcategories || []).filter((sub) => {
-          const slug = String(sub.slug || "").toLowerCase();
-          const name = String(sub.name || "").toLowerCase();
-          return slug !== "minimal-jewellery" && slug !== "minimal-jewelry" && !name.includes("minimal");
-        })
-      : (currentCategory?.subcategories || []);
+  const visibleSubcategories = currentCategory?.subcategories || [];
 
   // Do not auto-clear URL-selected subcategory.
   // Backend/category data can have slug variations; keep user's selected URL filter intact.
@@ -233,13 +226,27 @@ const CategoryPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-white py-8 sm:py-12">
+    <div className="bg-white py-8 sm:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {categorySlug === "latest-collection" && (
+          <div className="mb-6">
+            <img
+              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774852455/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1080_x_400_px_1920_x_400_px_1080_x_700_px_1920_x_500_px_s5bd4k.png"
+              alt="Latest Collection"
+              className="hidden w-full h-auto object-cover md:block"
+            />
+            <img
+              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774852466/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1080_x_400_px_1920_x_400_px_1080_x_700_px_1_yq5w3h.png"
+              alt="Latest Collection"
+              className="block w-full h-auto object-cover md:hidden"
+            />
+          </div>
+        )}
 
         {/* Sticky subcategory + filter row */}
         {currentCategory && (
           <div
-            className="sticky top-[64px] md:top-[130px] z-40 bg-white/95 backdrop-blur border-b"
+            className="sticky top-[78px] md:top-[148px] z-40 bg-white/95 backdrop-blur border-b"
             style={{ borderColor: "rgba(91, 71, 109, 0.16)" }}
           >
             <div className="py-1 px-1 sm:px-2 space-y-2">

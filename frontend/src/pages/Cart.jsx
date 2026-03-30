@@ -113,7 +113,7 @@ const Cart = () => {
   const isEmpty = !loading && items.length === 0;
 
   return (
-    <div className="min-h-screen bg-white py-8">
+    <div className="bg-white py-8">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
        
 

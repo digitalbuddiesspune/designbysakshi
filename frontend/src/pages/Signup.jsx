@@ -171,7 +171,7 @@ const Signup = () => {
         </div>
       )}
 
-      <div className="min-h-screen flex items-start justify-center py-2 px-4 sm:px-6 lg:px-8" style={{ paddingTop: '40px' }}>
+      <div className="flex items-start justify-center py-2 px-4 sm:px-6 lg:px-8" style={{ paddingTop: '40px' }}>
         <div className="max-w-md w-full">
           <div className="bg-white rounded-lg shadow-xl p-6">
           <div className="text-center mb-4">

@@ -3,7 +3,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { openInvoiceWindow } from "../utils/invoice";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const normalizeStatus = (s) => (s === "pending" ? "confirm" : s);
+const normalizeStatus = (s) => {
+  if (s === "pending") return "confirm";
+  if (s === "returnable") return "refundable";
+  return s;
+};
 const formatDateTime = (v) =>
   v
     ? new Date(v).toLocaleString("en-IN", {
@@ -78,7 +82,7 @@ const OrderDetail = () => {
     if (s === "processing") return 2;
     if (s === "shipped") return 3;
     if (s === "delivered") return 4;
-    if (s === "returnable") return 4; // show on the "Delivered" step
+    if (s === "refundable") return 4; // show on the "Delivered" step
     if (s === "cancelled") return 5;
     return 0;
   }, [order]);
@@ -89,7 +93,7 @@ const OrderDetail = () => {
     const hist = Array.isArray(order?.statusHistory) ? order.statusHistory : [];
     hist.forEach((h) => {
       const key = normalizeStatus(h.status);
-      if (key === "returnable") {
+      if (key === "refundable") {
         if (!map.delivered) map.delivered = h.changedAt;
       } else if (!map[key]) {
         map[key] = h.changedAt;

@@ -94,6 +94,7 @@ const Dashboard = () => {
       const res = await fetch(`${API_URL}/orders/admin`);
       const orders = res.ok ? await res.json() : [];
       const monthlyTotals = Array(12).fill(0);
+      const monthlyLastDate = Array(12).fill(null);
 
       (Array.isArray(orders) ? orders : []).forEach((order) => {
         if (!order?.createdAt) return;
@@ -104,12 +105,18 @@ const Dashboard = () => {
         if (createdAt.getFullYear() !== selectedYear) return;
         const monthIndex = createdAt.getMonth();
         monthlyTotals[monthIndex] += Number(order.totalAmount || 0);
+        const existing = monthlyLastDate[monthIndex];
+        if (!existing || createdAt > existing) {
+          monthlyLastDate[monthIndex] = createdAt;
+        }
       });
 
       setSalesData(
         months.map((month, index) => ({
           month,
           sales: monthlyTotals[index],
+          monthIndex: index,
+          lastOrderDate: monthlyLastDate[index],
         })),
       );
     } catch (error) {
@@ -118,10 +125,11 @@ const Dashboard = () => {
     }
   };
 
-  const maxSales = Math.max(...salesData.map((d) => d.sales), 1);
+  const chartSalesData = salesData;
+  const maxSales = Math.max(...chartSalesData.map((d) => d.sales), 1);
   const chartHeight = 300;
   const chartWidth = 620;
-  const barWidth = chartWidth / salesData.length - 10;
+  const barWidth = chartSalesData.length > 0 ? chartWidth / chartSalesData.length - 10 : 0;
   const firstProductName = (o) => o?.items?.[0]?.product?.name || "Product";
 
   return (
@@ -344,10 +352,13 @@ const Dashboard = () => {
                   </g>
                 ))}
                 {/* Bars */}
-                {salesData.map((data, index) => {
+                {chartSalesData.map((data, index) => {
                   const barHeight = (data.sales / maxSales) * chartHeight;
                   const x = 50 + index * (barWidth + 10);
                   const y = chartHeight - barHeight + 20;
+                  const hoverDate = data.lastOrderDate
+                    ? new Date(data.lastOrderDate).toLocaleDateString("en-IN")
+                    : `${data.month} ${selectedYear}`;
                   return (
                     <g key={data.month}>
                       <rect
@@ -357,7 +368,9 @@ const Dashboard = () => {
                         height={barHeight}
                         fill="url(#gradient)"
                         rx="4"
-                      />
+                      >
+                        <title>{`${data.month} ${selectedYear}\nSales: ₹${data.sales.toLocaleString("en-IN")}\nLast order date: ${hoverDate}`}</title>
+                      </rect>
                       <text
                         x={x + barWidth / 2}
                         y={chartHeight + 40}

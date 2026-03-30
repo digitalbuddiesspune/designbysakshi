@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import ImageUploader from "../../components/admin/ImageUploader.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,7 +16,7 @@ const EditCategory = () => {
     priority: "",
     description: "",
   });
-  const [newSubcategory, setNewSubcategory] = useState({ name: "", slug: "" });
+  const [newSubcategory, setNewSubcategory] = useState({ name: "", slug: "", image: "", priority: "" });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [message, setMessage] = useState("");
@@ -67,12 +68,24 @@ const EditCategory = () => {
   };
 
   const handleAddSubcategory = () => {
-    if (newSubcategory.name.trim() && newSubcategory.slug.trim()) {
+    const name = (newSubcategory.name || "").trim();
+    if (name) {
+      const slug = name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)/g, "");
+
+      const subToAdd = {
+        name,
+        slug,
+        ...(newSubcategory.image && { image: newSubcategory.image }),
+        ...(newSubcategory.priority !== "" && { priority: parseInt(newSubcategory.priority) || 0 }),
+      };
       setFormData((prev) => ({
         ...prev,
-        subcategories: [...prev.subcategories, { ...newSubcategory }],
+        subcategories: [...prev.subcategories, subToAdd],
       }));
-      setNewSubcategory({ name: "", slug: "" });
+      setNewSubcategory({ name: "", slug: "", image: "", priority: "" });
     }
   };
 
@@ -89,10 +102,34 @@ const EditCategory = () => {
     setMessage("");
 
     try {
+      const normalizeSlug = (value) =>
+        String(value || "")
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+
+      // Normalize subcategories to ensure backend required fields exist.
+      const normalizedSubcategories = Array.isArray(formData.subcategories)
+        ? formData.subcategories
+            .map((s) => {
+              const name = String(s?.name || "").trim();
+              const slug = String(s?.slug || "").trim() || normalizeSlug(name);
+              if (!name || !slug) return null;
+              return {
+                name,
+                slug,
+                ...(s?.image ? { image: s.image } : {}),
+                ...(Number.isFinite(s?.priority) ? { priority: s.priority } : { priority: 0 }),
+              };
+            })
+            .filter(Boolean)
+        : [];
+
       const categoryData = {
         name: formData.name,
         slug: formData.slug,
-        subcategories: formData.subcategories,
+        subcategories: normalizedSubcategories,
         ...(formData.image && { image: formData.image }),
         ...(formData.discountedPrice && {
           discountedPrice: parseFloat(formData.discountedPrice),
@@ -264,20 +301,39 @@ const EditCategory = () => {
           </label>
           <div className="space-y-3">
             {formData.subcategories.map((sub, index) => (
-              <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded">
-                <span className="flex-1 text-sm">
-                  {sub.name} ({sub.slug})
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveSubcategory(index)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Remove
-                </button>
+              <div key={index} className="space-y-2 p-3 bg-gray-50 rounded">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={sub.name}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setFormData((prev) => {
+                        const copy = { ...prev };
+                        copy.subcategories[index].name = v;
+                        copy.subcategories[index].slug = v
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/(^-|-$)/g, "");
+                        return copy;
+                      });
+                    }}
+                    className="flex-1 rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
+                    placeholder="Subcategory Name"
+                    style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSubcategory(index)}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    Remove
+                  </button>
+                </div>
+                {formData.slug === "latest-collection" && null}
               </div>
             ))}
-            <div className="flex gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <input
                 type="text"
                 placeholder="Subcategory Name"
@@ -298,10 +354,15 @@ const EditCategory = () => {
                   color: "var(--brand-dark)",
                 }}
               />
+              {formData.slug === "latest-collection" && (
+                null
+              )}
+            </div>
+            <div>
               <button
                 type="button"
                 onClick={handleAddSubcategory}
-                className="px-4 py-2 text-sm font-medium text-white rounded-md transition"
+                className="mt-2 px-4 py-2 text-sm font-medium text-white rounded-md transition"
                 style={{
                   background:
                     "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
@@ -313,26 +374,13 @@ const EditCategory = () => {
           </div>
         </div>
 
-        {/* Image URL - Optional */}
+        {/* Image - Optional */}
         <div>
-          <label
-            htmlFor="image"
-            className="block text-sm font-medium mb-1"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Image URL
-          </label>
-          <input
-            type="url"
-            id="image"
-            name="image"
+          <ImageUploader
+            label="Category Image (optional)"
             value={formData.image}
-            onChange={handleChange}
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-            style={{
-              borderColor: "var(--brand-lavender-soft)",
-              color: "var(--brand-dark)",
-            }}
+            onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+            folder="designbysakshi/categories"
           />
         </div>
 

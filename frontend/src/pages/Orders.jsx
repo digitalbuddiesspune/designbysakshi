@@ -3,7 +3,11 @@ import { useNavigate, Link } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const normalizeStatus = (s) => (s === "pending" ? "confirm" : s);
+const normalizeStatus = (s) => {
+  if (s === "pending") return "confirm";
+  if (s === "returnable") return "refundable";
+  return s;
+};
 
 const Orders = () => {
   const navigate = useNavigate();
@@ -66,14 +70,14 @@ const Orders = () => {
       processing: "bg-blue-100 text-blue-800",
       shipped: "bg-purple-100 text-purple-800",
       delivered: "bg-green-100 text-green-800",
-      returnable: "bg-teal-100 text-teal-800",
+      refundable: "bg-teal-100 text-teal-800",
       cancelled: "bg-red-100 text-red-800",
     };
     return map[s] || "bg-gray-100 text-gray-800";
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="bg-gray-50">
       <div className="p-4 sm:p-6 lg:p-8">
         <div className="mx-auto max-w-4xl">
           <div className="mb-6">
@@ -160,7 +164,7 @@ const Orders = () => {
     <button
       type="button"
       onClick={() => cancelOrder(order._id)}
-      disabled={["processing", "shipped", "delivered", "returnable", "cancelled"].includes(normalizeStatus(order.status))}
+      disabled={["processing", "shipped", "delivered", "refundable", "cancelled"].includes(normalizeStatus(order.status))}
       className="rounded-lg border border-red-200 px-4 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
     >
       Cancel Order
