@@ -24,7 +24,7 @@ const Footer = () => {
                 9130383655
               </a>
             </p>
-            <p className="mt-2 whitespace-nowrap text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <p className="mt-2 break-all text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
               Email:{" "}
               <a
                 href="mailto:designsbyshakshi@gmail.com"

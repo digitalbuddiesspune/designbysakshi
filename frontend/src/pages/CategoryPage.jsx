@@ -243,10 +243,10 @@ const CategoryPage = () => {
           </div>
         )}
 
-        {/* Sticky subcategory + filter row */}
+        {/* Sticky subcategory + filter row under navbar */}
         {currentCategory && (
           <div
-            className="sticky top-[78px] md:top-[148px] z-40 bg-white/95 backdrop-blur border-b"
+            className="sticky top-16 md:top-[112px] lg:top-[144px] z-30 border-b bg-white"
             style={{ borderColor: "rgba(91, 71, 109, 0.16)" }}
           >
             <div className="py-1 px-1 sm:px-2 space-y-2">
@@ -362,9 +362,10 @@ const CategoryPage = () => {
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
               {filteredProducts.map((product) => (
-                <div
+                <Link
+                  to={`/product/${product._id}`}
                   key={product._id}
-                  className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+                  className="group relative block bg-white shadow-sm transition-all duration-300 hover:shadow-lg no-underline"
                 >
                 <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                   <img
@@ -378,7 +379,11 @@ const CategoryPage = () => {
                     type="button"
                     className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
                     aria-label="Add to wishlist"
-                    onClick={() => handleAddToWishlist(product._id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleAddToWishlist(product._id);
+                    }}
                   >
                     <svg
                       className="h-4 w-4"
@@ -413,28 +418,31 @@ const CategoryPage = () => {
 
                   {/* Actions */}
                   <div className="mt-3 flex gap-2">
-                    <Link
-                      to={`/product/${product._id}`}
+                    <span
                       className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition text-[#3D294D] hover:bg-[#3D294D] hover:text-white"
                       style={{
                         borderColor: "#3D294D",
                       }}
                     >
                       View Details
-                    </Link>
+                    </span>
                     <button
                       type="button"
                       className="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                       style={{
                         background: "#3D294D",
                       }}
-                      onClick={() => handleAddToCart(product._id)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        handleAddToCart(product._id);
+                      }}
                     >
                       Add to Cart
                     </button>
                   </div>
                 </div>
-              </div>
+              </Link>
                 ))}
               </div>
             )}

@@ -83,7 +83,7 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
+    <div className="admin-theme flex h-screen overflow-hidden bg-gray-50">
       {/* Sidebar */}
       <aside
         className={`${

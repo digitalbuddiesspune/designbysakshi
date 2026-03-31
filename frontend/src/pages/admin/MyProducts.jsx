@@ -211,17 +211,9 @@ const MyProducts = () => {
             onClick={() => setSelectedCategory("")}
             className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
               selectedCategory === ""
-                ? "text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                ? "bg-purple-600 text-white"
+                : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
             }`}
-            style={
-              selectedCategory === ""
-                ? {
-                    background:
-                      "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                  }
-                : {}
-            }
           >
             All ({products.length})
           </button>
@@ -231,17 +223,9 @@ const MyProducts = () => {
               onClick={() => setSelectedCategory(cat.name)}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
                 selectedCategory === cat.name
-                  ? "text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? "bg-purple-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
               }`}
-              style={
-                selectedCategory === cat.name
-                  ? {
-                      background:
-                        "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                    }
-                  : {}
-              }
             >
               {cat.name} ({cat.count})
             </button>

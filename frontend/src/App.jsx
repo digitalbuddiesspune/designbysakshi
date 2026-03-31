@@ -1,11 +1,14 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import Footer from './components/Footer'
 import Header from './components/Header'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import Login from './pages/Login'
+import Signup from './pages/Signup'
 
 const App = () => {
   const location = useLocation();
   const API_URL = import.meta.env.VITE_API_URL;
+  const [authModal, setAuthModal] = useState(null);
   // Hide header/footer for all admin routes including admin/login
   const isAdminRoute = location.pathname.startsWith('/admin');
   const isAuthPage = location.pathname === "/login" || location.pathname === "/signup";
@@ -36,7 +39,13 @@ const App = () => {
         if (res.status === 401) {
           localStorage.removeItem("token");
           localStorage.removeItem("user");
-          if (isProtectedPath) window.location.href = "/login";
+          if (isProtectedPath) {
+            window.dispatchEvent(
+              new CustomEvent("open-auth-modal", {
+                detail: { type: "login" },
+              }),
+            );
+          }
         }
       } catch (e) {
         // ignore transient network errors
@@ -48,15 +57,45 @@ const App = () => {
     return () => clearInterval(timer);
   }, [API_URL, location.pathname]);
 
+  useEffect(() => {
+    const openAuthModal = (event) => {
+      const modalType = event?.detail?.type === "signup" ? "signup" : "login";
+      setAuthModal(modalType);
+    };
+    window.addEventListener("open-auth-modal", openAuthModal);
+    return () => window.removeEventListener("open-auth-modal", openAuthModal);
+  }, []);
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       {!isAdminRoute && <Header />}
-      <main style={{ flex: 1 }} className="pb-20 md:pb-0">
+      <main
+        style={{ flex: 1 }}
+        className={
+          isAdminRoute
+            ? "pb-20 md:pb-0"
+            : "pt-16 md:pt-[112px] lg:pt-[144px] pb-20 md:pb-0"
+        }
+      >
         <Outlet />
       </main>
       <div className={isAuthPage ? "mt-6 sm:mt-8 lg:mt-10" : "-mt-16 sm:-mt-6 lg:-mt-6"}>
       {!isAdminRoute && <Footer />}
       </div>
+      {authModal === "login" && (
+        <Login
+          isModal
+          onClose={() => setAuthModal(null)}
+          onSwitchSignup={() => setAuthModal("signup")}
+        />
+      )}
+      {authModal === "signup" && (
+        <Signup
+          isModal
+          onClose={() => setAuthModal(null)}
+          onSwitchLogin={() => setAuthModal("login")}
+        />
+      )}
     </div>
   )
 }

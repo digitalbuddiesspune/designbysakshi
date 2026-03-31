@@ -568,7 +568,7 @@ const Checkout = () => {
 
           {/* Right: Order Summary */}
           <div className="w-full lg:w-96 flex-shrink-0 ml-auto">
-            <div className="sticky top-24 rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
+            <div className="sticky top-16 md:top-[112px] lg:top-[144px] rounded-2xl border border-gray-200 bg-gray-50 p-6 shadow-sm">
               <h2 className="text-lg font-bold text-gray-900">Order Summary</h2>
 
               <div className="mt-5 space-y-4">

@@ -77,11 +77,11 @@ const Wishlist = () => {
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 lg:gap-6">
             {products.map((product) => (
-              <div
-                key={product._id}
-                className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
-              >
-                <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+              <Link
+              to={`/product/${product._id}`}
+              key={product._id}
+              className="group relative block bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+            ><div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                   <img
                     src={product.image}
                     alt={product.name}
@@ -89,8 +89,11 @@ const Wishlist = () => {
                   />
                   <button
                     type="button"
-                    onClick={() => removeFromWishlist(product._id)}
-                    className="absolute top-2 right-2 rounded-full bg-white p-1.5 shadow-md text-red-500 hover:bg-red-50 transition"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      removeFromWishlist(product._id);
+                    }}                    className="absolute top-2 right-2 rounded-full bg-white p-1.5 shadow-md text-red-500 hover:bg-red-50 transition"
                     aria-label="Remove from wishlist"
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -125,7 +128,7 @@ const Wishlist = () => {
                     </Link>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}

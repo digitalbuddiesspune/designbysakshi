@@ -64,11 +64,28 @@ const Header = () => {
     }
   };
 
+  const openAuthModal = (type = "login") => {
+    window.dispatchEvent(
+      new CustomEvent("open-auth-modal", {
+        detail: { type },
+      }),
+    );
+  };
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+  }, []);
+
+  useEffect(() => {
+    const handleAuthChanged = () => {
+      const storedUser = localStorage.getItem("user");
+      setUser(storedUser ? JSON.parse(storedUser) : null);
+    };
+    window.addEventListener("auth-changed", handleAuthChanged);
+    return () => window.removeEventListener("auth-changed", handleAuthChanged);
   }, []);
 
   useEffect(() => {
@@ -250,7 +267,7 @@ const Header = () => {
 
   return (
     <header
-      className="sticky top-0 z-[100] w-full border-b"
+      className="fixed top-0 left-0 right-0 z-[100] w-full border-b"
       style={{
         background: "#845183",
         borderColor: "rgba(91, 71, 109, 0.22)",
@@ -464,7 +481,7 @@ const Header = () => {
                 if (isLoggedIn()) {
                   setShowUserDropdown(!showUserDropdown);
                 } else {
-                  navigate("/login");
+                  openAuthModal("login");
                 }
               }}
               className="rounded p-2 transition hover:opacity-80"
@@ -622,7 +639,7 @@ const Header = () => {
               if (isLoggedIn()) {
                   navigate("/orders");
                 } else {
-                  navigate("/login");
+                  openAuthModal("login");
                 }
               }}
               className="flex flex-col items-center gap-1"
@@ -644,7 +661,7 @@ const Header = () => {
                 if (isLoggedIn()) {
                   navigate("/profile");
                 } else {
-                  navigate("/login");
+                  openAuthModal("login");
                 }
               }}
               className="flex flex-col items-center gap-1"

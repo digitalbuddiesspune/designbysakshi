@@ -25,6 +25,18 @@ body {
   background: var(--brand-pastel);
 }
 
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Clip horizontal overflow without breaking position:sticky (overflow-x:hidden on ancestors breaks sticky) */
+body {
+  overflow-x: clip;
+}
+
 @layer components {
   .font-display {
     font-family: serif;
@@ -242,3 +254,20 @@ body {
 /* Hide scrollbar but keep scroll functionality */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Admin theme override: only table headers purple */
+
+.admin-theme main table thead tr,
+.admin-theme main table thead th {
+  background-color: #9333ea !important; /* bg-purple-600 */
+  color: #ffffff !important;            /* text-white */
+}
+
+/* In admin tables, action buttons should be icon-only (no filled background) */
+.admin-theme main table tbody td button,
+.admin-theme main table tbody td button:hover,
+.admin-theme main table tbody td button:focus {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}

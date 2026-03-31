@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const Signup = () => {
+const Signup = ({ isModal = false, onClose, onSwitchLogin }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -144,7 +144,12 @@ const Signup = () => {
         if (data.token) localStorage.setItem("token", data.token);
         setShowToast(true);
         setTimeout(() => {
-          navigate("/");
+          window.dispatchEvent(new Event("auth-changed"));
+          if (isModal) {
+            onClose?.();
+          } else {
+            navigate("/");
+          }
         }, 1500);
       } else {
         setMessage(data.error || "Signup failed");
@@ -171,9 +176,23 @@ const Signup = () => {
         </div>
       )}
 
-      <div className="flex items-start justify-center py-2 px-4 sm:px-6 lg:px-8" style={{ paddingTop: '40px' }}>
+      <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/35 backdrop-blur-sm px-4">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-lg shadow-xl p-6">
+          <div className="relative bg-white rounded-2xl shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
+          <button
+            type="button"
+            onClick={() => {
+              if (isModal) {
+                onClose?.();
+              } else {
+                navigate("/");
+              }
+            }}
+            className="absolute right-4 top-4 text-gray-500 hover:text-gray-700 text-xl leading-none"
+            aria-label="Close signup modal"
+          >
+            ×
+          </button>
           <div className="text-center mb-4">
             <h2
               className="text-2xl font-medium"
@@ -374,7 +393,13 @@ const Signup = () => {
             <div className="text-center pt-1">
               <button
                 type="button"
-                onClick={() => navigate("/login")}
+                onClick={() => {
+                  if (isModal) {
+                    onSwitchLogin?.();
+                  } else {
+                    navigate("/login");
+                  }
+                }}
                 className="text-sm"
                 style={{ color: "var(--brand-purple)" }}
               >

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Users = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
+  const [qtySort, setQtySort] = useState("desc");
 
   const fetchUsers = async () => {
     try {
@@ -24,6 +25,16 @@ const Users = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const sortedUsers = useMemo(() => {
+    const arr = [...users];
+    arr.sort((a, b) => {
+      const qa = Number(a?.totalQuantityPurchased || 0);
+      const qb = Number(b?.totalQuantityPurchased || 0);
+      return qtySort === "asc" ? qa - qb : qb - qa;
+    });
+    return arr;
+  }, [users, qtySort]);
 
   const deleteUser = async (userId, userName) => {
     if (!window.confirm(`Delete ${userName}? This will delete user data, orders, cart and wishlist.`)) return;
@@ -49,6 +60,20 @@ const Users = () => {
         <p className="text-sm" style={{ color: "var(--brand-muted)" }}>
           {users.length} users
         </p>
+        <div className="mt-3">
+          <label className="text-xs font-semibold mr-2" style={{ color: "var(--brand-muted)" }}>
+            Sort by Qty Purchased
+          </label>
+          <select
+            value={qtySort}
+            onChange={(e) => setQtySort(e.target.value)}
+            className="rounded-lg border px-3 py-1.5 text-sm"
+            style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+          >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
       </div>
 
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-x-auto">
@@ -78,7 +103,7 @@ const Users = () => {
                 </td>
               </tr>
             ) : (
-              users.map((u) => (
+              sortedUsers.map((u) => (
                 <tr key={u._id} className="border-t">
                   <td className="px-5 py-4 font-semibold" style={{ color: "var(--brand-dark)" }}>{u.name}</td>
                   <td className="px-5 py-4" style={{ color: "var(--brand-dark)" }}>{u.email}</td>
