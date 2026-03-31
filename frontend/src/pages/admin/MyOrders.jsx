@@ -38,7 +38,7 @@ const MyOrders = () => {
   const [endDate, setEndDate] = useState("");
   const [orderStatus, setOrderStatus] = useState("all");
 
-  const [paymentStatus, setPaymentStatus] = useState("all"); // all | paid | unpaid | failed
+  const [paymentStatus, setPaymentStatus] = useState("all"); // all | paid | unpaid | failed | refundable
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -141,7 +141,6 @@ const MyOrders = () => {
               <option value="shipped">Shipping</option>
               <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
-              <option value="refundable">Refundable</option>
             </select>
           </div>
 
@@ -157,6 +156,7 @@ const MyOrders = () => {
               <option value="paid">Paid</option>
               <option value="unpaid">Unpaid</option>
               <option value="failed">Failed</option>
+              <option value="refundable">Refundable</option>
             </select>
           </div>
 
@@ -253,6 +253,8 @@ const MyOrders = () => {
                             ? "bg-green-100 text-green-800"
                             : ps === "failed"
                               ? "bg-red-100 text-red-800"
+                              : ps === "refundable"
+                                ? "bg-teal-100 text-teal-800"
                               : "bg-yellow-100 text-yellow-800";
                         return (
                           <span className={`rounded-full px-3 py-0.5 text-[10px] font-semibold ${badge}`}>
