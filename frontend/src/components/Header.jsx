@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -50,6 +50,7 @@ const Header = () => {
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const categoryRef = useRef(null);
   const userDropdownRef = useRef(null);
   const mobileMenuRef = useRef(null);
@@ -591,9 +592,15 @@ const Header = () => {
       )}
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[1000] bg-white border-t" style={{ borderColor: "var(--brand-lavender-soft)" }}>
-        <div className="mx-auto max-w-xl px-4">
-          <div className="flex items-center justify-between py-2">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[1000] px-3 pb-[max(env(safe-area-inset-bottom),4px)] pt-1">
+        <div
+          className="mx-auto max-w-xl rounded-2xl border shadow-[0_10px_30px_rgba(61,41,77,0.16)] backdrop-blur-md"
+          style={{
+            borderColor: "rgba(212, 200, 228, 0.7)",
+            background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(249,245,255,0.95) 100%)",
+          }}
+        >
+          <div className="flex items-center justify-between px-1.5 py-1.5">
             {/* Home */}
             <button
               type="button"
@@ -602,14 +609,19 @@ const Header = () => {
                 setShowMobileMenu(false);
                 navigate("/");
               }}
-              className="flex flex-col items-center gap-1"
+              className="flex min-w-[60px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Home"
-              style={{ color: "var(--brand-dark)" }}
+              style={{
+                color: location.pathname === "/" ? "#3D294D" : "var(--brand-dark)",
+                background: location.pathname === "/" ? "rgba(92,75,107,0.12)" : "transparent",
+              }}
             >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 9.5L12 3l9 6.5V21a1.5 1.5 0 01-1.5 1.5H4.5A1.5 1.5 0 013 21V9.5z" />
-              </svg>
-              <span className="text-[11px] font-medium">Home</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M3 9.5L12 3l9 6.5V21a1.5 1.5 0 01-1.5 1.5H4.5A1.5 1.5 0 013 21V9.5z" />
+                </svg>
+              </span>
+              <span className="text-[9px] font-semibold">Home</span>
             </button>
 
             {/* Catalog */}
@@ -619,16 +631,19 @@ const Header = () => {
                 setShowMobileMenu(false);
                 setShowCatalogPopup((prev) => !prev);
               }}
-              className="flex flex-col items-center gap-1"
+              className="flex min-w-[60px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Catalog"
-              style={{ color: "var(--brand-dark)" }}
+              style={{
+                color: showCatalogPopup ? "#3D294D" : "var(--brand-dark)",
+                background: showCatalogPopup ? "rgba(92,75,107,0.12)" : "transparent",
+              }}
             >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 5.5h7a1.5 1.5 0 011.5 1.5v11.5A1.5 1.5 0 0111.5 20H4.5A1.5 1.5 0 013 18.5V7a1.5 1.5 0 011.5-1.5z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 8h7.5A1.5 1.5 0 0122 9.5V20h-9V8z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 9h3.5M6 12h3.5M16 12h3" />
-              </svg>
-              <span className="text-[11px] font-medium">Catalog</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M4 7.5h16M4 12h16M4 16.5h16" />
+                </svg>
+              </span>
+              <span className="text-[9px] font-semibold">Catalog</span>
             </button>
 
             {/* My Orders */}
@@ -642,15 +657,19 @@ const Header = () => {
                   openAuthModal("login");
                 }
               }}
-              className="flex flex-col items-center gap-1"
+              className="flex min-w-[60px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="My Orders"
-              style={{ color: "var(--brand-dark)" }}
+              style={{
+                color: location.pathname.startsWith("/orders") ? "#3D294D" : "var(--brand-dark)",
+                background: location.pathname.startsWith("/orders") ? "rgba(92,75,107,0.12)" : "transparent",
+              }}
             >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9" strokeWidth={1.5} />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 7v5l3.5 2" />
-              </svg>
-              <span className="text-[11px] font-medium">Orders</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M8 7h8M8 12h8M8 17h5M5.5 4h13A1.5 1.5 0 0120 5.5v13a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-13A1.5 1.5 0 015.5 4z" />
+                </svg>
+              </span>
+              <span className="text-[9px] font-semibold">Orders</span>
             </button>
 
             {/* Profile */}
@@ -664,15 +683,20 @@ const Header = () => {
                   openAuthModal("login");
                 }
               }}
-              className="flex flex-col items-center gap-1"
+              className="flex min-w-[60px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Profile"
-              style={{ color: "var(--brand-dark)" }}
+              style={{
+                color: location.pathname.startsWith("/profile") ? "#3D294D" : "var(--brand-dark)",
+                background: location.pathname.startsWith("/profile") ? "rgba(92,75,107,0.12)" : "transparent",
+              }}
             >
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-              <span className="text-[11px] font-medium">Profile</span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </span>
+              <span className="text-[9px] font-semibold">Profile</span>
             </button>
           </div>
         </div>

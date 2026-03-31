@@ -8,17 +8,17 @@ const NewCollection = () => {
       
       <div className="max-w-4xl lg:max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
         
-        <div className="flex flex-col gap-6 lg:gap-8">
+        <div className="flex flex-col gap-4 md:gap-5 lg:gap-8">
           
           {/* Top Row */}
-          <div className="grid grid-cols-2 lg:flex items-center gap-3">
+          <div className="grid grid-cols-2 lg:flex items-center gap-2 md:gap-3">
             
             {/* Left Big Image */}
             {/* On phone we want 2 images per row, so don't let this span both columns */}
             <div className="w-full lg:w-[45%] col-span-1">
                <div className="relative group p-1 bg-gray-50">
                  
-                 <Link to="/ring" className="block overflow-hidden bg-gray-200 h-[140px] sm:h-[160px] lg:h-[240px]">
+                 <Link to="/ring" className="block overflow-hidden bg-gray-200 h-[120px] sm:h-[140px] md:h-[190px] lg:h-[240px]">
                    <img 
                      src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/Shop_High-Quality_Fine_Jewelry_for_Sale_in_the_USA_ermptm.jpg" 
                      className="w-full h-full object-cover"
@@ -48,9 +48,9 @@ const NewCollection = () => {
             </div>
 
             {/* Right Small Image + Text */}
-            <div className="col-span-1 lg:w-[55%] grid grid-cols-1 sm:grid-cols-2 lg:flex items-center gap-3">              
+            <div className="col-span-1 lg:w-[55%] grid grid-cols-1 lg:flex items-center gap-2 md:gap-3">              
                {/* Image */}
-               <div className="w-full group relative">                 <Link to="/bangles-bracelets" className="block overflow-hidden bg-gray-200 h-[140px] sm:h-[160px] lg:h-[180px]">
+               <div className="w-full group relative">                 <Link to="/bangles-bracelets" className="block overflow-hidden bg-gray-200 h-[120px] sm:h-[140px] md:h-[190px] lg:h-[180px]">
                     <img 
                       src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/t243d032hwaleawzbcxm.jpg" 
                       className="w-full h-full object-cover"
@@ -82,10 +82,10 @@ const NewCollection = () => {
           </div>
 
           {/* Bottom Row */}
-          <div className="grid grid-cols-2 lg:flex items-center gap-3">
+          <div className="grid grid-cols-2 lg:flex items-center gap-2 md:gap-3">
             
             {/* Left Small Image + Text */}
-            <div className="col-span-1 lg:w-[55%] grid grid-cols-1 sm:grid-cols-2 lg:flex items-center gap-3">              
+            <div className="col-span-1 lg:w-[55%] grid grid-cols-1 lg:flex items-center gap-2 md:gap-3">              
                {/* DESKTOP TEXT */}
                <div className="hidden lg:flex w-full sm:w-1/2 text-center sm:text-right px-2 flex-col justify-center items-center sm:items-end">
                   <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
@@ -102,7 +102,7 @@ const NewCollection = () => {
 
                {/* Image */}
                <div className="w-full sm:w-1/2 group relative">
-                 <Link to="/pendants" className="block overflow-hidden bg-gray-200 h-[140px] sm:h-[160px] lg:h-[180px]">
+                 <Link to="/pendants" className="block overflow-hidden bg-gray-200 h-[120px] sm:h-[140px] md:h-[190px] lg:h-[180px]">
                     <img 
                       src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/download_18_j4ggfd.jpg" 
                       className="w-full h-full object-cover"
@@ -123,7 +123,7 @@ const NewCollection = () => {
             <div className="w-full lg:w-[45%] col-span-1">
                <div className="relative group p-1 bg-gray-50">
                  
-                 <Link to="/bridal-jewellery" className="block overflow-hidden bg-gray-200 h-[140px] sm:h-[160px] lg:h-[240px]">
+                 <Link to="/bridal-jewellery" className="block overflow-hidden bg-gray-200 h-[120px] sm:h-[140px] md:h-[190px] lg:h-[240px]">
                    <img 
                      src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/download_19_jo3szm.jpg" 
                      className="w-full h-full object-cover"
