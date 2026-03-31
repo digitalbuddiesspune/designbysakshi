@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import Razorpay from 'razorpay';
 import Order from '../models/Order.js';
 import Payment from '../models/Payment.js';
+import Coupon from '../models/Coupon.js';
 import Address from '../models/Address.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
@@ -172,7 +173,7 @@ router.post('/', async (req, res) => {
     const userId = verifyToken(req, res);
     if (!userId) return;
 
-    const { items, shippingAddress, paymentMethod, totalAmount, transactionId = '' } = req.body;
+    const { items, shippingAddress, paymentMethod, totalAmount, transactionId = '', couponCode = '', discountAmount = 0 } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'No order items' });
@@ -213,6 +214,8 @@ router.post('/', async (req, res) => {
       paymentMode: paymentMethod,
       paymentStatus: paymentMethod === 'online' ? 'paid' : 'unpaid',
       transactionId: paymentMethod === 'online' ? transactionId : '',
+      couponCode: couponCode || '',
+      discountAmount: Number(discountAmount || 0),
       status: 'confirm',
       statusHistory: [{ status: 'confirm', changedAt: new Date() }],
       totalAmount,
@@ -231,6 +234,10 @@ router.post('/', async (req, res) => {
       paymentMethod,
       transactionId: paymentMethod === 'online' ? transactionId : '',
     });
+
+    if (couponCode) {
+      await Coupon.updateOne({ code: String(couponCode).trim().toUpperCase() }, { $inc: { usedCount: 1 } });
+    }
 
     res.status(201).json(order);
   } catch (error) {

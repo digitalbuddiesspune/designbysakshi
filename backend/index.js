@@ -13,6 +13,7 @@ import blogRoutes from './routes/blogRoutes.js'
 import bannerRoutes from './routes/bannerRoutes.js'
 import collectionShowcaseRoutes from './routes/collectionShowcaseRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
+import couponRoutes from './routes/couponRoutes.js'
 
 dotenv.config()
 const app = express();
@@ -48,6 +49,7 @@ app.use('/api/blogs', blogRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/collection-showcase', collectionShowcaseRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/coupons', couponRoutes);
 
 // Connect to MongoDB and start server
 const startServer = async () => {

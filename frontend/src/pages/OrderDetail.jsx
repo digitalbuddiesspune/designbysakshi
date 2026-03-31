@@ -88,6 +88,16 @@ const OrderDetail = () => {
   }, [order]);
 
   const canCancel = ["confirm", "pending"].includes(order?.status);
+  const itemsSubtotal = useMemo(
+    () =>
+      (order?.items || []).reduce(
+        (sum, it) => sum + (Number(it?.quantity || 0) * Number(it?.priceAtOrderTime || 0)),
+        0
+      ),
+    [order]
+  );
+  const couponDiscount = Number(order?.discountAmount || 0);
+  const inferredDelivery = Math.max(0, Number(order?.totalAmount || 0) - itemsSubtotal + couponDiscount);
   const statusMap = useMemo(() => {
     const map = {};
     const hist = Array.isArray(order?.statusHistory) ? order.statusHistory : [];
@@ -182,15 +192,23 @@ const OrderDetail = () => {
                   { idx: 4, label: "Delivered" },
                   { idx: 5, label: "Cancelled" },
                 ].map((step) => {
-                  const active = timelineIndex === step.idx;
-                  const done = timelineIndex >= step.idx && timelineIndex !== 0;
+                  const isCancelledFlow = timelineIndex === 5;
+                  const done = isCancelledFlow
+                    ? step.idx === 1 || step.idx === 5
+                    : timelineIndex >= step.idx && timelineIndex !== 0;
                   const stepKey = step.label.toLowerCase();
                   return (
                     <div key={step.idx} className="relative flex flex-col items-center">
                       {step.idx < 5 && (
                         <div
                           className="absolute top-5 left-1/2 w-full h-[2px]"
-                          style={{ background: timelineIndex > step.idx ? "#16a34a" : "rgba(148,163,184,0.35)" }}
+                          style={{
+                            background: isCancelledFlow
+                              ? "rgba(148,163,184,0.35)"
+                              : timelineIndex > step.idx
+                                ? "#16a34a"
+                                : "rgba(148,163,184,0.35)",
+                          }}
                         />
                       )}
                       <div
@@ -232,8 +250,32 @@ const OrderDetail = () => {
                   <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--brand-muted)" }}>
                     BILLING SUMMARY
                   </div>
+                  <div className="mt-2 space-y-1 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span style={{ color: "var(--brand-muted)" }}>Subtotal</span>
+                      <span style={{ color: "var(--brand-dark)" }}>₹{itemsSubtotal.toLocaleString("en-IN")}</span>
+                    </div>
+                    {couponDiscount > 0 ? (
+                      <div className="flex items-center justify-between">
+                        <span style={{ color: "var(--brand-muted)" }}>
+                          Coupon{order?.couponCode ? ` (${order.couponCode})` : ""}
+                        </span>
+                        <span className="text-green-600">-₹{couponDiscount.toLocaleString("en-IN")}</span>
+                      </div>
+                    ) : null}
+                    <div className="flex items-center justify-between">
+                      <span style={{ color: "var(--brand-muted)" }}>GST</span>
+                      <span style={{ color: "var(--brand-dark)" }}>Included</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span style={{ color: "var(--brand-muted)" }}>Delivery</span>
+                      <span style={{ color: inferredDelivery === 0 ? "#16a34a" : "var(--brand-dark)" }}>
+                        {inferredDelivery === 0 ? "Free" : `₹${inferredDelivery.toLocaleString("en-IN")}`}
+                      </span>
+                    </div>
+                  </div>
                   <div className="text-lg font-bold mt-2" style={{ color: "var(--brand-dark)" }}>
-                    ₹{(order.totalAmount || 0).toLocaleString("en-IN")}
+                    Total: ₹{(order.totalAmount || 0).toLocaleString("en-IN")}
                   </div>
                   <div className="text-sm mt-1" style={{ color: "var(--brand-muted)" }}>
                     Order Date:{" "}

@@ -61,6 +61,11 @@ const Checkout = () => {
   const [loading, setLoading] = useState(true);
   const [paymentMode, setPaymentMode] = useState("cash");
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponApplying, setCouponApplying] = useState(false);
+  const [couponError, setCouponError] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [showCouponInput, setShowCouponInput] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
   const addressStorageKey = useMemo(() => getAddressStorageKey(), []);
@@ -137,7 +142,9 @@ const Checkout = () => {
   const freeDeliveryThreshold = 699;
   const isDeliveryFree = subtotal > freeDeliveryThreshold;
   const deliveryFee = isDeliveryFree ? 0 : 50;
-  const grandTotal = subtotal + deliveryFee;
+  const couponDiscount = Number(appliedCoupon?.discountAmount || 0);
+  const itemsTotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
+  const grandTotal = itemsTotalAfterCoupon + deliveryFee;
 
   const loadRazorpayScript = () =>
     new Promise((resolve) => {
@@ -172,6 +179,8 @@ const Checkout = () => {
       paymentMethod: mode,
       totalAmount: grandTotal,
       transactionId,
+      couponCode: appliedCoupon?.code || "",
+      discountAmount: couponDiscount,
     };
 
     const orderRes = await fetch(`${API_URL}/orders`, {
@@ -327,6 +336,55 @@ const Checkout = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleApplyCoupon = async () => {
+    const code = String(couponCode || "").trim();
+    if (!code) {
+      setCouponError("Enter coupon code");
+      return;
+    }
+    try {
+      setCouponApplying(true);
+      setCouponError("");
+      const payload = {
+        code,
+        // Coupon discount is applied on items subtotal (delivery is not discounted)
+        subtotal: subtotal,
+        items: items.map((item) => ({
+          productId: item.product?._id || item.product,
+          category: item.product?.category || "",
+          quantity: item.quantity || 1,
+          price: item.priceAtAddTime || 0,
+        })),
+      };
+      const res = await fetch(`${API_URL}/coupons/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.valid) {
+        setAppliedCoupon(null);
+        setCouponError(data?.message || "Invalid coupon");
+        return;
+      }
+      setAppliedCoupon(data);
+      setCouponError("");
+    } catch (e) {
+      console.error("Apply coupon failed:", e);
+      setAppliedCoupon(null);
+      setCouponError("Failed to apply coupon");
+    } finally {
+      setCouponApplying(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+    setShowCouponInput(false);
   };
 
   return (
@@ -546,6 +604,56 @@ const Checkout = () => {
               </div>
 
               <div className="mt-6 space-y-3 border-t border-gray-200 pt-5 text-sm">
+                <div className="rounded-xl border border-gray-200 bg-white p-3">
+                  {!showCouponInput && !appliedCoupon ? (
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-sm text-gray-700">Do you have coupon?</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowCouponInput(true)}
+                        className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white"
+                      >
+                        Yes, Redeem
+                      </button>
+                    </div>
+                  ) : null}
+
+                  {(showCouponInput || appliedCoupon) ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        placeholder="Enter coupon code"
+                        className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-gray-900"
+                      />
+                      {appliedCoupon ? (
+                        <button
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                          className="rounded-lg border px-3 py-2 text-xs font-semibold text-gray-700"
+                        >
+                          Remove
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={handleApplyCoupon}
+                          disabled={couponApplying}
+                          className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
+                        >
+                          {couponApplying ? "Applying..." : "Apply"}
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
+                  {appliedCoupon ? (
+                    <div className="mt-2 text-xs text-green-600">
+                      Coupon {appliedCoupon.code} applied. You saved ₹{Number(appliedCoupon.discountAmount || 0).toLocaleString("en-IN")}
+                    </div>
+                  ) : null}
+                  {couponError ? <div className="mt-2 text-xs text-red-600">{couponError}</div> : null}
+                </div>
                 <div className="flex items-center justify-between text-gray-700">
                   <span>Subtotal</span>
                   <span className="font-semibold text-gray-900">₹{subtotal.toLocaleString("en-IN")}</span>
@@ -561,6 +669,12 @@ const Checkout = () => {
                 {!isDeliveryFree && (
                   <div className="text-xs text-green-600 mt-1">
                     Add ₹{(freeDeliveryThreshold - subtotal).toLocaleString("en-IN")} more for free delivery!
+                  </div>
+                )}
+                {couponDiscount > 0 && (
+                  <div className="flex items-center justify-between text-gray-700">
+                    <span>Coupon Discount</span>
+                    <span className="font-semibold text-green-600">-₹{couponDiscount.toLocaleString("en-IN")}</span>
                   </div>
                 )}
                 

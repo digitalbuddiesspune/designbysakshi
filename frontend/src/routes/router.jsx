@@ -44,6 +44,7 @@ import AdminProfile from "../pages/admin/AdminProfile.jsx";
 import AdminBanners from "../pages/admin/AdminBanners.jsx";
 import AdminCollections from "../pages/admin/AdminCollections.jsx";
 import AdminPayments from "../pages/admin/Payments.jsx";
+import AdminCoupons from "../pages/admin/Coupons.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -67,6 +68,7 @@ const router = createBrowserRouter(
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="orders" element={<MyOrders />} />
         <Route path="payments" element={<AdminPayments />} />
+        <Route path="coupons" element={<AdminCoupons />} />
         <Route path="users" element={<Users />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="order-details/:id" element={<AdminOrderDetails />} />

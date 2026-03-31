@@ -70,6 +70,17 @@ const OrderDetails = () => {
     window.dispatchEvent(new Event("product-stock-updated"));
   };
 
+  const updatePaymentStatus = async (nextPaymentStatus) => {
+    if (!order?._id) return;
+    setPaymentStatus(nextPaymentStatus);
+    await fetch(`${API_URL}/orders/admin/${order._id}/payment-status`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentStatus: nextPaymentStatus }),
+    });
+    await fetchOrder();
+  };
+
   const timelineIndex = useMemo(() => {
     const s = normalizeStatus(order?.status);
     if (!s) return 0;
@@ -168,7 +179,6 @@ const OrderDetails = () => {
                     <option value="processing">processing</option>
                     <option value="shipped">shipped</option>
                     <option value="delivered">delivered</option>
-                    <option value="refundable">refundable</option>
                     <option value="cancelled">cancelled</option>
                   </select>
                 </div>
@@ -177,20 +187,17 @@ const OrderDetails = () => {
                   <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--brand-muted)" }}>
                     PAYMENT STATUS
                   </div>
-                  {(() => {
-                    const ps = paymentStatus || "unpaid";
-                    const badge =
-                      ps === "paid"
-                        ? "bg-green-100 text-green-800"
-                        : ps === "failed"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800";
-                    return (
-                      <span className={`inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold ${badge}`}>
-                        {ps}
-                      </span>
-                    );
-                  })()}
+                  <select
+                    value={paymentStatus || "unpaid"}
+                    onChange={(e) => updatePaymentStatus(e.target.value)}
+                    className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2"
+                    style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+                  >
+                    <option value="unpaid">unpaid</option>
+                    <option value="paid">paid</option>
+                    <option value="failed">failed</option>
+                    <option value="refundable">refundable</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -206,8 +213,10 @@ const OrderDetails = () => {
                 { idx: 4, label: "Delivered" },
                 { idx: 5, label: "Cancelled" },
               ].map((step) => {
-                const active = timelineIndex === step.idx;
-                const done = timelineIndex >= step.idx && timelineIndex !== 0;
+                const isCancelledFlow = timelineIndex === 5;
+                const done = isCancelledFlow
+                  ? step.idx === 1 || step.idx === 5
+                  : timelineIndex >= step.idx && timelineIndex !== 0;
                 const stepKey = step.label.toLowerCase();
                 return (
                   <div key={step.idx} className="relative flex flex-col items-center">
@@ -216,7 +225,11 @@ const OrderDetails = () => {
                         className="absolute top-5 left-1/2 w-full h-[2px]"
                         style={{
                           background:
-                            timelineIndex > step.idx ? "#16a34a" : "rgba(148,163,184,0.35)",
+                            isCancelledFlow
+                              ? "rgba(148,163,184,0.35)"
+                              : timelineIndex > step.idx
+                                ? "#16a34a"
+                                : "rgba(148,163,184,0.35)",
                         }}
                       />
                     )}

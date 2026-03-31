@@ -44,6 +44,9 @@ const Blog = () => {
         <img
           src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774592546/Untitled_1920_x_500_px_e5ielu.svg"
           alt="Blog banner"
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
           className="hidden h-[180px] w-full object-cover sm:block sm:h-[240px] md:h-[320px] lg:h-[390px]"
         />
       </section>
@@ -83,6 +86,8 @@ const Blog = () => {
                       <img
                         src={blog.image}
                         alt={blog.title}
+                        loading="lazy"
+                        decoding="async"
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />
                     </div>

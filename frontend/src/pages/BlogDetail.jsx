@@ -61,8 +61,15 @@ const BlogDetail = () => {
             </div>
           ) : (
             <article className="rounded-2xl overflow-hidden bg-white shadow-sm border">
-              <div className="relative h-72 bg-gray-100">
-                <img src={blog.image} alt={blog.title} className="h-full w-full object-cover" />
+              <div className="relative h-[220px] sm:h-[280px] bg-gray-100 flex justify-center pt-2">
+                <img
+                  src={blog.image}
+                  alt={blog.title}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                  className="h-full w-[60%] object-cover"
+                />
               </div>
 
               <div className="p-6 sm:p-8">

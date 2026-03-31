@@ -18,13 +18,14 @@ const esc = (v) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-export const openInvoiceWindow = (order, { title = "DesignBySakshi Invoice" } = {}) => {
+export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } = {}) => {
   if (!order) return;
 
   const items = Array.isArray(order.items) ? order.items : [];
   const subtotal = items.reduce((sum, it) => sum + (it.quantity || 0) * (it.priceAtOrderTime || 0), 0);
-  const deliveryCharge = subtotal > 699 ? 0 : 50;
-  const totalAmount = Number(order.totalAmount || subtotal + deliveryCharge);
+  const couponDiscount = Number(order.discountAmount || 0);
+  const totalAmount = Number(order.totalAmount || subtotal);
+  const deliveryCharge = Math.max(0, totalAmount - subtotal + couponDiscount);
   const invoiceNo = `INV-${order.orderNumber || (order._id || "").slice(-6)}`;
   const address = order.address
     ? `${order.address.street || ""}, ${order.address.city || ""}, ${order.address.state || ""} - ${order.address.pincode || ""}`
@@ -80,7 +81,7 @@ export const openInvoiceWindow = (order, { title = "DesignBySakshi Invoice" } = 
         src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774441947/Screenshot_2026-03-25_174920-removebg-preview_5_gwltrx.png"
         alt="Design By Sakshi"
       />
-      <h1>DesignBySakshi</h1>
+      <h1>DesignsByShakshi</h1>
       <p>Jewellery Invoice</p>
     </div>
     <div class="grid">
@@ -108,6 +109,11 @@ export const openInvoiceWindow = (order, { title = "DesignBySakshi Invoice" } = 
     </table>
     <div class="sum">
       <div class="row"><span>Subtotal</span><strong>${formatCurrency(subtotal)}</strong></div>
+      ${
+        couponDiscount > 0
+          ? `<div class="row"><span>Coupon${order.couponCode ? ` (${esc(order.couponCode)})` : ""}</span><strong>-${formatCurrency(couponDiscount)}</strong></div>`
+          : ""
+      }
       <div class="row"><span>18% GST</span><strong>Included</strong></div>
       <div class="row"><span>Delivery Charges</span><strong>${deliveryCharge === 0 ? "Free" : formatCurrency(deliveryCharge)}</strong></div>
       <div class="row total"><span>Total Amount</span><strong>${formatCurrency(totalAmount)}</strong></div>

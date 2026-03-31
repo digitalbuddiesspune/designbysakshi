@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import ImageUploader from "../../components/admin/ImageUploader";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -187,7 +188,7 @@ const AddBlog = () => {
               />
             </div>
 
-            <div>
+            <div className="space-y-3">
               <label htmlFor="image" className="block text-sm font-medium" style={{ color: "var(--brand-dark)" }}>
                 Image URL *
               </label>
@@ -200,6 +201,15 @@ const AddBlog = () => {
                 onChange={handleChange}
                 className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
                 style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+              />
+              <p className="text-xs" style={{ color: "var(--brand-muted)" }}>
+                Or upload from files:
+              </p>
+              <ImageUploader
+                label="Drag & Drop Blog Image"
+                value={formData.image}
+                onChange={(url) => setFormData((prev) => ({ ...prev, image: url || "" }))}
+                folder="designbysakshi/blogs"
               />
             </div>
 

@@ -333,6 +333,22 @@ const AdminLayout = () => {
               </Link>
             </li>
 
+            <li>
+              <Link
+                to="/admin/coupons"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                  isActive("/admin/coupons")
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3-1.12-3-2.5S10.343 3 12 3s3 1.12 3 2.5S13.657 8 12 8zM5 14a2 2 0 002-2V9a2 2 0 012-2h6a2 2 0 012 2v3a2 2 0 002 2h1v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5h1z" />
+                </svg>
+                {isSidebarOpen && <span>Coupons</span>}
+              </Link>
+            </li>
+
             {/* Homepage */}
             <li>
               <div className="mb-2">
@@ -490,7 +506,14 @@ const AdminLayout = () => {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="sticky top-0 z-20 flex justify-end border-b bg-white px-4 py-3 sm:px-6">
+        <div className="sticky top-0 z-20 flex items-center justify-end gap-2 border-b bg-white px-4 py-3 sm:px-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50"
+            style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+          >
+            ← Back to Site
+          </Link>
           <Link
             to="/admin/profile"
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50 ${
