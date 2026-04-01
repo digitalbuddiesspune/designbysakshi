@@ -687,11 +687,9 @@ const Header = () => {
                 background: location.pathname.startsWith("/orders") ? "rgba(92,75,107,0.12)" : "transparent",
               }}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M8 7h8M8 12h8M8 17h5M5.5 4h13A1.5 1.5 0 0120 5.5v13a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-13A1.5 1.5 0 015.5 4z" />
-                </svg>
-              </span>
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M8 7h8M8 12h8M8 17h5M5.5 4h13A1.5 1.5 0 0120 5.5v13a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-13A1.5 1.5 0 015.5 4z" />
+              </svg>
               <span className="text-[11px] font-bold">Orders</span>
             </button>
 
@@ -713,12 +711,10 @@ const Header = () => {
                 background: location.pathname.startsWith("/profile") ? "rgba(92,75,107,0.12)" : "transparent",
               }}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </span>
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
               <span className="text-[11px] font-bold">Profile</span>
             </button>
           </div>
