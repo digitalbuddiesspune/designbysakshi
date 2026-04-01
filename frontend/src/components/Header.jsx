@@ -38,6 +38,7 @@ const DynamicCollectionsDropdown = () => {
 
 const Header = () => {
   const [clickedCategory, setClickedCategory] = useState(null);
+  const [desktopDropdownLeft, setDesktopDropdownLeft] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearch, setShowSearch] = useState(false);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -266,9 +267,11 @@ const Header = () => {
     }, 1500);
   };
 
+  const selectedDesktopCategory = categoryBar.find((c) => c.slug === clickedCategory);
+
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-[100] w-full border-b"
+      className="fixed top-0 left-0 right-0 z-[2000] w-full border-b"
       style={{
         background: "#845183",
         borderColor: "rgba(91, 71, 109, 0.22)",
@@ -1008,7 +1011,7 @@ const Header = () => {
       <div
         ref={categoryRef}
         className="hidden md:block border-t relative category-dropdown-container"
-        style={{ borderColor: "var(--brand-lavender-soft)", background: "#000000", zIndex: 100, overflow: 'visible' }}
+        style={{ borderColor: "var(--brand-lavender-soft)", background: "#000000", zIndex: 2001, overflow: 'visible' }}
       >
         <div className="w-full px-2 sm:px-4 no-scrollbar" style={{ overflowX: 'auto', overflowY: 'visible', position: 'relative' }}>
           <nav
@@ -1033,9 +1036,17 @@ const Header = () => {
                           e.stopPropagation();
                           if (clickedCategory === cat.slug) {
                             setClickedCategory(null);
+                            setDesktopDropdownLeft(null);
                           } else {
                             // Close any other open dropdowns first
                             setClickedCategory(cat.slug);
+                            const navContainerRect = categoryRef.current?.getBoundingClientRect();
+                            const triggerRect = e.currentTarget.getBoundingClientRect();
+                            if (navContainerRect) {
+                              setDesktopDropdownLeft(
+                                triggerRect.left - navContainerRect.left + triggerRect.width / 2,
+                              );
+                            }
                           }
                         }}
                         className="py-1.5 text-sm font-medium transition hover:opacity-90 whitespace-nowrap bg-transparent border-none cursor-pointer"
@@ -1080,13 +1091,13 @@ const Header = () => {
                     )}
 
                     {/* Dropdown: visible only when clicked */}
-                    {cat.sub.length > 0 && (
+                    {false && cat.sub.length > 0 && (
                       <div
                         className={`category-dropdown absolute rounded-md border bg-white py-2 shadow-lg ${isOpen ? '' : 'hidden'
                           }`}
                         style={{
                           borderColor: "var(--brand-lavender-soft)",
-                          zIndex: 99999,
+                          zIndex: 3000,
                           position: 'absolute',
                           display: isOpen ? 'block' : 'none',
                           backgroundColor: '#ffffff',
@@ -1121,6 +1132,31 @@ const Header = () => {
             })}
           </nav>
         </div>
+        {selectedDesktopCategory?.sub?.length > 0 && (
+          <div
+            className="absolute top-full mt-1 -translate-x-[42%] rounded-md border bg-white py-2 shadow-lg"
+            style={{
+              left: desktopDropdownLeft != null ? `${Math.max(desktopDropdownLeft, 110)}px` : "50%",
+              borderColor: "var(--brand-lavender-soft)",
+              zIndex: 4000,
+              minWidth: "220px",
+              whiteSpace: "nowrap",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {selectedDesktopCategory.sub.map((sub) => (
+              <Link
+                key={sub.slug}
+                to={subHref(selectedDesktopCategory.slug, sub.slug)}
+                className="block px-4 py-2 text-sm no-underline transition hover:opacity-90 hover:bg-gray-50"
+                style={{ color: "var(--brand-dark)" }}
+                onClick={() => setClickedCategory(null)}
+              >
+                {sub.label}
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
     </header>
   );

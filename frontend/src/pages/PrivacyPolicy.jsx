@@ -38,7 +38,7 @@ const PrivacyPolicy = () => {
                     <a
                       key={section.id}
                       href={`#${section.id}`}
-                      className="whitespace-nowrap rounded-full border px-3 py-1.5 text-sm no-underline transition hover:bg-[#FFDCDC] lg:rounded-xl"
+                      className="whitespace-nowrap rounded-full border px-3 py-1.5 text-sm no-underline transition hover:bg-[#F9F5F6] lg:rounded-xl"
                       style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
                     >
                       {section.label}
