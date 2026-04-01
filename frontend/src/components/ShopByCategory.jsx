@@ -47,8 +47,8 @@ const ShopByCategory = () => {
           </h1>
         </div>
 
-        <div className="overflow-x-auto scrollbar-hide py-4 px-0">
-          <div className="flex flex-nowrap justify-start lg:justify-center gap-6 sm:gap-10 w-max lg:w-full mx-auto">
+        <div className="overflow-x-auto scrollbar-hide py-4 px-2 sm:px-3">
+          <div className="flex flex-nowrap justify-start gap-6 sm:gap-10 w-max">
             {categories.map((cat) => (
               <Link
                 key={cat.id}
@@ -62,7 +62,7 @@ const ShopByCategory = () => {
                   <img
                     src={cat.image}
                     alt={cat.label}
-                    className="h-full w-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                    className="h-full w-full object-contain object-center p-1.5 transition-transform duration-700 group-hover:scale-105"
                     onError={(e) => {
                       e.target.style.display = "none";
                       const fallback = e.target.parentElement?.querySelector(".category-fallback");

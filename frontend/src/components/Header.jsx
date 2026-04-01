@@ -592,15 +592,14 @@ const Header = () => {
       )}
 
       {/* Mobile Bottom Navigation */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[1000] px-3 pb-[max(env(safe-area-inset-bottom),4px)] pt-1">
-        <div
-          className="mx-auto max-w-xl rounded-2xl border shadow-[0_10px_30px_rgba(61,41,77,0.16)] backdrop-blur-md"
-          style={{
-            borderColor: "rgba(212, 200, 228, 0.7)",
-            background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(249,245,255,0.95) 100%)",
-          }}
-        >
-          <div className="flex items-center justify-between px-1.5 py-1.5">
+      <div
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-[1000] border-t pb-[max(env(safe-area-inset-bottom),6px)]"
+        style={{
+          borderColor: "rgba(212, 200, 228, 0.9)",
+          background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(249,245,255,0.97) 100%)",
+        }}
+      >
+          <div className="flex items-center justify-between px-2 py-1">
             {/* Home */}
             <button
               type="button"
@@ -609,19 +608,19 @@ const Header = () => {
                 setShowMobileMenu(false);
                 navigate("/");
               }}
-              className="flex min-w-[60px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
+              className="flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Home"
               style={{
                 color: location.pathname === "/" ? "#3D294D" : "var(--brand-dark)",
                 background: location.pathname === "/" ? "rgba(92,75,107,0.12)" : "transparent",
               }}
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M3 9.5L12 3l9 6.5V21a1.5 1.5 0 01-1.5 1.5H4.5A1.5 1.5 0 013 21V9.5z" />
                 </svg>
               </span>
-              <span className="text-[9px] font-semibold">Home</span>
+              <span className="text-[11px] font-bold">Home</span>
             </button>
 
             {/* Catalog */}
@@ -631,19 +630,19 @@ const Header = () => {
                 setShowMobileMenu(false);
                 setShowCatalogPopup((prev) => !prev);
               }}
-              className="flex min-w-[60px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
+              className="flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Catalog"
               style={{
                 color: showCatalogPopup ? "#3D294D" : "var(--brand-dark)",
                 background: showCatalogPopup ? "rgba(92,75,107,0.12)" : "transparent",
               }}
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M4 7.5h16M4 12h16M4 16.5h16" />
                 </svg>
               </span>
-              <span className="text-[9px] font-semibold">Catalog</span>
+              <span className="text-[11px] font-bold">Catalog</span>
             </button>
 
             {/* My Orders */}
@@ -657,19 +656,19 @@ const Header = () => {
                   openAuthModal("login");
                 }
               }}
-              className="flex min-w-[60px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
+              className="flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="My Orders"
               style={{
                 color: location.pathname.startsWith("/orders") ? "#3D294D" : "var(--brand-dark)",
                 background: location.pathname.startsWith("/orders") ? "rgba(92,75,107,0.12)" : "transparent",
               }}
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M8 7h8M8 12h8M8 17h5M5.5 4h13A1.5 1.5 0 0120 5.5v13a1.5 1.5 0 01-1.5 1.5h-13A1.5 1.5 0 014 18.5v-13A1.5 1.5 0 015.5 4z" />
                 </svg>
               </span>
-              <span className="text-[9px] font-semibold">Orders</span>
+              <span className="text-[11px] font-bold">Orders</span>
             </button>
 
             {/* Profile */}
@@ -683,30 +682,29 @@ const Header = () => {
                   openAuthModal("login");
                 }
               }}
-              className="flex min-w-[60px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
+              className="flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Profile"
               style={{
                 color: location.pathname.startsWith("/profile") ? "#3D294D" : "var(--brand-dark)",
                 background: location.pathname.startsWith("/profile") ? "rgba(92,75,107,0.12)" : "transparent",
               }}
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm">
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M16 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
               </span>
-              <span className="text-[9px] font-semibold">Profile</span>
+              <span className="text-[11px] font-bold">Profile</span>
             </button>
           </div>
-        </div>
       </div>
 
       {/* Catalog popup (small box) */}
       {showCatalogPopup && (
         <div
           ref={catalogPopupRef}
-          className="lg:hidden fixed bottom-16 left-0 right-0 z-[1001] w-full rounded-t-lg border bg-white shadow-lg overflow-hidden"
+          className="lg:hidden fixed bottom-[72px] left-0 right-0 z-[1001] w-full rounded-t-lg border bg-white shadow-lg overflow-hidden"
           style={{ borderColor: "var(--brand-lavender-soft)" }}
         >
           <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
@@ -1012,9 +1010,9 @@ const Header = () => {
         className="hidden md:block border-t relative category-dropdown-container"
         style={{ borderColor: "var(--brand-lavender-soft)", background: "#000000", zIndex: 100, overflow: 'visible' }}
       >
-        <div className="w-full px-2 sm:px-4 category-dropdown-container" style={{ overflowX: 'auto', overflowY: 'visible', position: 'relative' }}>
+        <div className="w-full px-2 sm:px-4 no-scrollbar" style={{ overflowX: 'auto', overflowY: 'visible', position: 'relative' }}>
           <nav
-            className="flex flex-nowrap items-center justify-between gap-4 w-full py-1.5 md:py-2 relative category-dropdown-container"
+            className="flex w-max min-w-full flex-nowrap items-center justify-start gap-4 py-1.5 md:py-2 relative"
             aria-label="Categories"
           >
             {categoryBar.map((cat) => {
@@ -1022,7 +1020,7 @@ const Header = () => {
               return (
                 <div
                   key={cat.slug}
-                  className="relative flex-1 text-center"
+                  className="relative flex-none text-center"
                   style={{ position: 'relative', zIndex: isOpen ? 100000 : 'auto' }}
                 >
                   {/* Main category: click toggles dropdown or navigates if no subcategories */}

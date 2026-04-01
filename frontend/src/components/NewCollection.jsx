@@ -125,7 +125,7 @@ const NewCollection = () => {
                  
                  <Link to="/bridal-jewellery" className="block overflow-hidden bg-gray-200 h-[120px] sm:h-[140px] md:h-[190px] lg:h-[240px]">
                    <img 
-                     src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774359279/download_19_jo3szm.jpg" 
+                     src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775025853/SetMyWed_-_Latest_Wedding_Ideas_Inspiration_r1jolp.jpg" 
                      className="w-full h-full object-cover"
                      alt="Bridal Jewellery" 
                    />
