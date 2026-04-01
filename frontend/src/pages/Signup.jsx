@@ -226,7 +226,7 @@ const Signup = ({ isModal = false, onClose, onSwitchLogin }) => {
                   className="block text-xs font-medium mb-1"
                   style={{ color: "var(--brand-dark)" }}
                 >
-                  Name (2 words, each min 3 chars) *
+                  Name *
                 </label>
                 <input
                   type="text"
@@ -256,7 +256,7 @@ const Signup = ({ isModal = false, onClose, onSwitchLogin }) => {
                   className="block text-xs font-medium mb-1"
                   style={{ color: "var(--brand-dark)" }}
                 >
-                  Phone Number (starts with 9, 8, 7, or 6)
+                  Phone Number
                 </label>
                 <input
                   type="tel"

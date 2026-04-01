@@ -82,7 +82,7 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
         alt="Design By Sakshi"
       />
       <h1>DesignsByShakshi</h1>
-      <p>Jewellery Invoice</p>
+              <p className="text-sm text-gray-300">Jewellery Invoice | designsbyshakshi@gmail.com | 9130383655</p>
     </div>
     <div class="grid">
       <div class="box">

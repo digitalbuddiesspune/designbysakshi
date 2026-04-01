@@ -41,7 +41,7 @@ const categorySchema = new mongoose.Schema({
   },
   discountedPrice: {
     type: Number,
-    required: true,
+    required: false,
     min: 0
   },
   priority: {

@@ -11,7 +11,6 @@ const AddCategory = () => {
     slug: "",
     subcategories: [],
     image: "",
-    discountedPrice: "",
     priority: "",
     description: "",
   });
@@ -65,9 +64,6 @@ const AddCategory = () => {
         slug: formData.slug,
         subcategories: formData.subcategories,
         ...(formData.image && { image: formData.image }),
-        ...(formData.discountedPrice && {
-          discountedPrice: parseFloat(formData.discountedPrice),
-        }),
         ...(formData.priority && { priority: parseInt(formData.priority) }),
         ...(formData.description && { description: formData.description }),
         timestamp: true,
@@ -89,7 +85,6 @@ const AddCategory = () => {
           slug: "",
           subcategories: [],
           image: "",
-          discountedPrice: "",
           priority: "",
           description: "",
         });
@@ -169,32 +164,6 @@ const AddCategory = () => {
             value={formData.slug}
             onChange={handleChange}
             className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 bg-gray-50"
-            style={{
-              borderColor: "var(--brand-lavender-soft)",
-              color: "var(--brand-dark)",
-            }}
-          />
-        </div>
-
-        {/* Discounted Price - Required */}
-        <div>
-          <label
-            htmlFor="discountedPrice"
-            className="block text-sm font-medium mb-1"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Discounted Price (₹) *
-          </label>
-          <input
-            type="number"
-            id="discountedPrice"
-            name="discountedPrice"
-            required
-            min="0"
-            step="0.01"
-            value={formData.discountedPrice}
-            onChange={handleChange}
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
             style={{
               borderColor: "var(--brand-lavender-soft)",
               color: "var(--brand-dark)",

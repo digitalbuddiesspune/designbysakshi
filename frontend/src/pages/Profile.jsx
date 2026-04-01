@@ -249,11 +249,8 @@ const Profile = () => {
 
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="px-6 py-2 text-sm font-semibold text-white rounded-lg transition"
-                  style={{
-                    background:
-                      "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                  }}
+                  className="px-6 py-2 text-sm font-semibold text-white rounded-lg transition bg-[#3D294D]"
+                
                 >
                   Edit Profile
                 </button>

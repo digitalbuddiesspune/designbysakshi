@@ -275,7 +275,7 @@ const Cart = () => {
                 type="button"
                 disabled={loading}
                 onClick={() => navigate("/checkout")}
-                className="mt-5 w-full rounded-xl bg-gray-800 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-900 disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-5 w-full rounded-xl bg-gray-800 px-4 py-3 text-sm font-semibold text-white hover:bg-[#3D294D] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Proceed to Checkout
               </button>

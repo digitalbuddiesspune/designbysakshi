@@ -56,13 +56,13 @@ const ShopByCategory = () => {
                 className="group flex w-[120px] sm:w-[140px] flex-shrink-0 flex-col items-center gap-4 transition-transform hover:-translate-y-2"
               >
               <div
-                className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] overflow-hidden rounded-full ring-2 ring-offset-4 ring-[#3D294D] bg-[var(--brand-lavender-soft)] shadow-md transition-shadow group-hover:shadow-xl"
+                className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] overflow-hidden rounded-full ring-2 ring-offset-4 ring-[#3D294D] shadow-md transition-shadow group-hover:shadow-xl"
               >
                 {cat.image ? (
                   <img
                     src={cat.image}
                     alt={cat.label}
-                    className="h-full w-full object-contain object-center p-1.5 transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover rounded-full object-center p-1.5 transition-transform duration-700 group-hover:scale-105"
                     onError={(e) => {
                       e.target.style.display = "none";
                       const fallback = e.target.parentElement?.querySelector(".category-fallback");

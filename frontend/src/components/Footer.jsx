@@ -19,13 +19,13 @@ const Footer = () => {
               />
             </Link>
             <p className="mt-4 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-              Phone:{" "}
+              {" "}
               <a href="tel:9130383655" className="no-underline text-white hover:opacity-90">
                 9130383655
               </a>
             </p>
             <p className="mt-2 break-all text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-              Email:{" "}
+              {" "}
               <a
                 href="mailto:designsbyshakshi@gmail.com"
                 className="no-underline text-white hover:opacity-90"

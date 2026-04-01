@@ -116,8 +116,7 @@ const Wishlist = () => {
                     ₹{product.price?.toLocaleString("en-IN")}
                   </p>
                   <div className="mt-3">
-                    <Link
-                      to={`/product/${product._id}`}
+                    <span
                       className="block rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition hover:bg-gray-100"
                       style={{
                         borderColor: "var(--brand-lavender-soft)",
@@ -125,7 +124,7 @@ const Wishlist = () => {
                       }}
                     >
                       View Details
-                    </Link>
+                    </span>
                   </div>
                 </div>
               </Link>
