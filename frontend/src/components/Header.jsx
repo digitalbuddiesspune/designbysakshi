@@ -599,7 +599,7 @@ const Header = () => {
         className="lg:hidden fixed bottom-0 left-0 right-0 z-[1000] border-t pb-[max(env(safe-area-inset-bottom),6px)]"
         style={{
           borderColor: "rgba(212, 200, 228, 0.9)",
-          background: "linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(249,245,255,0.97) 100%)",
+          background: "#ffffff",
         }}
       >
           <div className="flex items-center justify-between px-2 py-1">
@@ -618,11 +618,9 @@ const Header = () => {
                 background: location.pathname === "/" ? "rgba(92,75,107,0.12)" : "transparent",
               }}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M3 9.5L12 3l9 6.5V21a1.5 1.5 0 01-1.5 1.5H4.5A1.5 1.5 0 013 21V9.5z" />
-                </svg>
-              </span>
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M3 9.5L12 3l9 6.5V21a1.5 1.5 0 01-1.5 1.5H4.5A1.5 1.5 0 013 21V9.5z" />
+              </svg>
               <span className="text-[11px] font-bold">Home</span>
             </button>
 
@@ -640,12 +638,35 @@ const Header = () => {
                 background: showCatalogPopup ? "rgba(92,75,107,0.12)" : "transparent",
               }}
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M4 7.5h16M4 12h16M4 16.5h16" />
-                </svg>
-              </span>
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M4 7.5h16M4 12h16M4 16.5h16" />
+              </svg>
               <span className="text-[11px] font-bold">Catalog</span>
+            </button>
+
+            {/* Cart */}
+            <button
+              type="button"
+              onClick={() => {
+                setShowCatalogPopup(false);
+                navigate("/cart");
+              }}
+              className="relative flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
+              aria-label="Cart"
+              style={{
+                color: location.pathname.startsWith("/cart") ? "#3D294D" : "var(--brand-dark)",
+                background: location.pathname.startsWith("/cart") ? "rgba(92,75,107,0.12)" : "transparent",
+              }}
+            >
+              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              {cartCount > 0 && (
+                <span className="absolute right-2 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3D294D] px-1 text-[10px] font-bold text-white">
+                  {cartCount}
+                </span>
+              )}
+              <span className="text-[11px] font-bold">Cart</span>
             </button>
 
             {/* My Orders */}
@@ -707,7 +728,7 @@ const Header = () => {
       {showCatalogPopup && (
         <div
           ref={catalogPopupRef}
-          className="lg:hidden fixed bottom-[72px] left-0 right-0 z-[1001] w-full rounded-t-lg border bg-white shadow-lg overflow-hidden"
+          className="lg:hidden fixed bottom-[76px] left-0 right-0 z-[1001] w-full rounded-t-lg border bg-white shadow-lg overflow-hidden"
           style={{ borderColor: "var(--brand-lavender-soft)" }}
         >
           <div className="flex items-center justify-between px-3 py-2 border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>

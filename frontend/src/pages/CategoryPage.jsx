@@ -417,9 +417,9 @@ const CategoryPage = () => {
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex gap-1.5 sm:gap-2">
                     <span
-                      className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition text-[#3D294D] hover:bg-[#3D294D] hover:text-white"
+                      className="flex min-h-8 flex-1 items-center justify-center rounded-full border px-1.5 py-1 text-[9px] font-medium text-center no-underline whitespace-nowrap transition text-[#3D294D] hover:bg-[#3D294D] hover:text-white sm:min-h-10 sm:px-3 sm:py-1.5 sm:text-xs"
                       style={{
                         borderColor: "#3D294D",
                       }}
@@ -428,7 +428,7 @@ const CategoryPage = () => {
                     </span>
                     <button
                       type="button"
-                      className="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
+                      className="flex min-h-8 flex-1 items-center justify-center rounded-full px-1.5 py-1 text-[9px] font-semibold text-white whitespace-nowrap transition hover:opacity-95 sm:min-h-10 sm:px-3 sm:py-1.5 sm:text-xs"
                       style={{
                         background: "#3D294D",
                       }}
