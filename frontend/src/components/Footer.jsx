@@ -224,14 +224,14 @@ const Footer = () => {
           </div>
 
           {/* Brand */}
-          <div className="lg:text-right">
+          <div className="text-center lg:text-right">
             <h3
               className="mb-4 text-sm font-semibold uppercase tracking-wider"
               style={{ color: "#FFFFFF" }}
             >
               Contact
             </h3>
-            <p className="text-sm flex items-center justify-end gap-2" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <p className="text-sm flex items-center justify-center lg:justify-end gap-2" style={{ color: "rgba(255,255,255,0.85)" }}>
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.07 4.18 2 2 0 014.1 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
               </svg>
@@ -240,7 +240,7 @@ const Footer = () => {
               </a>
             </p>
             <p
-              className="mt-2 flex items-start justify-end gap-2 whitespace-nowrap text-xs sm:text-sm"
+              className="mt-2 flex items-start justify-center lg:justify-end gap-2 whitespace-nowrap text-xs sm:text-sm"
               style={{ color: "rgba(255,255,255,0.85)" }}
             >
               <svg className="h-4 w-4 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -258,7 +258,7 @@ const Footer = () => {
               <p className="text-xs font-semibold tracking-wider" style={{ color: "rgba(255,255,255,0.85)" }}>
                 Follow us on
               </p>
-              <div className="mt-3 flex items-center justify-end gap-4">
+              <div className="mt-3 flex items-center justify-center lg:justify-end gap-4">
                 <a
                   href="https://www.instagram.com/design.by.shakshi"
                   target="_blank"
