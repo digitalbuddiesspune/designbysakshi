@@ -78,7 +78,7 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
     <div class="head">
       <img
         class="head-logo"
-        src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774441947/Screenshot_2026-03-25_174920-removebg-preview_5_gwltrx.png"
+        src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png"
         alt="Design By Sakshi"
       />
       <h1>DesignsByShakshi</h1>

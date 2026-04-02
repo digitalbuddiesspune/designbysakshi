@@ -72,7 +72,7 @@ const TestimonialSection = () => {
             {testimonials.map((testimonial, index) => (
               <div
                 key={testimonial._id || index}
-                className="relative flex-shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] snap-center bg-white border border-gray-100 p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col justify-between group transform hover:-translate-y-2 overflow-hidden"
+                className="relative flex-shrink-0 w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(25%-1.125rem)] snap-center bg-[#F6EDFF] border border-[#E9D7FF] p-5 sm:p-6 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col justify-between group transform hover:-translate-y-2 overflow-hidden"
               >
                 {/* Animated gradient + subtle SVG pattern */}
                 <div className="absolute inset-0 z-0 pointer-events-none">
@@ -85,25 +85,6 @@ const TestimonialSection = () => {
                       animation: "testimonialGradientShift 10s ease-in-out infinite",
                     }}
                   />
-                  <svg
-                    className="absolute inset-0 h-full w-full opacity-25"
-                    viewBox="0 0 240 160"
-                    preserveAspectRatio="none"
-                    aria-hidden="true"
-                  >
-                    <defs>
-                      <pattern
-                        id={`testimonial-dots-${index}`}
-                        width="24"
-                        height="24"
-                        patternUnits="userSpaceOnUse"
-                      >
-                        <circle cx="4" cy="4" r="1.4" fill="rgba(61,41,77,0.55)" />
-                        <circle cx="16" cy="16" r="1.1" fill="rgba(197,162,215,0.45)" />
-                      </pattern>
-                    </defs>
-                    <rect width="240" height="160" fill={`url(#testimonial-dots-${index})`} />
-                  </svg>
                 </div>
 
                 <div>
@@ -124,13 +105,13 @@ const TestimonialSection = () => {
                       <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
                     </svg>
                     <p className="relative z-10 text-gray-700 font-medium mb-4 leading-relaxed tracking-wide min-h-[3.5rem]">
-                      "{testimonial.review}"
+                      {testimonial.review}
                     </p>
                   </div>
                 </div>
                 
                 <div className="relative z-10 flex items-center gap-4 mt-auto pt-3 border-t border-gray-100">
-                  <div className="h-12 w-12 rounded-full flex items-center justify-center text-white text-lg font-semibold shadow-inner transition-transform group-hover:scale-110" style={{background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)"}}>
+                  <div className="h-12 w-12 rounded-full flex items-center justify-center text-white text-lg font-semibold shadow-inner transition-transform group-hover:scale-110 bg-[#3D294D]" >
                     {testimonial.name.charAt(0).toUpperCase()}
                   </div>
                   <div>

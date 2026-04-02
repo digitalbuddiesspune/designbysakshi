@@ -4,26 +4,19 @@ import { Link } from "react-router-dom";
 const About = () => {
   return (
     <div className="min-h-screen" style={{ background: "var(--brand-pastel)" }}>
-      <section className="px-4 pt-10 pb-16 sm:px-6 sm:pt-14 sm:pb-24 lg:px-8">
+      <section className="px-4  mb-16 sm:px-6 sm:pt-14 sm:pb-24 lg:px-8">
         <div
-          className="mx-auto max-w-6xl rounded-2xl border p-4 sm:p-6 lg:p-8"
-          style={{ borderColor: "var(--brand-purple)" }}
+          className="mx-auto max-w-6xl rounded-2xl  p-4 sm:p-6 lg:p-8"
         >
           <h1
-            className="text-3xl lg:text-4xl font-semibold text-center" 
+            className="text-3xl lg:text-4xl   mb-5 font-semibold text-center" 
             style={{ 
               color: "var(--brand-dark)",
               fontFamily: "Cormorant Garamond, Georgia, serif" 
             }}>
-            About
+            About Us 
           </h1>
-          <p
-            className="mb-6 text-center text-3xl lg:text-4xl font-semibold"
-            style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
-          >
-            The story behind DesignBySakshi
-          </p>
-
+          
           <div className="mx-auto mb-12 max-w-4xl text-center text-base leading-7 sm:text-lg" style={{ color: "var(--brand-muted)" }}>
             <p>
               At DesignBySakshi, every piece is created to feel special, wearable, and timeless. We design jewelry that fits your everyday style while still feeling elegant enough for celebrations. Our goal is simple: to bring you pieces that look beautiful, feel premium, and become a part of your story for years.
@@ -55,9 +48,9 @@ const About = () => {
             <div className="grid items-center gap-6 lg:grid-cols-[1fr_1.15fr]">
               <div className="lg:order-2">
                 <img
-                  src="https://res.cloudinary.com/dbfooaz44/image/upload/q_auto/f_auto/v1775049445/ChatGPT_Image_Apr_1_2026_06_46_23_PM_nwbefl.png"
+                  src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775112209/Untitled_1080_x_1080_px_1080_x_600_px_700_x_600_px_700_x_500_px_650_x_500_px_huzm4s.png"
                   alt="Our Brand Store"
-                  className="h-[300px] w-full  object-cover shadow-md sm:h-[260px] lg:h-[320px]"
+                  className=" w-auto object-cover shadow-md h-auto"
                 />
               </div>
               <div className="lg:order-1 lg:pr-8">

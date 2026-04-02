@@ -87,6 +87,13 @@ const Checkout = () => {
     pincode: "",
     landmark: "",
   });
+  const [phoneError, setPhoneError] = useState("");
+
+  const validatePhone = (phone) => {
+    const normalized = String(phone || "").replace(/\D/g, "");
+    // Must start with 6/7/8/9 and have total 10 digits
+    return /^[6789]\d{9}$/.test(normalized);
+  };
 
   const fetchCart = async () => {
     try {
@@ -120,8 +127,14 @@ const Checkout = () => {
 
   const handleAddAddress = (e) => {
     e.preventDefault();
+    const normalizedPhone = String(newAddress.phone || "").replace(/\D/g, "");
+    if (!validatePhone(normalizedPhone)) {
+      setPhoneError("Phone must be 10 digits and start with 6, 7, 8, or 9.");
+      return;
+    }
+    setPhoneError("");
     const id = `addr_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const addr = { ...newAddress, id, isDefault: addresses.length === 0 };
+    const addr = { ...newAddress, phone: normalizedPhone, id, isDefault: addresses.length === 0 };
     const next = [addr, ...addresses];
     setAddresses(next);
     setSelectedAddressId(addr.id);
@@ -134,6 +147,7 @@ const Checkout = () => {
       pincode: "",
       landmark: "",
     });
+    setPhoneError("");
     setShowNewAddress(false);
   };
 
@@ -499,13 +513,28 @@ const Checkout = () => {
                         onChange={(e) => setNewAddress((p) => ({ ...p, fullName: e.target.value }))}
                         required
                       />
-                      <input
-                        className="rounded-lg border border-gray-300 px-4 py-3 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition"
-                        placeholder="Phone"
-                        value={newAddress.phone}
-                        onChange={(e) => setNewAddress((p) => ({ ...p, phone: e.target.value }))}
-                        required
-                      />
+                      <div>
+                        <input
+                          className={`rounded-lg border px-4 py-3 text-sm outline-none focus:border-gray-900 focus:ring-1 focus:ring-gray-900 transition w-full ${
+                            phoneError ? "border-red-500" : "border-gray-300"
+                          }`}
+                          placeholder="Phone"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={10}
+                          value={newAddress.phone}
+                          onChange={(e) => {
+                            const digitsOnly = String(e.target.value).replace(/\D/g, "").slice(0, 10);
+                            setNewAddress((p) => ({ ...p, phone: digitsOnly }));
+                            // Live clear error if user fixes it
+                            if (phoneError && validatePhone(digitsOnly)) setPhoneError("");
+                          }}
+                          required
+                        />
+                        {phoneError ? (
+                          <p className="mt-1 text-xs font-medium text-red-600">{phoneError}</p>
+                        ) : null}
+                      </div>
                     </div>
                     <div className="mt-4 grid gap-4">
                       <input
@@ -548,7 +577,10 @@ const Checkout = () => {
                     <div className="mt-6 flex items-center justify-end gap-3">
                       <button
                         type="button"
-                        onClick={() => setShowNewAddress(false)}
+                        onClick={() => {
+                          setShowNewAddress(false);
+                          setPhoneError("");
+                        }}
                         className="rounded-lg px-5 py-2.5 text-sm font-bold text-gray-700 hover:bg-gray-200 transition"
                       >
                         Cancel

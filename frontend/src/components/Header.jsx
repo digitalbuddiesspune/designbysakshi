@@ -299,7 +299,7 @@ const Header = () => {
           className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 no-underline transition opacity-90 hover:opacity-100"
         >
           <img
-            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774441947/Screenshot_2026-03-25_174920-removebg-preview_5_gwltrx.png"
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png"
             alt="DesignBy Sakshi"
             className="h-10 lg:h-[22px] w-auto object-contain"
           />
@@ -329,7 +329,7 @@ const Header = () => {
           style={{ color: "#ffffff" }}
         >
           <img
-            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774441947/Screenshot_2026-03-25_174920-removebg-preview_5_gwltrx.png"
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png"
             alt="DesignBy Sakshi"
             className="h-22 w-22 object-contain"
           />

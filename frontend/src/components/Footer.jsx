@@ -13,25 +13,20 @@ const Footer = () => {
           <div>
             <Link to="/" className="inline-block no-underline">
               <img
-                src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774441947/Screenshot_2026-03-25_174920-removebg-preview_5_gwltrx.png"
+                src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png"
                 alt="DesignBy Sakhi"
                 className="h-12 w-auto object-contain"
               />
             </Link>
-            <p className="mt-4 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-              {" "}
-              <a href="tel:9130383655" className="no-underline text-white hover:opacity-90">
-                9130383655
-              </a>
-            </p>
-            <p className="mt-2 break-all text-xs sm:text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
-              {" "}
-              <a
-                href="mailto:designsbyshakshi@gmail.com"
-                className="no-underline text-white hover:opacity-90"
-              >
-                designsbyshakshi@gmail.com
-              </a>
+            <p
+              className="mt-4 text-base"
+              style={{
+                color: "rgba(255,255,255,0.92)",
+                fontFamily: "Great Vibes, cursive",
+                lineHeight: 1.1,
+              }}
+            >
+              Designs by Shakshi
             </p>
           </div>
 
@@ -146,6 +141,17 @@ const Footer = () => {
                   Anklets
                 </Link>
               </li>
+             
+              <li>
+                <Link
+                  to="/latest-collection"
+                  className="no-underline transition hover:opacity-90"
+                  style={{ color: "rgba(255,255,255,0.85)" }}
+                >
+                  Latest Collections
+                </Link>
+              </li>
+
               <li>
                 <Link
                   to="/bestseller"
@@ -167,70 +173,7 @@ const Footer = () => {
           </div>
 
           {/* Collections */}
-          <div>
-            <h3
-              className="mb-4 text-sm font-semibold uppercase tracking-wider"
-              style={{ color: "#FFFFFF" }}
-            >
-              Latest Collections
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  to="/wedding-collection"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Wedding Collection
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/festive-collection"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Festive Collection
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/partywear-collection"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Partywear Collection
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/dailywear-collection"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Dailywear Collection
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/officewear-collection"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Officewear Collection
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/luxuryad-collection"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Luxury Ad Collection
-                </Link>
-              </li>
-            </ul>
-          </div>
+      
 
           {/* Policies */}
           <div>
@@ -281,7 +224,80 @@ const Footer = () => {
           </div>
 
           {/* Brand */}
-         
+          <div className="lg:text-right">
+            <h3
+              className="mb-4 text-sm font-semibold uppercase tracking-wider"
+              style={{ color: "#FFFFFF" }}
+            >
+              Contact
+            </h3>
+            <p className="text-sm flex items-center justify-end gap-2" style={{ color: "rgba(255,255,255,0.85)" }}>
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 16.92v3a2 2 0 01-2.18 2 19.8 19.8 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.8 19.8 0 012.07 4.18 2 2 0 014.1 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
+              </svg>
+              <a href="tel:9130383655" className="no-underline text-white hover:opacity-90">
+                9130383655
+              </a>
+            </p>
+            <p
+              className="mt-2 flex items-start justify-end gap-2 whitespace-nowrap text-xs sm:text-sm"
+              style={{ color: "rgba(255,255,255,0.85)" }}
+            >
+              <svg className="h-4 w-4 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4h16v16H4V4zm8 8l8-6H4l8 6z" />
+              </svg>
+              <a
+                href="mailto:designsbyshakshi@gmail.com"
+                className="no-underline text-white hover:opacity-90"
+              >
+                designsbyshakshi@gmail.com
+              </a>
+            </p>
+
+            <div className="mt-6">
+              <p className="text-xs font-semibold tracking-wider" style={{ color: "rgba(255,255,255,0.85)" }}>
+                Follow us on
+              </p>
+              <div className="mt-3 flex items-center justify-end gap-4">
+                <a
+                  href="https://www.instagram.com/design.by.shakshi"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Instagram"
+                  className="text-white hover:opacity-90 transition"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <rect x="3" y="3" width="18" height="18" rx="5" ry="5" strokeWidth={2} />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.5 6.5h.01" />
+                  </svg>
+                </a>
+                <a
+                  href="https://www.facebook.com/people/Designs-by-Shakshi/61564974746533/"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Facebook"
+                  className="text-white hover:opacity-90 transition"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" />
+                  </svg>
+                </a>
+                <a
+                  href="https://wa.me/919130383655"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="WhatsApp"
+                  className="text-white hover:opacity-90 transition"
+                >
+                  <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.5 3.5L21 7l-1 14-14 1L3 20.5l.5-14L7 4l13.5-.5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.5 11.5c1.2 2.4 2.6 3.2 5 4.5l2-2c.4-.4 1-.6 1.5-.4l2 1c.4.2.6.7.4 1.1-.8 1.7-2.3 2.7-4.2 2.7-3.6 0-6.9-2.7-8.6-6.3-1.6-3.4-.8-6.6 1.3-8.5.4-.4 1-.4 1.4 0l1.2 1.2c.4.4.5 1 .3 1.5l-.9 2.2" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Bottom bar – copyright + legal */}
