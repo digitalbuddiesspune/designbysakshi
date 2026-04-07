@@ -19,7 +19,7 @@ const About = () => {
           
           <div className="mx-auto mb-12 max-w-4xl text-center text-base leading-7 sm:text-lg" style={{ color: "var(--brand-muted)" }}>
             <p>
-              At DesignBySakshi, every piece is created to feel special, wearable, and timeless. We design jewelry that fits your everyday style while still feeling elegant enough for celebrations. Our goal is simple: to bring you pieces that look beautiful, feel premium, and become a part of your story for years.
+              At DesignsByShakshi, every piece is created to feel special, wearable, and timeless. We design jewelry that fits your everyday style while still feeling elegant enough for celebrations. Our goal is simple: to bring you pieces that look beautiful, feel premium, and become a part of your story for years.
             </p>
           </div>
 
@@ -40,7 +40,7 @@ const About = () => {
                   Our Story
                 </h2>
                 <p className="text-base leading-7 sm:text-lg" style={{ color: "var(--brand-muted)" }}>
-                  DesignBySakshi started from a passion for creating jewelry that feels personal and meaningful. What began as a small dream has grown into a brand loved for graceful designs, quality finishing, and thoughtful details. We believe jewelry should not only complete your look, but also carry emotions, memories, and confidence in every wear.
+                  DesignsByShakshi started from a passion for creating jewelry that feels personal and meaningful. What began as a small dream has grown into a brand loved for graceful designs, quality finishing, and thoughtful details. We believe jewelry should not only complete your look, but also carry emotions, memories, and confidence in every wear.
                 </p>
               </div>
             </div>

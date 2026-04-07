@@ -62,7 +62,7 @@ const TermsConditions = () => {
                   </h2>
                 </div>
                 <p>
-                  Welcome to DesignBySakshi. By accessing and using our website, you agree to be bound by these Terms &amp; Conditions. If you do not agree with any part, please do not use our site.
+                  Welcome to DesignsByShakshi. By accessing and using our website, you agree to be bound by these Terms &amp; Conditions. If you do not agree with any part, please do not use our site.
                 </p>
               </div>
             </div>
@@ -122,7 +122,7 @@ const TermsConditions = () => {
                   </h2>
                 </div>
                 <p>
-                  All content here—text, images, logos, designs, graphics—is the intellectual property of DesignBySakshi. You may not reproduce, distribute, or use it without prior written consent.
+                  All content here—text, images, logos, designs, graphics—is the intellectual property of DesignsByShakshi. You may not reproduce, distribute, or use it without prior written consent.
                 </p>
               </div>
             </div>

@@ -96,18 +96,38 @@ const Blog = () => {
 
                   <div className="px-2 pt-4 text-center">
                     <h2
-                      className="mx-auto max-w-[260px] text-[24px] leading-[1.08] sm:text-[28px] lg:text-[33px]"
-                      style={{ color: "#262626", fontFamily: "Cormorant Garamond, Georgia, serif" }}
+                      className="mx-auto mb-0 max-w-[260px] text-[20px] leading-[1.15] sm:text-[22px] lg:text-[24px]"
+                      style={{
+                        color: "#262626",
+                        fontFamily: "Cormorant Garamond, Georgia, serif",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        marginTop: 0,
+                      }}
                     >
                       {blog.title}
                     </h2>
-                    <p className="mx-auto mt-2 max-w-[260px] text-[12px] leading-5 sm:mt-3 sm:text-[13px] sm:leading-6" style={{ color: "#474747" }}>
+                    <p
+                      className="mx-auto mt-0 max-w-[260px] text-[11px] leading-5 sm:mt-0 sm:text-[12px] sm:leading-5"
+                      style={{
+                        color: "#474747",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        minHeight: "2.5em",
+                      }}
+                    >
                       {formatExcerpt(blog.content)}
                     </p>
                     <div className="mt-4 text-center">
                       <span
                         className="inline-block text-[16px] italic"
-                        style={{ color: "#2f2f2f", fontFamily: "Cormorant Garamond, Georgia, serif" }}
+                        style={{ color: "#2f2f2f"}}
                       >
                         Read More
                       </span>

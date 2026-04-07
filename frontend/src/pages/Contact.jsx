@@ -1,15 +1,53 @@
 import React, { useState } from "react";
 
+const WEB3FORMS_ACCESS_KEY = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+
 const Contact = () => {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [result, setResult] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: wire to contact API
+
+    if (!WEB3FORMS_ACCESS_KEY) {
+      setResult("Form is not configured. Please try again later.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setResult("");
+
+    try {
+      const formData = new FormData();
+      formData.append("access_key", WEB3FORMS_ACCESS_KEY || "");
+      formData.append("name", form.name);
+      formData.append("email", form.email);
+      formData.append("subject", form.subject || "Contact form message");
+      formData.append("message", form.message);
+
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setResult("Message sent successfully. We will get back to you soon.");
+        setForm({ name: "", email: "", subject: "", message: "" });
+      } else {
+        setResult("Could not send message. Please try again.");
+      }
+    } catch (error) {
+      setResult("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -175,11 +213,20 @@ const Contact = () => {
               </div>
               <button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full rounded-lg py-3 text-sm font-semibold text-white transition hover:opacity-95"
-                style={{ background: "var(--brand-dark)" }}
+                style={{ background: "var(--brand-dark)", opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? "not-allowed" : "pointer" }}
               >
-                Send Message
+                {isSubmitting ? "Sending..." : "Send Message"}
               </button>
+              {result ? (
+                <p
+                  className="text-sm"
+                  style={{ color: result.startsWith("Message sent") ? "#166534" : "#b91c1c" }}
+                >
+                  {result}
+                </p>
+              ) : null}
             </form>
           </div>
         </div>

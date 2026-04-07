@@ -303,7 +303,7 @@ const Footer = () => {
         {/* Bottom bar – copyright + legal */}
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row" style={{ borderColor: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.85)" }}>
           <p className="text-sm">
-            © {currentYear}, DesignBySakshi. All rights reserved.
+            © {currentYear}, DesignsByShakshi. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm">
             <Link to="/privacy-policy" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>

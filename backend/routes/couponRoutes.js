@@ -5,9 +5,19 @@ import Product from '../models/Product.js';
 const router = express.Router();
 
 const normalizeCode = (v) => String(v || '').trim().toUpperCase();
+const deactivateExpiredCoupons = async () => {
+  await Coupon.updateMany(
+    {
+      isActive: true,
+      expiresAt: { $exists: true, $ne: null, $lt: new Date() },
+    },
+    { $set: { isActive: false } },
+  );
+};
 
 router.get('/', async (_req, res) => {
   try {
+    await deactivateExpiredCoupons();
     const coupons = await Coupon.find({}).sort({ createdAt: -1 });
     return res.json(coupons);
   } catch (error) {
@@ -73,6 +83,7 @@ router.delete('/:id', async (req, res) => {
 
 router.post('/validate', async (req, res) => {
   try {
+    await deactivateExpiredCoupons();
     const code = normalizeCode(req.body?.code);
     const subtotal = Number(req.body?.subtotal || 0);
     const items = Array.isArray(req.body?.items) ? req.body.items : [];
@@ -84,6 +95,7 @@ router.post('/validate', async (req, res) => {
     if (!coupon) return res.status(404).json({ message: 'Invalid coupon code' });
     if (!coupon.isActive) return res.status(400).json({ message: 'Coupon is inactive' });
     if (coupon.expiresAt && new Date(coupon.expiresAt).getTime() < Date.now()) {
+      await Coupon.updateOne({ _id: coupon._id }, { $set: { isActive: false } });
       return res.status(400).json({ message: 'Coupon has expired' });
     }
     if (coupon.usageLimit > 0 && coupon.usedCount >= coupon.usageLimit) {

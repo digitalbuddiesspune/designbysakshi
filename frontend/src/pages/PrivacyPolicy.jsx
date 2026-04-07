@@ -62,7 +62,7 @@ const PrivacyPolicy = () => {
                   </h2>
                 </div>
                 <p>
-                  At DesignBySakshi, we value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or make a purchase.
+                  At DesignsByShakshi, we value your privacy and are committed to protecting your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website or make a purchase.
                 </p>
               </div>
             </div>
