@@ -86,16 +86,7 @@ const MyCategories = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <div className="flex items-center justify-between mb-8">
-        <h1
-          className="text-3xl font-medium"
-          style={{
-            color: "var(--brand-dark)",
-            fontFamily: "Cormorant Garamond, Georgia, serif",
-          }}
-        >
-          My Categories
-        </h1>
+      <div className="flex items-center justify-end mb-8">
         <Link
           to="/admin/add-category"
           className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition"

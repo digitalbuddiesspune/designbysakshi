@@ -18,7 +18,6 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
   const location = useLocation();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [inCartIds, setInCartIds] = useState(new Set());
   const [wishlistedIds, setWishlistedIds] = useState(new Set());
   const guestId = useMemo(() => getGuestId(), []);
   const [pageHero, setPageHero] = useState({ desktop: heroImage || "", mobile: mobileHeroImage || "" });
@@ -99,20 +98,9 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
 
   const loadCartWishlistState = async () => {
     try {
-      const [cartRes, wishlistRes] = await Promise.all([
-        fetch(`${API_URL}/cart?guestId=${encodeURIComponent(guestId)}`),
-        fetch(`${API_URL}/wishlist?guestId=${encodeURIComponent(guestId)}`),
-      ]);
-
-      const cartData = cartRes.ok ? await cartRes.json() : { items: [] };
+      const wishlistRes = await fetch(`${API_URL}/wishlist?guestId=${encodeURIComponent(guestId)}`);
       const wishlistData = wishlistRes.ok ? await wishlistRes.json() : { products: [] };
 
-      const cartIds = new Set(
-        (cartData?.items || [])
-          .map((it) => it?.product?._id || it?.product)
-          .filter(Boolean)
-          .map(String),
-      );
       const wishlistIds = new Set(
         (wishlistData?.products || [])
           .map((p) => p?._id || p)
@@ -120,10 +108,9 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
           .map(String),
       );
 
-      setInCartIds(cartIds);
       setWishlistedIds(wishlistIds);
     } catch (err) {
-      console.error("Error loading cart/wishlist state:", err);
+      console.error("Error loading wishlist state:", err);
     }
   };
 
@@ -141,7 +128,6 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
   }, [guestId]);
 
   const handleAddToCart = async (productId) => {
-    if (inCartIds.has(String(productId))) return;
     try {
       await fetch(`${API_URL}/cart/add`, {
         method: "POST",
@@ -149,7 +135,6 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
         body: JSON.stringify({ productId, quantity: 1, guestId }),
       });
       window.dispatchEvent(new Event("cart-updated"));
-      setInCartIds((prev) => new Set([...prev, String(productId)]));
     } catch (err) {
       console.error("Error adding to cart:", err);
     }
@@ -246,21 +231,13 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
                     <span className="text-lg font-bold text-gray-900">{formatPrice(product.price)}</span>
                   </div>
                   <div className="flex gap-2">
-                    <Link
-                      to={`/product/${product._id}`}
-                      className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition hover:bg-gray-100"
-                      style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
-                    >
-                      View Details
-                    </Link>
                     <button
                       type="button"
                       onClick={() => handleAddToCart(product._id)}
-                      disabled={inCartIds.has(String(product._id))}
-                      className="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95 disabled:cursor-not-allowed disabled:opacity-70"
+                      className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                       style={{ background: "#3D294D" }}
                     >
-                      {inCartIds.has(String(product._id)) ? "Added" : "Add to Cart"}
+                      Add to Cart
                     </button>
                   </div>
                 </div>

@@ -191,16 +191,6 @@ const MyProducts = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <h1
-        className="mb-6 text-3xl font-medium"
-        style={{
-          color: "var(--brand-dark)",
-          fontFamily: "Cormorant Garamond, Georgia, serif",
-        }}
-      >
-        My Products
-      </h1>
-
       {/* Category Summary */}
       <div className="mb-6 bg-white rounded-lg shadow-md p-4">
         <h2 className="text-lg font-semibold mb-3" style={{ color: "var(--brand-dark)" }}>

@@ -134,16 +134,6 @@ const Dashboard = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <h1
-        className="mb-8 text-3xl font-medium"
-        style={{
-          color: "var(--brand-dark)",
-          fontFamily: "Cormorant Garamond, Georgia, serif",
-        }}
-      >
-        Dashboard
-      </h1>
-
       {loading ? (
         <div className="text-center py-12">Loading...</div>
       ) : (

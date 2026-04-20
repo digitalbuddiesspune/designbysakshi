@@ -19,6 +19,9 @@ const AdminLayout = () => {
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + "/");
 
+  const normalizedPath = location.pathname.replace(/\/$/, "");
+  const isAdminDashboard = normalizedPath === "/admin/dashboard";
+
   // Auto-open dropdown if on a page within that section
   useEffect(() => {
     const path = location.pathname;
@@ -475,7 +478,7 @@ const AdminLayout = () => {
           </ul>
         </nav>
 
-        {/* Logout/Back to Site */}
+        {/* Logout */}
         <div className="p-4 border-t border-gray-700 space-y-2">
           <button
             type="button"
@@ -487,46 +490,45 @@ const AdminLayout = () => {
             </svg>
             {isSidebarOpen && <span>Logout</span>}
           </button>
-          <Link
-            to="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            {isSidebarOpen && <span>Back to Site</span>}
-          </Link>
         </div>
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="sticky top-0 z-20 flex items-center justify-end gap-2 border-b bg-white px-4 py-3 sm:px-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50"
-            style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
-          >
-            ← Back to Site
-          </Link>
-          <Link
-            to="/admin/profile"
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50 ${
-              isActive("/admin/profile") ? "bg-gray-100" : ""
-            }`}
-            style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            Admin
-          </Link>
-        </div>
+        {isAdminDashboard && (
+          <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b bg-white px-4 py-3 sm:px-6">
+            <h1
+              className="text-xl font-medium sm:text-2xl"
+              style={{
+                color: "var(--brand-dark)",
+                fontFamily: "Cormorant Garamond, Georgia, serif",
+              }}
+            >
+              Dashboard
+            </h1>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50"
+                style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+              >
+                ← Back to Site
+              </Link>
+              <Link
+                to="/admin/profile"
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50 ${
+                  isActive("/admin/profile") ? "bg-gray-100" : ""
+                }`}
+                style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Admin
+              </Link>
+            </div>
+          </div>
+        )}
         <Outlet />
       </main>
     </div>

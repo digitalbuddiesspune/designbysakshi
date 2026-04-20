@@ -58,19 +58,17 @@ router.post('/add', async (req, res) => {
       (item) => item.product.toString() === productId
     );
 
+    const addQty = Number(quantity);
+    const delta = Number.isFinite(addQty) && addQty > 0 ? addQty : 1;
+
     if (existingItem) {
-      // Product already in cart: keep single add behavior (do not increase again).
-      const populated = await cart.populate('items.product');
-      return res.status(200).json(populated);
-    } else {
-      // Only add if quantity is positive
-      if (quantity > 0) {
-        cart.items.push({
-          product: productId,
-          quantity,
-          priceAtAddTime: product.price,
-        });
-      }
+      existingItem.quantity += delta;
+    } else if (delta > 0) {
+      cart.items.push({
+        product: productId,
+        quantity: delta,
+        priceAtAddTime: product.price,
+      });
     }
 
     await cart.save();

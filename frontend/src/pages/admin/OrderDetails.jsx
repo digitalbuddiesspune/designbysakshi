@@ -125,9 +125,6 @@ const OrderDetails = () => {
             ← Orders
           </button>
           <div>
-            <h1 className="text-3xl font-medium" style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}>
-              Order Details
-            </h1>
             <p className="text-sm" style={{ color: "var(--brand-muted)" }}>
               {loading ? "Loading..." : orderNumberLabel}
             </p>

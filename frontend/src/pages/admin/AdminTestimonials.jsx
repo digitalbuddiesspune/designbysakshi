@@ -86,8 +86,6 @@ const AdminTestimonials = () => {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>Manage Testimonials</h1>
-      
       {/* Add Testimonial Form */}
       <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
         <h2 className="text-xl font-semibold mb-4">Add New Testimonial</h2>

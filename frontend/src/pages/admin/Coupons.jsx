@@ -94,10 +94,6 @@ const Coupons = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <h1 className="text-3xl font-medium mb-6" style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}>
-        Coupons
-      </h1>
-
       <form onSubmit={submit} className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <input className="rounded-lg border px-3 py-2 text-sm" placeholder="Coupon code name (e.g. SAVE10)" value={form.code} onChange={(e) => setForm((p) => ({ ...p, code: e.target.value }))} required />
         <select className="rounded-lg border px-3 py-2 text-sm" value={form.discountType} onChange={(e) => setForm((p) => ({ ...p, discountType: e.target.value }))}>

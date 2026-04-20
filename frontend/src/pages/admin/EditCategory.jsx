@@ -168,16 +168,6 @@ const EditCategory = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <h1
-        className="mb-8 text-3xl font-medium"
-        style={{
-          color: "var(--brand-dark)",
-          fontFamily: "Cormorant Garamond, Georgia, serif",
-        }}
-      >
-        Edit Category
-      </h1>
-
       {message && (
         <div
           className={`mb-6 rounded-md p-4 ${

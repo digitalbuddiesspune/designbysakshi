@@ -21,12 +21,10 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [cartBusy, setCartBusy] = useState(false);
   const [wishlistBusy, setWishlistBusy] = useState(false);
-  const [inCart, setInCart] = useState(false);
   const [inWishlist, setInWishlist] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [relatedLoading, setRelatedLoading] = useState(false);
-  const [relatedCartIds, setRelatedCartIds] = useState(new Set());
   const [relatedWishlistedIds, setRelatedWishlistedIds] = useState(new Set());
 
   const guestId = useMemo(() => getGuestId(), []);
@@ -55,19 +53,9 @@ const ProductDetail = () => {
     const loadState = async () => {
       if (!product?._id) return;
       try {
-        const [cartRes, wishlistRes] = await Promise.all([
-          fetch(`${API_URL}/cart?guestId=${encodeURIComponent(guestId)}`),
-          fetch(`${API_URL}/wishlist?guestId=${encodeURIComponent(guestId)}`),
-        ]);
-        const cartData = cartRes.ok ? await cartRes.json() : { items: [] };
+        const wishlistRes = await fetch(`${API_URL}/wishlist?guestId=${encodeURIComponent(guestId)}`);
         const wishlistData = wishlistRes.ok ? await wishlistRes.json() : { products: [] };
 
-        const cartIds = new Set(
-          (cartData?.items || [])
-            .map((it) => it?.product?._id || it?.product)
-            .filter(Boolean)
-            .map(String),
-        );
         const wishlistIds = new Set(
           (wishlistData?.products || [])
             .map((p) => p?._id || p)
@@ -75,7 +63,6 @@ const ProductDetail = () => {
             .map(String),
         );
 
-        setInCart(cartIds.has(String(product._id)));
         setInWishlist(wishlistIds.has(String(product._id)));
       } catch (e) {
         console.error("Load product state failed:", e);
@@ -117,26 +104,15 @@ const ProductDetail = () => {
   }, [product?._id, product?.category]);
 
   useEffect(() => {
-    const loadRelatedState = async () => {
+    const loadRelatedWishlistState = async () => {
       if (!relatedProducts.length) {
-        setRelatedCartIds(new Set());
         setRelatedWishlistedIds(new Set());
         return;
       }
       try {
-        const [cartRes, wishlistRes] = await Promise.all([
-          fetch(`${API_URL}/cart?guestId=${encodeURIComponent(guestId)}`),
-          fetch(`${API_URL}/wishlist?guestId=${encodeURIComponent(guestId)}`),
-        ]);
-        const cartData = cartRes.ok ? await cartRes.json() : { items: [] };
+        const wishlistRes = await fetch(`${API_URL}/wishlist?guestId=${encodeURIComponent(guestId)}`);
         const wishlistData = wishlistRes.ok ? await wishlistRes.json() : { products: [] };
 
-        const cartIds = new Set(
-          (cartData?.items || [])
-            .map((it) => it?.product?._id || it?.product)
-            .filter(Boolean)
-            .map(String),
-        );
         const wishlistIds = new Set(
           (wishlistData?.products || [])
             .map((p) => p?._id || p)
@@ -144,18 +120,16 @@ const ProductDetail = () => {
             .map(String),
         );
 
-        setRelatedCartIds(cartIds);
         setRelatedWishlistedIds(wishlistIds);
       } catch (e) {
         console.error("Load related product state failed:", e);
       }
     };
 
-    loadRelatedState();
+    loadRelatedWishlistState();
   }, [relatedProducts, guestId]);
 
   const handleAddToCart = async () => {
-    if (inCart) return;
     try {
       setCartBusy(true);
       await fetch(`${API_URL}/cart/add`, {
@@ -164,7 +138,6 @@ const ProductDetail = () => {
         body: JSON.stringify({ productId: product._id, quantity, guestId }),
       });
       window.dispatchEvent(new Event("cart-updated"));
-      setInCart(true);
     } catch (e) {
       console.error("Add to cart failed:", e);
     } finally {
@@ -205,7 +178,7 @@ const ProductDetail = () => {
   };
 
   const handleAddRelatedToCart = async (productId) => {
-    if (!productId || relatedCartIds.has(String(productId))) return;
+    if (!productId) return;
     try {
       await fetch(`${API_URL}/cart/add`, {
         method: "POST",
@@ -213,7 +186,6 @@ const ProductDetail = () => {
         body: JSON.stringify({ productId, quantity: 1, guestId }),
       });
       window.dispatchEvent(new Event("cart-updated"));
-      setRelatedCartIds((prev) => new Set([...prev, String(productId)]));
     } catch (e) {
       console.error("Add related product to cart failed:", e);
     }
@@ -382,13 +354,13 @@ const ProductDetail = () => {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={cartBusy || !inStock || inCart}
+                disabled={cartBusy || !inStock}
                 className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: "#3D294D",
                 }}
               >
-                {inCart ? "Added" : cartBusy ? "Adding..." : "Add to Cart"}
+                {cartBusy ? "Adding..." : "Add to Cart"}
               </button>
               <button
                 type="button"
@@ -478,23 +450,14 @@ const ProductDetail = () => {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
                         </div>
-                        <div className="mt-2 flex gap-1.5">
+                        <div className="mt-2">
                           <button
                             type="button"
-                            className="flex-1 rounded-full border px-2 py-1 text-[10px] font-medium text-center no-underline transition text-[#3D294D] hover:bg-[#3D294D] hover:text-white"
-                            style={{ borderColor: "#3D294D" }}
-                            onClick={() => navigate(`/product/${item._id}`)}
-                          >
-                            View Details
-                          </button>
-                          <button
-                            type="button"
-                            className="flex-1 rounded-full px-2 py-1 text-[10px] font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+                            className="w-full rounded-full px-2 py-1 text-[10px] font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
                             onClick={() => handleAddRelatedToCart(item._id)}
-                            disabled={relatedCartIds.has(String(item._id))}
                           >
-                            {relatedCartIds.has(String(item._id)) ? "Added" : "Add to Cart"}
+                            Add to Cart
                           </button>
                         </div>
                       </div>
@@ -543,23 +506,14 @@ const ProductDetail = () => {
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
                         </div>
-                        <div className="mt-3 flex gap-2">
+                        <div className="mt-3">
                           <button
                             type="button"
-                            className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition text-[#3D294D] hover:bg-[#3D294D] hover:text-white"
-                            style={{ borderColor: "#3D294D" }}
-                            onClick={() => navigate(`/product/${item._id}`)}
-                          >
-                            View Details
-                          </button>
-                          <button
-                            type="button"
-                            className="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+                            className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
                             onClick={() => handleAddRelatedToCart(item._id)}
-                            disabled={relatedCartIds.has(String(item._id))}
                           >
-                            {relatedCartIds.has(String(item._id)) ? "Added" : "Add to Cart"}
+                            Add to Cart
                           </button>
                         </div>
                       </div>
@@ -611,23 +565,14 @@ const ProductDetail = () => {
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
                         </div>
-                        <div className="mt-3 flex gap-2">
+                        <div className="mt-3">
                           <button
                             type="button"
-                            className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition text-[#3D294D] hover:bg-[#3D294D] hover:text-white"
-                            style={{ borderColor: "#3D294D" }}
-                            onClick={() => navigate(`/product/${item._id}`)}
-                          >
-                            View Details
-                          </button>
-                          <button
-                            type="button"
-                            className="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+                            className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
                             onClick={() => handleAddRelatedToCart(item._id)}
-                            disabled={relatedCartIds.has(String(item._id))}
                           >
-                            {relatedCartIds.has(String(item._id)) ? "Added" : "Add to Cart"}
+                            Add to Cart
                           </button>
                         </div>
                       </div>
@@ -676,23 +621,14 @@ const ProductDetail = () => {
                         <div className="flex items-center gap-2">
                           <span className="text-lg font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
                         </div>
-                        <div className="mt-3 flex gap-2">
+                        <div className="mt-3">
                           <button
                             type="button"
-                            className="flex-1 rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition text-[#3D294D] hover:bg-[#3D294D] hover:text-white"
-                            style={{ borderColor: "#3D294D" }}
-                            onClick={() => navigate(`/product/${item._id}`)}
-                          >
-                            View Details
-                          </button>
-                          <button
-                            type="button"
-                            className="flex-1 rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
+                            className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
                             onClick={() => handleAddRelatedToCart(item._id)}
-                            disabled={relatedCartIds.has(String(item._id))}
                           >
-                            {relatedCartIds.has(String(item._id)) ? "Added" : "Add to Cart"}
+                            Add to Cart
                           </button>
                         </div>
                       </div>

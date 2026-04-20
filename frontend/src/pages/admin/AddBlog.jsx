@@ -111,16 +111,6 @@ const AddBlog = () => {
   return (
     <div className="min-h-screen bg-white py-10 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-6xl">
-        <h1
-          className="mb-6 text-center text-3xl font-medium sm:text-4xl"
-          style={{
-            color: "var(--brand-dark)",
-            fontFamily: "Cormorant Garamond, Georgia, serif",
-          }}
-        >
-          Manage Blogs
-        </h1>
-
         {message && (
           <div
             className={`mb-6 rounded-md p-4 ${

@@ -134,13 +134,6 @@ const AdminProfile = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <h1
-        className="mb-6 text-3xl font-medium"
-        style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
-      >
-        Admin Profile
-      </h1>
-
       <div className="mb-6 rounded-xl border bg-white p-4 shadow-sm max-w-xl">
         <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Admin Details</p>
         <div className="mt-2 space-y-1 text-sm">

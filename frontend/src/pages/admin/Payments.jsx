@@ -62,12 +62,6 @@ const Payments = () => {
   return (
     <div className="p-6 sm:p-8">
       <div className="mb-6">
-        <h1
-          className="text-3xl font-medium mb-2"
-          style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
-        >
-          Payments
-        </h1>
         <p className="text-sm" style={{ color: "var(--brand-muted)" }}>
           {payments.length} records
         </p>
