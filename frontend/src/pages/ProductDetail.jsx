@@ -233,7 +233,7 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-white py-6">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-6">
-        <div className="grid gap-8 md:grid-cols-2 items-center">
+        <div className="grid gap-8 md:grid-cols-2 items-start">
 
           {/* ── Left: Image ── */}
           <div className="flex items-start justify-center gap-4 w-full">
@@ -260,11 +260,33 @@ const ProductDetail = () => {
             )}
 
             {/* Main image */}
-            <div className="w-full max-w-md aspect-[10/9] overflow-hidden rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 shadow-md">
+            <div className="relative w-full max-w-xl h-[390px] sm:h-[460px] overflow-hidden  shadow-md">
+              <button
+                type="button"
+                onClick={handleAddToWishlist}
+                disabled={wishlistBusy || inWishlist}
+                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)] disabled:opacity-60 disabled:cursor-not-allowed"
+                aria-label={inWishlist ? "Wishlist added" : "Add to wishlist"}
+              >
+                <svg
+                  className="h-5 w-5"
+                  fill={inWishlist ? "currentColor" : "none"}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  style={{ color: inWishlist ? "var(--brand-purple)" : "#4b5563" }}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                  />
+                </svg>
+              </button>
               <img
                 src={activeImage}
                 alt={product.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-contain"
               />
             </div>
           </div>
@@ -292,12 +314,7 @@ const ProductDetail = () => {
           )}
 
           {/* ── Right: Details ── */}
-          {/* If no description → center vertically; if description → start from top with padding */}
-          <div
-            className={`flex flex-col gap-4 ${
-              hasDescription ? "justify-start pt-4" : "justify-center"
-            }`}
-          >
+          <div className="flex flex-col gap-6 justify-start pt-2">
             {/* Name */}
             <h1
               className="text-2xl sm:text-3xl font-semibold text-gray-900"
@@ -324,7 +341,7 @@ const ProductDetail = () => {
             )}
 
             {/* ── Quantity selector ── */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 pt-1">
               <span className="text-sm font-semibold text-gray-700">Qty:</span>
               <div className="flex items-center overflow-hidden rounded-lg bg-[#3D294D]/10">
                 <button
@@ -350,7 +367,7 @@ const ProductDetail = () => {
             </div>
 
             {/* ── Action buttons ── */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-1">
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
@@ -361,19 +378,6 @@ const ProductDetail = () => {
                 }}
               >
                 {cartBusy ? "Adding..." : "Add to Cart"}
-              </button>
-              <button
-                type="button"
-                onClick={handleAddToWishlist}
-                disabled={wishlistBusy || inWishlist}
-                className="flex-1 rounded-full border px-4 py-2.5 text-sm font-semibold text-center transition disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  borderColor: "#3D294D",
-                  background: inWishlist ? "#3D294D" : "white",
-                  color: inWishlist ? "white" : "#3D294D",
-                }}
-              >
-                {inWishlist ? "Wishlist Added" : wishlistBusy ? "Adding..." : "Add to Wishlist"}
               </button>
               <button
                 type="button"
