@@ -208,6 +208,11 @@ const ProductDetail = () => {
     }
   };
 
+  const handleRelatedProductClick = (productId) => {
+    if (!productId) return;
+    navigate(`/product/${productId}`);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -260,33 +265,11 @@ const ProductDetail = () => {
             )}
 
             {/* Main image */}
-            <div className="relative w-full max-w-xl h-[390px] sm:h-[460px] overflow-hidden  shadow-md">
-              <button
-                type="button"
-                onClick={handleAddToWishlist}
-                disabled={wishlistBusy || inWishlist}
-                className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)] disabled:opacity-60 disabled:cursor-not-allowed"
-                aria-label={inWishlist ? "Wishlist added" : "Add to wishlist"}
-              >
-                <svg
-                  className="h-5 w-5"
-                  fill={inWishlist ? "currentColor" : "none"}
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  style={{ color: inWishlist ? "var(--brand-purple)" : "#4b5563" }}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                  />
-                </svg>
-              </button>
+            <div className="w-full max-w-xl aspect-square overflow-hidden shadow-md">
               <img
                 src={activeImage}
                 alt={product.name}
-                className="h-full w-full object-contain"
+                className="h-full w-full object-contain object-center"
               />
             </div>
           </div>
@@ -417,7 +400,8 @@ const ProductDetail = () => {
                   {relatedProducts.map((item) => (
                     <div
                       key={item._id}
-                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg min-w-[48%] max-w-[48%]"
+                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg min-w-[48%] max-w-[48%] cursor-pointer"
+                      onClick={() => handleRelatedProductClick(item._id)}
                     >
                       <div className="relative aspect-[6/5] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                         <img
@@ -429,7 +413,10 @@ const ProductDetail = () => {
                           type="button"
                           className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
                           aria-label="Add to wishlist"
-                          onClick={() => handleAddRelatedToWishlist(item._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddRelatedToWishlist(item._id);
+                          }}
                         >
                           <svg
                             className="h-4 w-4"
@@ -459,7 +446,10 @@ const ProductDetail = () => {
                             type="button"
                             className="w-full rounded-full px-2 py-1 text-[10px] font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
-                            onClick={() => handleAddRelatedToCart(item._id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddRelatedToCart(item._id);
+                            }}
                           >
                             Add to Cart
                           </button>
@@ -473,7 +463,8 @@ const ProductDetail = () => {
                   {relatedProducts.map((item) => (
                     <div
                       key={item._id}
-                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg cursor-pointer"
+                      onClick={() => handleRelatedProductClick(item._id)}
                     >
                       <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                         <img
@@ -485,7 +476,10 @@ const ProductDetail = () => {
                           type="button"
                           className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
                           aria-label="Add to wishlist"
-                          onClick={() => handleAddRelatedToWishlist(item._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddRelatedToWishlist(item._id);
+                          }}
                         >
                           <svg
                             className="h-4 w-4"
@@ -515,7 +509,10 @@ const ProductDetail = () => {
                             type="button"
                             className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
-                            onClick={() => handleAddRelatedToCart(item._id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddRelatedToCart(item._id);
+                            }}
                           >
                             Add to Cart
                           </button>
@@ -532,7 +529,8 @@ const ProductDetail = () => {
                   {relatedProducts.map((item) => (
                     <div
                       key={`${item._id}-desktop-scroll`}
-                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg min-w-[23%]"
+                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg min-w-[23%] cursor-pointer"
+                      onClick={() => handleRelatedProductClick(item._id)}
                     >
                       <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                         <img
@@ -544,7 +542,10 @@ const ProductDetail = () => {
                           type="button"
                           className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
                           aria-label="Add to wishlist"
-                          onClick={() => handleAddRelatedToWishlist(item._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddRelatedToWishlist(item._id);
+                          }}
                         >
                           <svg
                             className="h-4 w-4"
@@ -574,7 +575,10 @@ const ProductDetail = () => {
                             type="button"
                             className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
-                            onClick={() => handleAddRelatedToCart(item._id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddRelatedToCart(item._id);
+                            }}
                           >
                             Add to Cart
                           </button>
@@ -588,7 +592,8 @@ const ProductDetail = () => {
                   {relatedProducts.map((item) => (
                     <div
                       key={`${item._id}-desktop-grid`}
-                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
+                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg cursor-pointer"
+                      onClick={() => handleRelatedProductClick(item._id)}
                     >
                       <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                         <img
@@ -600,7 +605,10 @@ const ProductDetail = () => {
                           type="button"
                           className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
                           aria-label="Add to wishlist"
-                          onClick={() => handleAddRelatedToWishlist(item._id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddRelatedToWishlist(item._id);
+                          }}
                         >
                           <svg
                             className="h-4 w-4"
@@ -630,7 +638,10 @@ const ProductDetail = () => {
                             type="button"
                             className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
-                            onClick={() => handleAddRelatedToCart(item._id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddRelatedToCart(item._id);
+                            }}
                           >
                             Add to Cart
                           </button>
