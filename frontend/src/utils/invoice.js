@@ -70,7 +70,12 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
     .sum{margin:0 18px 20px auto;max-width:320px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
     .sum .row{padding:8px 12px;margin:0}
     .sum .total{background:#1f2d46;color:#fff;font-weight:700}
-    @media print{body{background:#fff;padding:0}.wrap{border:none;border-radius:0}.print-btn{display:none}}
+    .totals-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:0 18px 18px}
+    .invoice-actions{display:flex;justify-content:flex-start}
+    .invoice-actions button{border:none;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer}
+    .download-btn{background:#1f2d46;color:#fff}
+    .sum{margin:0;max-width:320px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
+    @media print{body{background:#fff;padding:0}.wrap{border:none;border-radius:0}.invoice-actions{display:none}.totals-row{padding:0 18px 18px}}
   </style>
 </head>
 <body>
@@ -107,19 +112,30 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
       <thead><tr><th>Sr No.</th><th>Item Name</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="5">No items</td></tr>'}</tbody>
     </table>
-    <div class="sum">
-      <div class="row"><span>Subtotal</span><strong>${formatCurrency(subtotal)}</strong></div>
-      ${
-        couponDiscount > 0
-          ? `<div class="row"><span>Coupon${order.couponCode ? ` (${esc(order.couponCode)})` : ""}</span><strong>-${formatCurrency(couponDiscount)}</strong></div>`
-          : ""
-      }
-      <div class="row"><span>18% GST</span><strong>Included</strong></div>
-      <div class="row"><span>Delivery Charges</span><strong>${deliveryCharge === 0 ? "Free" : formatCurrency(deliveryCharge)}</strong></div>
-      <div class="row total"><span>Total Amount</span><strong>${formatCurrency(totalAmount)}</strong></div>
+    <div class="totals-row">
+      <div class="invoice-actions">
+        <button class="download-btn" onclick="downloadInvoice()">Download Invoice</button>
+      </div>
+      <div class="sum">
+        <div class="row"><span>Subtotal</span><strong>${formatCurrency(subtotal)}</strong></div>
+        ${
+          couponDiscount > 0
+            ? `<div class="row"><span>Coupon${order.couponCode ? ` (${esc(order.couponCode)})` : ""}</span><strong>-${formatCurrency(couponDiscount)}</strong></div>`
+            : ""
+        }
+        <div class="row"><span>18% GST</span><strong>Included</strong></div>
+        <div class="row"><span>Delivery Charges</span><strong>${deliveryCharge === 0 ? "Free" : formatCurrency(deliveryCharge)}</strong></div>
+        <div class="row total"><span>Total Amount</span><strong>${formatCurrency(totalAmount)}</strong></div>
+      </div>
     </div>
   </div>
-  <script>window.onload=function(){window.focus();}</script>
+  <script>
+    function downloadInvoice() {
+      window.focus();
+      window.print();
+    }
+    window.onload = function() { window.focus(); };
+  </script>
 </body>
 </html>`;
 
