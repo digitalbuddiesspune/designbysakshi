@@ -5,7 +5,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto w-full bg-[#001e38] px-3 py-14 sm:px-6 lg:px-8">
+    <footer className="mt-auto w-full bg-[#001e38] px-3 py-14 pb-24 sm:pb-14 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
         {/* Brand + quick links + policies + contact */}
         <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4 lg:gap-10">
@@ -15,7 +15,7 @@ const Footer = () => {
               <img
                 src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png"
                 alt="DesignBy Sakhi"
-                className="h-12 w-auto object-contain"
+                className="h-20 w-auto object-contain"
               />
             </Link>
             <p className="mt-4 text-sm leading-6" style={{ color: "rgba(255,255,255,0.88)" }}>
