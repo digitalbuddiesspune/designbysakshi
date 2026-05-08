@@ -41,7 +41,7 @@ const Homepage = () => {
         </div>
 
         {/* Banner after Perfect Gifts */}
-        <section className="cursor-pointer mt-10 sm:-mt-6 lg:-mt-0">
+        <section className="cursor-pointer mt-6 sm:-mt-6 lg:-mt-0">
           <Link to="/bestseller" className="block w-full">
             {/* Desktop banner */}
             <img

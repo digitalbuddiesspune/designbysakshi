@@ -27,9 +27,10 @@ const NewCollection = () => {
                  </Link>
 
                  {/* ✅ MOBILE OVERLAY */}
-                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/40 text-white p-2 text-[11px]">
-                   <h3 className="uppercase tracking-widest">Gift a Ring</h3>
-                   <p className="text-[10px] italic">Timeless love</p>
+                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/60 text-white p-2 text-[11px]">
+                   <p className="text-[10px] text-center text-gray-200">  Ring </p>
+                   <p className="text-[10px] text-center text-gray-200"> Gift a Ring Timeless love</p>
+
                  </div>
 
                  {/* DESKTOP TEXT (UNCHANGED) */}
@@ -59,9 +60,10 @@ const NewCollection = () => {
                  </Link>
 
                  {/* MOBILE OVERLAY */}
-                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/40 text-white p-2 text-[11px]">
-                   <h3 className="uppercase tracking-widest">Bracelets</h3>
-                   <p className="text-[10px] italic">Elegant daily wear</p>
+                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/60 text-white p-2 text-[11px]">
+                   <p className="text-[10px] text-center  text-gray-200"> Bracelets</p>
+                   <p className="text-[10px]  text-center text-gray-200"> Elegant daily wear</p>
+
                  </div>
                </div>
 
@@ -111,9 +113,10 @@ const NewCollection = () => {
                  </Link>
 
                  {/* MOBILE OVERLAY */}
-                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/40 text-white p-2 text-[11px]">
-                   <h3 className="uppercase tracking-widest">Pendants</h3>
-                   <p className="text-[10px] italic">Grace & style</p>
+                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/60 text-white p-2 text-[11px]">
+                 <p className="text-[10px] text-center  text-gray-200">Pendants</p>
+
+                   <p className="text-[10px] text-center text-gray-200">Pendants Grace and Style</p>
                  </div>
                </div>
             </div>
@@ -132,9 +135,10 @@ const NewCollection = () => {
                  </Link>
 
                  {/* MOBILE OVERLAY */}
-                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/40 text-white p-2 text-[11px]">
-                   <h3 className="uppercase tracking-widest">Bridal</h3>
-                   <p className="text-[10px] italic">Wedding elegance</p>
+                 <div className="lg:hidden absolute bottom-0 left-0 w-full bg-black/60 text-white p-2 text-[11px]">
+                 <p className="text-[10px] text-center  text-gray-200"> Bridal</p>
+
+                   <p className="text-[10px] text-center  text-gray-200">Wedding elegance</p>
                  </div>
 
                  {/* DESKTOP TEXT */}
