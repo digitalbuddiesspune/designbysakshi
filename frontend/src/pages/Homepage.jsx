@@ -45,13 +45,13 @@ const Homepage = () => {
           <Link to="/bestseller" className="block w-full">
             {/* Desktop banner */}
             <img
-              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773743922/Untitled_1000_x_500_px_1920_x_550_px_w2i3cv.png"
+              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778229683/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1920_x_550_px_1_ngr69h.png"
               alt="DesignBySakshi collection banner"
               className="hidden sm:block w-full h-auto object-cover"
             />
             {/* Mobile banner */}
             <img
-              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773769833/5_b4kkui.png"
+              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778230160/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1080_x_500_px_luxba6.png"
               alt="DesignBySakshi collection banner"
               className="block sm:hidden w-full h-auto object-cover"
             />

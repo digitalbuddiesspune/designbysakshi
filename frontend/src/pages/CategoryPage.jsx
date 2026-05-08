@@ -229,7 +229,7 @@ const CategoryPage = () => {
   const sliderMax = Number.isFinite(absoluteMax) ? absoluteMax : 0;
 
   return (
-    <div className="bg-white pt-1 pb-8 sm:pt-2 sm:pb-10">
+    <div className="bg-white pt-0 pb-8 sm:pt-0 sm:pb-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {categorySlug === "latest-collection" && (
           <div className="mb-6">

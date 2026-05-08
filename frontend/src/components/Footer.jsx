@@ -5,10 +5,10 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto w-full bg-[#001e38] px-3 py-10 sm:px-6 lg:px-8">
+    <footer className="mt-auto w-full bg-[#001e38] px-3 py-14 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
-        {/* Brand + contact + Quick links + Categories + Collections + Policies + Brand */}
-        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-5 lg:gap-10">
+        {/* Brand + quick links + policies + contact */}
+        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4 lg:gap-10">
           {/* Left side logo + contact */}
           <div>
             <Link to="/" className="inline-block no-underline">
@@ -18,15 +18,10 @@ const Footer = () => {
                 className="h-12 w-auto object-contain"
               />
             </Link>
-            <p
-              className="mt-4 text-base"
-              style={{
-                color: "rgba(255,255,255,0.92)",
-                fontFamily: "Great Vibes, cursive",
-                lineHeight: 1.1,
-              }}
-            >
-              Designs by Shakshi
+            <p className="mt-4 text-sm leading-6" style={{ color: "rgba(255,255,255,0.88)" }}>
+              Crafting timeless jewellery that celebrates
+              <br />
+              your story, style, and special moments.
             </p>
           </div>
 
@@ -68,112 +63,6 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-
-          {/* Categories */}
-          <div>
-            <h3
-              className="mb-4 text-sm font-semibold uppercase tracking-wider"
-              style={{ color: "#FFFFFF" }}
-            >
-              Categories
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link
-                  to="/necklace-sets"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Necklace Sets
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/earrings"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Earrings
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/ring"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Rings
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/bangles-bracelets"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Bangles & Bracelets
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/pendants"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Pendants
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/bridal-jewellery"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Bridal Jewellery
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/anklets"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Anklets
-                </Link>
-              </li>
-             
-              <li>
-                <Link
-                  to="/latest-collection"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Latest Collections
-                </Link>
-              </li>
-
-              <li>
-                <Link
-                  to="/bestseller"
-                  className="no-underline transition hover:opacity-90"
-                  style={{ color: "rgba(255,255,255,0.85)" }}
-                >
-                  Bestseller
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/new-arrival"
-                  className="no-underline text-white transition hover:opacity-90"
-                >
-                  New Arrival
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Collections */}
-      
 
           {/* Policies */}
           <div>
@@ -306,16 +195,16 @@ const Footer = () => {
             © {currentYear}, DesignsByShakshi. All rights reserved.
           </p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm">
-            <Link to="/privacy-policy" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <Link to="/privacy-policy" className="no-underline transition hover:opacity-90 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
               Privacy Policy
             </Link>
-            <Link to="/refund-policy" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <Link to="/refund-policy" className="no-underline transition hover:opacity-90 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
               Refund & Cancellation
             </Link>
-            <Link to="/shipping-policy" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <Link to="/shipping-policy" className="no-underline transition hover:opacity-90 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
               Shipping Policy
             </Link>
-            <Link to="/terms-conditions" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <Link to="/terms-conditions" className="no-underline transition hover:opacity-90 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
               Terms & Conditions
             </Link>
           </div>

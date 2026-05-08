@@ -232,7 +232,10 @@ const Header = () => {
         // ignore merge errors silently
       }
 
-      setCategoryBar(transformedCategories);
+      const filteredCategories = transformedCategories.filter(
+        (cat) => cat.slug !== "bestseller" && cat.slug !== "new-arrival",
+      );
+      setCategoryBar(filteredCategories);
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
@@ -267,14 +270,16 @@ const Header = () => {
     }, 1500);
   };
 
-  const selectedDesktopCategory = categoryBar.find((c) => c.slug === clickedCategory);
+  const visibleCategoryBar = categoryBar.filter(
+    (c) => c.slug !== "bestseller" && c.slug !== "new-arrival",
+  );
+  const selectedDesktopCategory = visibleCategoryBar.find((c) => c.slug === clickedCategory);
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-[2000] w-full border-b"
+      className="fixed top-0 left-0 right-0 z-[2000] w-full"
       style={{
         background: "#FFFFFF",
-        borderColor: "rgba(0, 0, 0, 0.12)",
       }}
     >
       {/* Mobile Header */}
@@ -340,60 +345,6 @@ const Header = () => {
           aria-label="Main"
           style={{ background: "#FFFFFF", color: "#000000" }}
         >
-          {/* Search Bar - First */}
-          <div className="relative">
-            {showSearch ? (
-              <form onSubmit={handleSearch} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2"
-                  style={{
-                    borderColor: "var(--brand-lavender-soft)",
-                    color: "#000000",
-                    minWidth: "200px"
-                  }}
-                  autoFocus
-                />
-                <button
-                  type="submit"
-                  className="rounded p-2 transition hover:opacity-80"
-                  aria-label="Search"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSearch(false);
-                    setSearchQuery("");
-                  }}
-                  className="rounded p-2 transition hover:opacity-80"
-                  aria-label="Close search"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </form>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowSearch(true)}
-                className="rounded p-2 transition hover:opacity-80"
-                aria-label="Search"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            )}
-          </div>
-
           {/* About Us */}
           <Link
             to="/about"
@@ -438,6 +389,59 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-4" style={{ color: "#000000" }}>
+          <div className="relative">
+            {showSearch ? (
+              <form onSubmit={handleSearch} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2"
+                  style={{
+                    borderColor: "var(--brand-lavender-soft)",
+                    color: "#000000",
+                    minWidth: "200px",
+                  }}
+                  autoFocus
+                />
+                <button
+                  type="submit"
+                  className="rounded p-2 transition hover:opacity-80"
+                  aria-label="Search"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSearch(false);
+                    setSearchQuery("");
+                  }}
+                  className="rounded p-2 transition hover:opacity-80"
+                  aria-label="Close search"
+                >
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </form>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowSearch(true)}
+                className="rounded p-2 transition hover:opacity-80"
+                aria-label="Search"
+              >
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </button>
+            )}
+          </div>
+
           {/* Wishlist Icon */}
           <Link
             to="/wishlist"
@@ -746,7 +750,7 @@ const Header = () => {
           </div>
 
           <div className="max-h-[65vh] overflow-y-auto p-2 space-y-1">
-            {categoryBar.map((cat) => {
+            {visibleCategoryBar.map((cat) => {
               const isExpanded = expandedMobileCategory === cat.slug;
               return (
                 <div key={cat.slug} className="rounded-md hover:bg-gray-50">
@@ -964,7 +968,7 @@ const Header = () => {
 
               {/* Categories with Accordion */}
               <div className="space-y-1">
-                {categoryBar.map((cat) => {
+                {visibleCategoryBar.map((cat) => {
                   const isExpanded = expandedMobileCategory === cat.slug;
                   return (
                     <div key={cat.slug} className="border-b" style={{ borderColor: "var(--brand-lavender-soft)" }}>
@@ -1031,15 +1035,21 @@ const Header = () => {
       {/* Category bar: main categories with subcategories - Desktop Only */}
       <div
         ref={categoryRef}
-        className="hidden md:block border-t relative category-dropdown-container"
-        style={{ borderColor: "var(--brand-lavender-soft)", background: "#4B1368", zIndex: 2001, overflow: 'visible' }}
+        className="hidden md:block relative category-dropdown-container"
+        style={{
+          background: "#4B1368",
+          zIndex: 2001,
+          overflow: "visible",
+          marginBottom: "-1px",
+          boxShadow: "0 1px 0 #4B1368",
+        }}
       >
         <div className="w-full px-2 sm:px-4 no-scrollbar" style={{ overflowX: 'auto', overflowY: 'visible', position: 'relative' }}>
           <nav
-            className="flex w-max min-w-full flex-nowrap items-center justify-start gap-4 py-1.5 md:py-2 relative"
+            className="flex w-max min-w-full flex-nowrap items-center justify-center gap-4 py-1.5 md:py-2 relative"
             aria-label="Categories"
           >
-            {categoryBar.map((cat) => {
+            {visibleCategoryBar.map((cat) => {
               const isOpen = clickedCategory === cat.slug;
               return (
                 <div
