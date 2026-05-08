@@ -273,8 +273,8 @@ const Header = () => {
     <header
       className="fixed top-0 left-0 right-0 z-[2000] w-full border-b"
       style={{
-        background: "#845183",
-        borderColor: "rgba(91, 71, 109, 0.22)",
+        background: "#FFFFFF",
+        borderColor: "rgba(0, 0, 0, 0.12)",
       }}
     >
       {/* Mobile Header */}
@@ -287,7 +287,7 @@ const Header = () => {
             className="p-2 transition hover:opacity-80"
             aria-label="Menu"
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
@@ -306,7 +306,7 @@ const Header = () => {
         </Link>
 
         {/* Right side icons */}
-        <div className="flex items-center gap-2" style={{ color: "#ffffff" }}>
+        <div className="flex items-center gap-2" style={{ color: "#000000" }}>
           {/* Search Icon */}
           <button
             type="button"
@@ -314,7 +314,7 @@ const Header = () => {
             className="p-2 transition hover:opacity-80"
             aria-label="Search"
           >
-            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
+            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
@@ -322,11 +322,11 @@ const Header = () => {
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden lg:flex mx-auto h-20 max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8 md:h-24">
+      <div className="hidden lg:flex h-20 w-full items-center justify-between px-12 py-4 md:h-24">
         <Link
           to="/"
           className="flex items-center gap-1 no-underline transition opacity-90 hover:opacity-100"
-          style={{ color: "#ffffff" }}
+          style={{ color: "#000000" }}
         >
           <img
             src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png"
@@ -335,7 +335,11 @@ const Header = () => {
           />
         </Link>
 
-        <nav className="flex items-center gap-6" aria-label="Main">
+        <nav
+          className="flex items-center gap-6 rounded-xl px-4 py-2"
+          aria-label="Main"
+          style={{ background: "#FFFFFF", color: "#000000" }}
+        >
           {/* Search Bar - First */}
           <div className="relative">
             {showSearch ? (
@@ -348,7 +352,7 @@ const Header = () => {
                   className="px-4 py-2 text-sm border rounded-md focus:outline-none focus:ring-2"
                   style={{
                     borderColor: "var(--brand-lavender-soft)",
-                    color: "#ffffff",
+                    color: "#000000",
                     minWidth: "200px"
                   }}
                   autoFocus
@@ -358,7 +362,7 @@ const Header = () => {
                   className="rounded p-2 transition hover:opacity-80"
                   aria-label="Search"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
                 </button>
@@ -371,7 +375,7 @@ const Header = () => {
                   className="rounded p-2 transition hover:opacity-80"
                   aria-label="Close search"
                 >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
@@ -383,7 +387,7 @@ const Header = () => {
                 className="rounded p-2 transition hover:opacity-80"
                 aria-label="Search"
               >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
+                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </button>
@@ -394,7 +398,7 @@ const Header = () => {
           <Link
             to="/about"
             className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
-            style={{ color: "#ffffff" }}
+            style={{ color: "#000000" }}
           >
             About Us
           </Link>
@@ -404,7 +408,7 @@ const Header = () => {
             <button
               type="button"
               className="text-base font-medium transition hover:opacity-90 sm:text-lg flex items-center gap-1 bg-transparent border-none cursor-pointer"
-              style={{ color: "#ffffff" }}
+              style={{ color: "#000000" }}
             >
               Collections
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -418,7 +422,7 @@ const Header = () => {
           <Link
             to="/contact"
             className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
-            style={{ color: "#ffffff" }}
+            style={{ color: "#000000" }}
           >
             Contact
           </Link>
@@ -427,13 +431,13 @@ const Header = () => {
           <Link
             to="/blog"
             className="text-base font-medium no-underline transition hover:opacity-90 sm:text-lg"
-            style={{ color: "#ffffff" }}
+            style={{ color: "#000000" }}
           >
             Blog
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4" style={{ color: "#ffffff" }}>
+        <div className="flex items-center gap-4" style={{ color: "#000000" }}>
           {/* Wishlist Icon */}
           <Link
             to="/wishlist"
@@ -550,8 +554,8 @@ const Header = () => {
         <div
           className="lg:hidden border-b px-4 py-3"
           style={{
-            borderColor: "rgba(91, 71, 109, 0.22)",
-            background: "linear-gradient(180deg, #c5a2d7 0%, #dcc7e6 58%, #ffffff 100%)",
+            borderColor: "rgba(0, 0, 0, 0.12)",
+            background: "#FFFFFF",
           }}
         >
           <form onSubmit={handleSearch} className="flex items-center gap-2">
@@ -586,7 +590,7 @@ const Header = () => {
               className="p-2 transition hover:opacity-80"
               aria-label="Close search"
             >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#ffffff" }}>
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: "#000000" }}>
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
@@ -599,7 +603,7 @@ const Header = () => {
         className="lg:hidden fixed bottom-0 left-0 right-0 z-[1000] border-t pb-[max(env(safe-area-inset-bottom),6px)]"
         style={{
           borderColor: "rgba(212, 200, 228, 0.9)",
-          background: "#ffffff",
+          background: "#FFFFFF",
         }}
       >
           <div className="flex items-center justify-between px-2 py-1">
@@ -614,8 +618,8 @@ const Header = () => {
               className="flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Home"
               style={{
-                color: location.pathname === "/" ? "#3D294D" : "var(--brand-dark)",
-                background: location.pathname === "/" ? "rgba(92,75,107,0.12)" : "transparent",
+                color: "#000000",
+                background: location.pathname === "/" ? "rgba(0,0,0,0.08)" : "transparent",
               }}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -634,8 +638,8 @@ const Header = () => {
               className="flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Catalog"
               style={{
-                color: showCatalogPopup ? "#3D294D" : "var(--brand-dark)",
-                background: showCatalogPopup ? "rgba(92,75,107,0.12)" : "transparent",
+                color: "#000000",
+                background: showCatalogPopup ? "rgba(0,0,0,0.08)" : "transparent",
               }}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -654,15 +658,15 @@ const Header = () => {
               className="relative flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Cart"
               style={{
-                color: location.pathname.startsWith("/cart") ? "#3D294D" : "var(--brand-dark)",
-                background: location.pathname.startsWith("/cart") ? "rgba(92,75,107,0.12)" : "transparent",
+                color: "#000000",
+                background: location.pathname.startsWith("/cart") ? "rgba(0,0,0,0.08)" : "transparent",
               }}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
               {cartCount > 0 && (
-                <span className="absolute right-2 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#3D294D] px-1 text-[10px] font-bold text-white">
+                <span className="absolute right-2 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-white px-1 text-[10px] font-bold text-[#4B1368]">
                   {cartCount}
                 </span>
               )}
@@ -683,8 +687,8 @@ const Header = () => {
               className="flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="My Orders"
               style={{
-                color: location.pathname.startsWith("/orders") ? "#3D294D" : "var(--brand-dark)",
-                background: location.pathname.startsWith("/orders") ? "rgba(92,75,107,0.12)" : "transparent",
+                color: "#000000",
+                background: location.pathname.startsWith("/orders") ? "rgba(0,0,0,0.08)" : "transparent",
               }}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -707,8 +711,8 @@ const Header = () => {
               className="flex min-w-[70px] flex-col items-center gap-0.5 rounded-xl px-2 py-1 transition"
               aria-label="Profile"
               style={{
-                color: location.pathname.startsWith("/profile") ? "#3D294D" : "var(--brand-dark)",
-                background: location.pathname.startsWith("/profile") ? "rgba(92,75,107,0.12)" : "transparent",
+                color: "#000000",
+                background: location.pathname.startsWith("/profile") ? "rgba(0,0,0,0.08)" : "transparent",
               }}
             >
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1028,7 +1032,7 @@ const Header = () => {
       <div
         ref={categoryRef}
         className="hidden md:block border-t relative category-dropdown-container"
-        style={{ borderColor: "var(--brand-lavender-soft)", background: "#000000", zIndex: 2001, overflow: 'visible' }}
+        style={{ borderColor: "var(--brand-lavender-soft)", background: "#4B1368", zIndex: 2001, overflow: 'visible' }}
       >
         <div className="w-full px-2 sm:px-4 no-scrollbar" style={{ overflowX: 'auto', overflowY: 'visible', position: 'relative' }}>
           <nav

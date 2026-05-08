@@ -224,9 +224,12 @@ const CategoryPage = () => {
     if (priceMax !== null && price > priceMax) return false;
     return true;
   });
+  const { min: absoluteMin, max: absoluteMax } = computeMinMax(products);
+  const sliderMin = Number.isFinite(absoluteMin) ? absoluteMin : 0;
+  const sliderMax = Number.isFinite(absoluteMax) ? absoluteMax : 0;
 
   return (
-    <div className="bg-white py-8 sm:py-12">
+    <div className="bg-white pt-1 pb-8 sm:pt-2 sm:pb-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {categorySlug === "latest-collection" && (
           <div className="mb-6">
@@ -249,7 +252,7 @@ const CategoryPage = () => {
             className="sticky top-16 md:top-[112px] lg:top-[144px] z-30 border-b bg-white"
             style={{ borderColor: "rgba(91, 71, 109, 0.16)" }}
           >
-            <div className="py-1 px-1 sm:px-2 space-y-2">
+            <div className="py-1 px-1 sm:px-2 space-y-1">
               {/* Row 1: Subcategories in one line */}
               <div className="flex items-center gap-2">
                 <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -257,7 +260,7 @@ const CategoryPage = () => {
                     <img
                       src={categoryImages[categorySlug]}
                       alt={currentCategory?.name || categorySlug}
-                      className="h-10 w-10 sm:h-12 sm:w-12 object-contain flex-shrink-0"
+                      className="hidden sm:block h-10 w-10 sm:h-12 sm:w-12 object-contain flex-shrink-0"
                     />
                   )}
                   {visibleSubcategories.length > 0 && (
@@ -302,7 +305,7 @@ const CategoryPage = () => {
               </div>
 
               {/* Row 2: Filter under "All" chips area */}
-              <div className={`flex justify-start ${categoryImages[categorySlug] ? "ml-12 sm:ml-14" : ""}`}>
+              <div className={`hidden sm:flex justify-start ${categoryImages[categorySlug] ? "ml-12 sm:ml-14" : ""}`}>
                 <div className="flex items-center gap-2">
                   <span className="text-[11px] font-semibold" style={{ color: "var(--brand-dark)" }}>
                     filter
@@ -319,7 +322,7 @@ const CategoryPage = () => {
                           const val = e.target.value === "" ? null : Number(e.target.value);
                           setPriceMin(val);
                         }}
-                        className="w-20 rounded-lg border px-2 py-2 text-[12px] focus:outline-none focus:ring-2"
+                        className="w-20 rounded-lg border px-2 py-1.5 text-[12px] focus:outline-none focus:ring-2"
                         style={{ borderColor: "var(--brand-lavender-soft)" }}
                       />
                     </div>
@@ -334,11 +337,39 @@ const CategoryPage = () => {
                           const val = e.target.value === "" ? null : Number(e.target.value);
                           setPriceMax(val);
                         }}
-                        className="w-20 rounded-lg border px-2 py-2 text-[12px] focus:outline-none focus:ring-2"
+                        className="w-20 rounded-lg border px-2 py-1.5 text-[12px] focus:outline-none focus:ring-2"
                         style={{ borderColor: "var(--brand-lavender-soft)" }}
                       />
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Mobile: show only range bar directly */}
+              <div className="sm:hidden">
+                <div
+                  className="mt-2 rounded-lg border p-2"
+                  style={{ borderColor: "var(--brand-lavender-soft)", background: "#fff" }}
+                >
+                  <div className="mb-1 flex items-center justify-between text-[11px]">
+                    <span className="font-semibold" style={{ color: "var(--brand-dark)" }}>Filter</span>
+                    <span style={{ color: "var(--brand-muted)" }}>
+                      ₹{Number(sliderMin).toLocaleString("en-IN")} - ₹{Number(priceMax ?? sliderMax).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min={sliderMin}
+                    max={sliderMax}
+                    value={priceMax ?? sliderMax}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setPriceMin(sliderMin);
+                      setPriceMax(Math.max(val, sliderMin));
+                    }}
+                    className="w-full"
+                    style={{ accentColor: "#000000" }}
+                  />
                 </div>
               </div>
             </div>

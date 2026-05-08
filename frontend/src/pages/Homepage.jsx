@@ -100,7 +100,6 @@ const Homepage = () => {
         >
           <p
             className="mx-auto max-w-2xl text-lg font-medium sm:text-xl"
-            style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
           >
             Each piece is handcrafted with care. Discover our latest collections and find something that speaks to you.
           </p>

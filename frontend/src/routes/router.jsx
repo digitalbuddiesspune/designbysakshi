@@ -9,7 +9,7 @@ import HomePage from "../pages/Homepage.jsx";
 import Shop from "../pages/Shop.jsx";
 import About from "../pages/About.jsx";
 import Collection from "../pages/Collection.jsx";
-import Contact from "../pages/Contact.jsx";
+import Contact from "../pages/ContactUs.jsx";
 import AdminLayout from "../components/AdminLayout.jsx";
 import Dashboard from "../pages/admin/Dashboard.jsx";
 import AdminAddProduct from "../pages/AdminAddProduct.jsx";

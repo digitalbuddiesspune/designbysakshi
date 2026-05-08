@@ -103,7 +103,7 @@ const TopProducts = () => {
               <div 
                 className="absolute left-0 top-2 z-10 px-3 py-1 text-xs font-semibold text-white bg-green-600"
                 style={{
-                  background: "#16a34a",
+                  background: "#116766",
                 }}
               >
                 New Arrival

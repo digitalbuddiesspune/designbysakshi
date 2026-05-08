@@ -34,13 +34,13 @@ const NewCollection = () => {
 
                  {/* DESKTOP TEXT (UNCHANGED) */}
                  <div className="hidden lg:block absolute -bottom-3 lg:bottom-4 lg:-right-3 bg-white p-3 shadow-md max-w-[200px] z-20 mx-2 lg:mx-0">
-                   <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
+                   <h3 className="text-[13px] font-bold uppercase tracking-widest text-gray-900 mb-1">
                      Gift a Ring
                    </h3>
-                   <p className="text-gray-600 text-[14px] italic mb-2 leading-relaxed">
+                   <p className="text-gray-600 text-[13px] mb-2 leading-relaxed">
                      Let your love shine. Gift a timeless ring to your lover.
                    </p>
-                   <Link to="/ring" className="inline-block text-[12px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">
+                   <Link to="/ring" className="inline-block text-[12px] uppercase tracking-[0.2em] font-semibold text-gray-600 hover:text-black transition-colors">
                      Discover more →
                    </Link>
                  </div>
@@ -67,14 +67,14 @@ const NewCollection = () => {
 
                {/* DESKTOP TEXT */}
                <div className="hidden lg:flex w-full sm:w-1/2 text-center sm:text-left px-2 flex-col justify-center">
-                  <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
+                  <h3 className="text-[13px] font-bold uppercase tracking-widest text-gray-900 mb-1">
                     Affordable &<br /> Beautiful Bracelets
                   </h3>
                   <div className="w-8 h-[1px] bg-[#ebd9c8] mx-auto sm:mx-0 mb-2"></div>
-                  <p className="text-gray-600 text-[14px] italic mb-2 leading-relaxed">
+                  <p className="text-gray-600 text-[13px] mb-2 leading-relaxed">
                     Explore our stunning beaded bracelets. Perfect for gifting or treating yourself.
                   </p>
-                  <Link to="/bangles-bracelets" className="inline-block text-[12px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">
+                  <Link to="/bangles-bracelets" className="inline-block text-[12px] uppercase tracking-[0.2em] font-semibold text-gray-600 hover:text-black transition-colors">
                     Discover more →
                   </Link>
                </div>
@@ -88,14 +88,14 @@ const NewCollection = () => {
             <div className="col-span-1 lg:w-[55%] grid grid-cols-1 lg:flex items-center gap-2 md:gap-3">              
                {/* DESKTOP TEXT */}
                <div className="hidden lg:flex w-full sm:w-1/2 text-center sm:text-right px-2 flex-col justify-center items-center sm:items-end">
-                  <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
+                  <h3 className="text-[13px] font-bold uppercase tracking-widest text-gray-900 mb-1">
                     Jewelry Tells<br /> A Great Story
                   </h3>
                   <div className="w-8 h-[1px] bg-[#ebd9c8] mb-2"></div>
-                  <p className="text-gray-600 text-[14px] italic mb-2 leading-relaxed">
+                  <p className="text-gray-600 text-[13px] mb-2 leading-relaxed">
                     Adorn yourself with stunning pendants that capture your style.
                   </p>
-                  <Link to="/pendants" className="inline-block text-[12px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">
+                  <Link to="/pendants" className="inline-block text-[12px] uppercase tracking-[0.2em] font-semibold text-gray-600 hover:text-black transition-colors">
                     Discover more →
                   </Link>
                </div>
@@ -139,13 +139,13 @@ const NewCollection = () => {
 
                  {/* DESKTOP TEXT */}
                  <div className="hidden lg:block absolute -top-3 lg:top-4 lg:-left-3 bg-white p-3 shadow-md max-w-[200px] z-20 mx-2 lg:mx-0">
-                   <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-900 mb-1.5">
+                   <h3 className="text-[13px] font-bold uppercase tracking-widest text-gray-900 mb-1">
                      Bridal Elegance
                    </h3>
-                   <p className="text-gray-600 text-[14px] italic mb-2 leading-relaxed">
+                   <p className="text-gray-600 text-[13px] mb-2 leading-relaxed">
                      Celebrate your big day with exquisite bridal jewelry.
                    </p>
-                   <Link to="/bridal-jewellery" className="inline-block text-[12px] uppercase tracking-[0.2em] font-medium text-gray-500 hover:text-black transition-colors">
+                   <Link to="/bridal-jewellery" className="inline-block text-[12px] uppercase tracking-[0.2em] font-semibold text-gray-600 hover:text-black transition-colors">
                      Discover more →
                    </Link>
                  </div>
