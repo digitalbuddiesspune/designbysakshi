@@ -190,7 +190,6 @@ const Cart = () => {
                             <h2 className="truncate text-sm font-semibold text-gray-900">
                               {item.product?.name || "Product"}
                             </h2>
-                            <div className="mt-1 text-xs text-gray-500">Size: 1000ml</div>
                           </div>
                           <button
                             type="button"

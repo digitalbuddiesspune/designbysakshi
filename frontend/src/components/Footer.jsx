@@ -5,12 +5,12 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto w-full bg-[#001e38] px-3 py-14 pb-24 sm:pb-14 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
-        {/* Brand + quick links + policies + contact */}
-        <div className="grid grid-cols-1 gap-8 text-center sm:grid-cols-2 sm:text-left lg:grid-cols-4 lg:gap-10">
-          {/* Left side logo + contact */}
-          <div>
+    <footer className="mt-auto w-full bg-[#001e38] px-4 py-14 pb-24 sm:pb-14 sm:px-6 lg:px-10 xl:px-14 2xl:px-16">
+      <div className="mx-auto w-full max-w-[1920px]">
+        {/* Brand + quick links + policies + contact — flex on large screens keeps edges pinned */}
+        <div className="flex flex-col gap-8 text-center sm:text-left lg:flex-row lg:items-start lg:justify-between lg:gap-8 lg:text-left xl:gap-12">
+          {/* Left: logo + motive */}
+          <div className="shrink-0 lg:max-w-[min(100%,280px)] xl:max-w-[300px]">
             <Link to="/" className="inline-block no-underline">
               <img
                 src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png"
@@ -25,8 +25,10 @@ const Footer = () => {
             </p>
           </div>
 
+          {/* Center: quick links + policies */}
+          <div className="flex flex-col gap-8 sm:flex-row sm:justify-center sm:gap-12 lg:flex-1 lg:justify-center lg:gap-16 xl:gap-20">
           {/* Quick links */}
-          <div>
+          <div className="sm:text-center lg:text-left">
             <h3
               className="mb-4 text-sm font-semibold uppercase tracking-wider"
               style={{ color: "#FFFFFF" }}
@@ -65,7 +67,7 @@ const Footer = () => {
           </div>
 
           {/* Policies */}
-          <div>
+          <div className="sm:text-center lg:text-left">
             <h3
               className="mb-4 text-sm font-semibold uppercase tracking-wider"
               style={{ color: "#FFFFFF" }}
@@ -111,9 +113,10 @@ const Footer = () => {
               </li>
             </ul>
           </div>
+          </div>
 
-          {/* Brand */}
-          <div className="text-center lg:text-right">
+          {/* Right: contact + social */}
+          <div className="shrink-0 text-center lg:max-w-[min(100%,320px)] lg:text-right">
             <h3
               className="mb-4 text-sm font-semibold uppercase tracking-wider"
               style={{ color: "#FFFFFF" }}
@@ -190,21 +193,24 @@ const Footer = () => {
         </div>
 
         {/* Bottom bar – copyright + legal */}
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t pt-8 sm:flex-row" style={{ borderColor: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.85)" }}>
-          <p className="text-sm">
+        <div
+          className="mt-14 flex flex-col items-center justify-between gap-4 border-t pt-10 sm:flex-row sm:items-start"
+          style={{ borderColor: "rgba(255,255,255,0.25)", color: "rgba(255,255,255,0.85)" }}
+        >
+          <p className="text-xs sm:text-[13px]">
             © {currentYear}, DesignsByShakshi. All rights reserved.
           </p>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-sm">
-            <Link to="/privacy-policy" className="no-underline transition hover:opacity-90 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
+          <div className="flex flex-wrap justify-center gap-3 sm:justify-end sm:gap-4 text-xs sm:text-[13px]">
+            <Link to="/privacy-policy" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>
               Privacy Policy
             </Link>
-            <Link to="/refund-policy" className="no-underline transition hover:opacity-90 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <Link to="/refund-policy" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>
               Refund & Cancellation
             </Link>
-            <Link to="/shipping-policy" className="no-underline transition hover:opacity-90 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <Link to="/shipping-policy" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>
               Shipping Policy
             </Link>
-            <Link to="/terms-conditions" className="no-underline transition hover:opacity-90 text-sm" style={{ color: "rgba(255,255,255,0.85)" }}>
+            <Link to="/terms-conditions" className="no-underline transition hover:opacity-90" style={{ color: "rgba(255,255,255,0.85)" }}>
               Terms & Conditions
             </Link>
           </div>
