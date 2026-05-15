@@ -70,8 +70,8 @@ const TopProducts = () => {
   if (!products.length) return null;
 
   return (
-    <section className="py-0 sm:pt-6 sm:pb-16 ">
-      <section className="bg-white ">
+    <section className="py-0 sm:pt-0 sm:pb-16">
+      <section className="bg-white sm:mt-0 lg:mt-2">
       <Link to="/new-arrival" className="block w-full">
         {/* Desktop banner */}
         <img
@@ -88,7 +88,7 @@ const TopProducts = () => {
         </Link>
       </section>
 
-      <div className="mx-auto max-w-7xl pt-6  lg:pt-10 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl pt-3 sm:pt-6 lg:pt-8 lg:mt-0 px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {products.map((product, index) => (

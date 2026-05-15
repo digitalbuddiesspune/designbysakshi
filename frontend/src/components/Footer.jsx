@@ -10,7 +10,7 @@ const Footer = () => {
         {/* Brand + quick links + policies + contact — flex on large screens keeps edges pinned */}
         <div className="flex flex-col gap-8 text-center sm:text-left lg:flex-row lg:items-start lg:justify-between lg:gap-8 lg:text-left xl:gap-12">
           {/* Left: logo + motive */}
-          <div className="shrink-0 lg:max-w-[min(100%,280px)] xl:max-w-[300px]">
+          <div className="shrink-0 lg:max-w-[min(100%,280px)] xl:max-w-[300px] lg:border-r lg:border-white/20 lg:pr-8 xl:pr-10">
             <Link to="/" className="inline-block no-underline">
               <img
                 src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png"
@@ -26,9 +26,9 @@ const Footer = () => {
           </div>
 
           {/* Center: quick links + policies */}
-          <div className="flex flex-col gap-8 sm:flex-row sm:justify-center sm:gap-12 lg:flex-1 lg:justify-center lg:gap-16 xl:gap-20">
+          <div className="flex flex-col gap-8 border-t border-white/10 pt-8 sm:flex-row sm:justify-center sm:gap-12 lg:flex-1 lg:justify-center lg:gap-16 lg:border-t-0 lg:pt-0 xl:gap-20">
           {/* Quick links */}
-          <div className="sm:text-center lg:text-left">
+          <div className="sm:text-center lg:border-r lg:border-white/20 lg:pr-10 lg:text-left xl:pr-14">
             <h3
               className="mb-4 text-sm font-semibold uppercase tracking-wider"
               style={{ color: "#FFFFFF" }}
@@ -67,7 +67,7 @@ const Footer = () => {
           </div>
 
           {/* Policies */}
-          <div className="sm:text-center lg:text-left">
+          <div className="sm:text-center lg:pl-10 lg:text-left xl:pl-14">
             <h3
               className="mb-4 text-sm font-semibold uppercase tracking-wider"
               style={{ color: "#FFFFFF" }}
@@ -116,7 +116,7 @@ const Footer = () => {
           </div>
 
           {/* Right: contact + social */}
-          <div className="shrink-0 text-center lg:max-w-[min(100%,320px)] lg:text-right">
+          <div className="shrink-0 border-t border-white/10 pt-8 text-center lg:max-w-[min(100%,320px)] lg:border-l lg:border-t-0 lg:border-white/20 lg:pl-8 lg:pt-0 lg:text-right xl:pl-10">
             <h3
               className="mb-4 text-sm font-semibold uppercase tracking-wider"
               style={{ color: "#FFFFFF" }}

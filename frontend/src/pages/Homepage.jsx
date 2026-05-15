@@ -20,19 +20,19 @@ const Homepage = () => {
         </div>
 
         {/* Full-width banner above Top Products */}
-        <section className="mt-10 cursor-pointer">
+        <section className="mt-10 sm:mt-10 cursor-pointer">
           <Link to="" className="block w-full">
             {/* Desktop banner */}
             <img
-              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774436081/Untitled_1920_x_600_px_19_pbq3mb.png"
+              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778841072/Untitled_1920_x_200_px_ipqjw9.png"
               alt="DesignBySakshi seasonal collection banner"
               className="hidden sm:block w-full h-auto object-cover"
             />
             {/* Mobile banner */}
             <img
-              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774436080/Untitled_1920_x_600_px_1080_x_900_px_1080_x_800_px_yigche.png"
+              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778842095/Untitled_1920_x_200_px_1080_x_500_px_1_h6z9uc.png"
               alt="DesignBySakshi seasonal collection banner"
-              className="block sm:hidden w-full h-auto object-cover"
+              className="block sm:hidden w-full h-auto object-cover mt-4"
             />
           </Link>
         </section>
@@ -41,7 +41,7 @@ const Homepage = () => {
         </div>
 
         {/* Banner after Perfect Gifts */}
-        <section className="cursor-pointer mt-6 sm:-mt-6 lg:-mt-0">
+        <section className="cursor-pointer mt-6 sm:-mt-6 lg:-mt-6">
           <Link to="/bestseller" className="block w-full">
             {/* Desktop banner */}
             <img
@@ -61,11 +61,11 @@ const Homepage = () => {
         {/* Highlight prod
         ucts image grid (now serves as Bestsellers) */}
 
-<div className="-mt-8 sm:-mt-6 lg:-mt-15">
+<div className="-mt-10 sm:-mt-6 lg:-mt-15">
         <HighlightGrid />
         </div>
 
-        <div className="-mt-6 sm:-mt-6 lg:-mt-15">
+        <div className="-mt-10 sm:-mt-4 lg:-mt-12">
           <TopProducts />
         </div>
         <div className="-mt-6 sm:-mt-6 lg:-mt-15">
