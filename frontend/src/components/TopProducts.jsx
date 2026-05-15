@@ -77,13 +77,13 @@ const TopProducts = () => {
         <img
           src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773742412/3_xx5pf1.png"
           alt="DesignBySakshi collection banner"
-          className="hidden sm:block w-full h-auto object-cover"
+          className="hidden sm:block w-full h-auto object-cover sm:mt-4 lg:mt-4"
         />
         {/* Mobile banner */}
         <img
           src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773769835/3_lvbj7z.png"
           alt="DesignBySakshi collection banner"
-          className="block sm:hidden w-full h-auto object-cover"
+          className="block sm:hidden w-full h-auto object-cover mt-10"
         />
         </Link>
       </section>
