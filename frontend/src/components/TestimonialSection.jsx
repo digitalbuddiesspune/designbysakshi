@@ -32,7 +32,7 @@ const HeartIcon = ({ className = "h-3 w-3", filled = false, style }) => (
 );
 
 const HeartDivider = () => (
-  <div className="mx-auto my-1.5 flex w-full max-w-[130px] items-center justify-center gap-2 sm:my-2 sm:max-w-[150px]">
+  <div className="mx-auto flex w-full max-w-[130px] items-center justify-center gap-2 sm:max-w-[150px]">
     <span className="h-px flex-1" style={{ background: PURPLE.divider }} />
     <HeartIcon className="h-3 w-3 shrink-0 sm:h-3.5 sm:w-3.5" filled style={{ color: PURPLE.light }} />
     <span className="h-px flex-1" style={{ background: PURPLE.divider }} />
@@ -58,7 +58,7 @@ const ReviewText = ({ review }) => {
   }, [review]);
 
   return (
-    <div className="mx-auto w-full max-w-[92%]">
+    <div className="mx-auto flex h-[5.25rem] w-full max-w-[92%] flex-col sm:h-[5.75rem] lg:h-[6.25rem]">
       <p
         ref={textRef}
         className="line-clamp-3 text-sm font-semibold leading-relaxed sm:text-base lg:text-lg"
@@ -66,16 +66,16 @@ const ReviewText = ({ review }) => {
       >
         {review}
       </p>
-      {isClamped && (
-        <p
-          className="mt-0.5 flex items-center justify-center gap-0.5 text-sm font-semibold sm:text-base"
-          style={{ color: PURPLE.light }}
-          aria-hidden="true"
-        >
-          <span>...</span>
-          <HeartIcon className="h-3.5 w-3.5" style={{ color: PURPLE.light }} />
-        </p>
-      )}
+      <div className="mt-auto flex h-5 shrink-0 items-center justify-center gap-0.5">
+        {isClamped && (
+          <>
+            <span className="text-sm font-semibold sm:text-base" style={{ color: PURPLE.light }} aria-hidden="true">
+              ...
+            </span>
+            <HeartIcon className="h-3.5 w-3.5" style={{ color: PURPLE.light }} aria-hidden="true" />
+          </>
+        )}
+      </div>
     </div>
   );
 };
@@ -84,8 +84,8 @@ const TestimonialCard = ({ testimonial }) => {
   const rating = testimonial.rating > 0 ? testimonial.rating : 5;
 
   return (
-    <div className="relative mx-auto w-full">
-      <article className="relative mx-auto aspect-[3/4] w-full max-w-[min(100%,300px)] lg:max-w-[280px]">
+    <div className="relative mx-auto flex h-full w-full justify-center">
+      <article className="relative aspect-[3/4.25] h-full w-full max-w-[min(100%,290px)] sm:aspect-[3/4] sm:max-w-[260px] lg:max-w-[280px]">
         <img
           src={PAPER_CARD_IMG}
           alt=""
@@ -93,32 +93,35 @@ const TestimonialCard = ({ testimonial }) => {
           aria-hidden="true"
         />
 
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-start px-5 pb-8 pt-14 text-center sm:px-6 sm:pb-9 sm:pt-16">
+        <div className="absolute inset-0 z-10 grid grid-rows-[auto_1fr_auto] px-4 pb-8 pt-[4rem] text-center sm:px-6 sm:pb-8 sm:pt-16">
           <span
-            className="mt-2 block shrink-0 text-4xl leading-none sm:mt-3 sm:text-5xl"
+            className="mt-4 block shrink-0 text-3xl leading-none sm:mt-3 sm:text-5xl"
             style={{ color: PURPLE.quote, fontFamily: "Cormorant Garamond, Georgia, serif" }}
             aria-hidden="true"
           >
             &ldquo;
           </span>
 
-          <div className="-mt-0.5 w-full sm:-mt-1">
+          <div className="flex w-full items-start justify-center pt-1">
             <ReviewText review={testimonial.review} />
+          </div>
+
+          <div className="w-full shrink-0 space-y-1 pb-1 sm:space-y-2 sm:pb-0.5">
             <HeartDivider />
 
-            <h3 className="text-lg font-bold sm:text-xl" style={{ color: PURPLE.text }}>
+            <h3 className="text-base font-bold sm:text-xl" style={{ color: PURPLE.text }}>
               {testimonial.name}
             </h3>
 
             <p
-              className="mt-0.5 flex items-center justify-center gap-1 text-sm font-normal sm:text-base"
+              className="flex items-center justify-center gap-1 text-sm font-normal sm:text-base"
               style={{ color: PURPLE.light }}
             >
               Happy Client
               <HeartIcon className="h-3 w-3" style={{ color: PURPLE.light }} />
             </p>
 
-            <div className="mt-1.5 flex items-center justify-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
+            <div className="flex items-center justify-center gap-0.5" aria-label={`${rating} out of 5 stars`}>
               {[...Array(5)].map((_, i) => (
                 <svg
                   key={i}
@@ -246,9 +249,9 @@ const TestimonialSection = () => {
           )}
 
           <div
-            className={`-mt-2 grid gap-4 px-8 sm:px-10 lg:mt-0 lg:gap-5 lg:px-0 ${
+            className={`-mt-2 grid items-stretch gap-4 px-8 sm:px-10 lg:mt-0 lg:gap-5 lg:px-0 ${
               visibleCount === 1
-                ? "mx-auto max-w-sm grid-cols-1"
+                ? "mx-auto max-w-[300px] grid-cols-1 sm:max-w-sm"
                 : "mx-auto max-w-none grid-cols-1 lg:grid-cols-3"
             }`}
           >
