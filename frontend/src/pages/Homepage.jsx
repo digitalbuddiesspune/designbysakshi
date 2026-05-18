@@ -86,7 +86,7 @@ const Homepage = () => {
             className="block sm:hidden w-full h-auto object-cover"
           />
         </section>
-        <div className="-mt-10 sm:-mt-6 lg:-mt-4">
+        <div className="-mt-12 sm:-mt-8 lg:-mt-6">
           <TestimonialSection />
         </div>
 

@@ -299,3 +299,11 @@ body {
   border-color: transparent !important;
   box-shadow: none !important;
 }
+
+/* Testimonials – vintage scrapbook typography */
+.testimonial-vintage .t-serif {
+  font-family: "Cormorant Garamond", Georgia, serif !important;
+}
+.testimonial-vintage .t-script {
+  font-family: "Caveat", cursive !important;
+}
