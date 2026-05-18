@@ -13,9 +13,9 @@ const Homepage = () => {
   return (
     <div className="min-h-screen">
       <Hero />
-      <div className="space-y-6 sm:space-y-10">
+      <div className="space-y-4 sm:space-y-6 lg:space-y-8">
         <ShopByCategory />
-        <div className="-mt-8 sm:-mt-6 lg:-mt-8">
+        <div className="mt-3 sm:-mt-6 lg:-mt-8">
           <ShopByCollection />
         </div>
 
@@ -68,8 +68,8 @@ const Homepage = () => {
         <div className="-mt-10 sm:-mt-4 lg:-mt-12">
           <TopProducts />
         </div>
-        <div className="-mt-6 sm:-mt-6 lg:-mt-15">
-        <WhyChooseUs />
+        <div className="-mt-4 sm:-mt-8 lg:-mt-14">
+          <WhyChooseUs />
         </div>
 
         
@@ -92,14 +92,24 @@ const Homepage = () => {
 
         {/* CTA strip */}
 
-        <div className="-mt-6 sm:-mt-6 lg:-mt-4">
-        <section
-          className="px-4 py-10 text-center sm:py-16"
-          style={{        background: "linear-gradient(180deg, #c5a2d7 0%, #dcc7e6 58%, #ffffff 100%)",
-          }}
-        >
+        <div className="-mt-4 sm:-mt-8 lg:-mt-6">
+        <section className="bg-transparent px-4 pb-10 pt-6 text-center sm:pb-16 sm:pt-5">
+          <div className="mx-auto mb-5 flex max-w-xs items-center gap-3 sm:mb-7 sm:max-w-sm">
+            <span className="h-px flex-1" style={{ background: "var(--brand-lavender-soft)" }} />
+            <svg
+              className="h-4 w-4 shrink-0"
+              viewBox="0 0 24 24"
+              fill="var(--brand-purple)"
+              aria-hidden="true"
+            >
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+            </svg>
+            <span className="h-px flex-1" style={{ background: "var(--brand-lavender-soft)" }} />
+          </div>
+
           <p
-            className="mx-auto max-w-2xl text-lg font-medium sm:text-xl"
+            className="mx-auto max-w-2xl text-xl font-medium sm:text-2xl lg:text-3xl"
+            style={{ color: "var(--brand-dark)" }}
           >
             Each piece is handcrafted with care. Discover our latest collections and find something that speaks to you.
           </p>

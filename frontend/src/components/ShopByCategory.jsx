@@ -33,10 +33,9 @@ const ShopByCategory = () => {
   }, []);
 
   return (
-    <section className="bg-[var(--brand-pastel)] px-4 py-12 sm:px-6 sm:py-16 lg:px-8">
+    <section className="bg-[var(--brand-pastel)] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
       <div className="mx-auto max-w-7xl">
-       
-        <div className="mb-10 lg:mb-14">
+        <div className="mb-4 sm:mb-5 lg:mb-6">
           <h1 
             className="text-3xl lg:text-4xl font-semibold text-center" 
             style={{ 
@@ -47,22 +46,22 @@ const ShopByCategory = () => {
           </h1>
         </div>
 
-        <div className="overflow-x-auto scrollbar-hide py-4 px-2 sm:px-3">
-          <div className="flex flex-nowrap justify-start gap-6 sm:gap-10 w-max">
+        <div className="overflow-x-auto scrollbar-hide px-2 pb-1 pt-2 sm:px-3 sm:pt-3">
+          <div className="flex w-max flex-nowrap justify-start gap-5 sm:gap-8">
             {categories.map((cat) => (
               <Link
                 key={cat.id}
                 to={cat.href}
-                className="group flex w-[120px] sm:w-[140px] flex-shrink-0 flex-col items-center gap-4 transition-transform hover:-translate-y-2"
+                className="group flex w-[120px] flex-shrink-0 flex-col items-center gap-2 sm:w-[140px] sm:gap-3"
               >
               <div
-                className="relative w-[110px] h-[110px] sm:w-[130px] sm:h-[130px] overflow-hidden rounded-full ring-2 ring-offset-4 ring-[#3D294D] shadow-md transition-shadow group-hover:shadow-xl"
+                className="relative mt-1 h-[110px] w-[110px] overflow-hidden rounded-full ring-2 ring-[#3D294D] ring-offset-2 shadow-md sm:mt-2 sm:h-[130px] sm:w-[130px]"
               >
                 {cat.image ? (
                   <img
                     src={cat.image}
                     alt={cat.label}
-                    className="h-full w-full object-cover rounded-full object-center p-1.5 transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full rounded-full object-cover object-[center_62%] p-2"
                     onError={(e) => {
                       e.target.style.display = "none";
                       const fallback = e.target.parentElement?.querySelector(".category-fallback");
@@ -94,7 +93,7 @@ const ShopByCategory = () => {
         </div>
 
         <div
-          className="mt-12 h-px w-full max-w-4xl mx-auto"
+          className="mx-auto mt-6 h-px w-full max-w-4xl sm:mt-8 lg:mt-10"
           style={{ background: "linear-gradient(to right, transparent, var(--brand-muted), transparent)" }}
           aria-hidden
         />

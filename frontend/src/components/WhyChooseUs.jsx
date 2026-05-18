@@ -41,17 +41,16 @@ const WhyChooseUs = () => {
   ];
 
   return (
-    <section className=" py-12 sm:py-16 lg:py-6">
+    <section className="pt-8 pb-12 sm:pt-6 sm:pb-16 lg:pt-3 lg:pb-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h2
-          className="mb-10 text-center text-3xl font-medium sm:mb-12 sm:text-4xl"
-          style={{
-            color: "var(--brand-dark)",
-            fontFamily: "Cormorant Garamond, Georgia, serif",
-          }}
-        >
-          Why Choose Us
-        </h2>
+      <h1 
+            className="text-3xl lg:text-4xl mb-8 sm:mb-8 font-semibold text-center" 
+            style={{ 
+              color: "var(--brand-dark)",
+              fontFamily: "Cormorant Garamond, Georgia, serif" 
+            }}>
+            Why Choose Us
+          </h1>
 
         <div
           className="flex gap-0 overflow-x-auto scrollbar-hide pb-4 px-0 snap-x snap-mandatory sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-x-visible sm:pb-0 sm:px-0 lg:grid-cols-4"
