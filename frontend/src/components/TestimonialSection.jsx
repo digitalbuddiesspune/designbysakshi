@@ -69,10 +69,8 @@ const ReviewText = ({ review }) => {
       <div className="mt-auto flex h-5 shrink-0 items-center justify-center gap-0.5">
         {isClamped && (
           <>
-            <span className="text-sm font-semibold sm:text-base" style={{ color: PURPLE.light }} aria-hidden="true">
-              ...
-            </span>
-            <HeartIcon className="h-3.5 w-3.5" style={{ color: PURPLE.light }} aria-hidden="true" />
+           
+           
           </>
         )}
       </div>
