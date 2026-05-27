@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import ImageUploader from "../../components/admin/ImageUploader.jsx";
+import AdminPagination, { ADMIN_PAGE_SIZE } from "../../components/admin/AdminPagination.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -15,6 +16,7 @@ const MyProducts = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("name");
   const [sortOrder, setSortOrder] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchProducts = async () => {
     try {
@@ -103,6 +105,21 @@ const MyProducts = () => {
 
     return sorted;
   }, [products, searchQuery, selectedCategory, sortBy, sortOrder]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredAndSortedProducts.length / ADMIN_PAGE_SIZE));
+
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * ADMIN_PAGE_SIZE;
+    return filteredAndSortedProducts.slice(start, start + ADMIN_PAGE_SIZE);
+  }, [filteredAndSortedProducts, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, sortBy, sortOrder]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   const handleViewDetail = (product) => {
     setSelectedProduct(product);
@@ -298,7 +315,7 @@ const MyProducts = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredAndSortedProducts.map((product) => (
+                {paginatedProducts.map((product) => (
                   <tr key={product._id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
                       <img
@@ -411,6 +428,12 @@ const MyProducts = () => {
               </tbody>
             </table>
           </div>
+          <AdminPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={filteredAndSortedProducts.length}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
 

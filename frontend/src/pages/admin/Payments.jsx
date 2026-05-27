@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import AdminPagination, { ADMIN_PAGE_SIZE } from "../../components/admin/AdminPagination.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -11,6 +12,7 @@ const Payments = () => {
   const [paymentMethod, setPaymentMethod] = useState("all");
   const [sortBy, setSortBy] = useState("date");
   const [sortOrder, setSortOrder] = useState("desc");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const query = useMemo(() => {
     const params = new URLSearchParams();
@@ -43,6 +45,21 @@ const Payments = () => {
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
+
+  const totalPages = Math.max(1, Math.ceil(payments.length / ADMIN_PAGE_SIZE));
+
+  const paginatedPayments = useMemo(() => {
+    const start = (currentPage - 1) * ADMIN_PAGE_SIZE;
+    return payments.slice(start, start + ADMIN_PAGE_SIZE);
+  }, [payments, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   const statusBadge = (s) => {
     if (s === "paid") return "bg-green-100 text-green-800";
@@ -132,7 +149,7 @@ const Payments = () => {
             ) : payments.length === 0 ? (
               <tr><td colSpan={8} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>No payment records found</td></tr>
             ) : (
-              payments.map((p) => (
+              paginatedPayments.map((p) => (
                 <tr key={p._id} className="border-t">
                   <td className="px-5 py-4">
                     {p?.order?.orderNumber ? `#${p.order.orderNumber}` : p?.order?._id || "-"}
@@ -155,6 +172,14 @@ const Payments = () => {
             )}
           </tbody>
         </table>
+        {!loading && payments.length > 0 && (
+          <AdminPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={payments.length}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

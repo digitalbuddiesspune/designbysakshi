@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import AdminPagination, { ADMIN_PAGE_SIZE } from "../../components/admin/AdminPagination.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -6,6 +7,7 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const [qtySort, setQtySort] = useState("desc");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const fetchUsers = async () => {
     try {
@@ -35,6 +37,21 @@ const Users = () => {
     });
     return arr;
   }, [users, qtySort]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedUsers.length / ADMIN_PAGE_SIZE));
+
+  const paginatedUsers = useMemo(() => {
+    const start = (currentPage - 1) * ADMIN_PAGE_SIZE;
+    return sortedUsers.slice(start, start + ADMIN_PAGE_SIZE);
+  }, [sortedUsers, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [qtySort]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   const deleteUser = async (userId, userName) => {
     if (!window.confirm(`Delete ${userName}? This will delete user data, orders, cart and wishlist.`)) return;
@@ -97,7 +114,7 @@ const Users = () => {
                 </td>
               </tr>
             ) : (
-              sortedUsers.map((u) => (
+              paginatedUsers.map((u) => (
                 <tr key={u._id} className="border-t">
                   <td className="px-5 py-4 font-semibold" style={{ color: "var(--brand-dark)" }}>{u.name}</td>
                   <td className="px-5 py-4" style={{ color: "var(--brand-dark)" }}>{u.email}</td>
@@ -121,6 +138,14 @@ const Users = () => {
             )}
           </tbody>
         </table>
+        {!loading && users.length > 0 && (
+          <AdminPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={sortedUsers.length}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

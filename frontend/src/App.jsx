@@ -67,21 +67,29 @@ const App = () => {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={
+        isAdminRoute
+          ? { height: "100vh", overflow: "hidden", display: "flex", flexDirection: "column" }
+          : { minHeight: "100vh", display: "flex", flexDirection: "column" }
+      }
+    >
       {!isAdminRoute && <Header />}
       <main
-        style={{ flex: 1 }}
+        style={{ flex: 1, minHeight: 0 }}
         className={
           isAdminRoute
-            ? "pb-20 md:pb-0"
+            ? "overflow-hidden"
             : "pt-16 md:pt-[112px] lg:pt-[144px] pb-20 md:pb-0"
         }
       >
         <Outlet />
       </main>
-      <div className={isAuthPage ? "mt-6 sm:mt-8 lg:mt-10" : "-mt-16 sm:-mt-6 lg:-mt-6"}>
-      {!isAdminRoute && <Footer />}
-      </div>
+      {!isAdminRoute && (
+        <div className={isAuthPage ? "mt-6 sm:mt-8 lg:mt-10" : "-mt-16 sm:-mt-6 lg:-mt-6"}>
+          <Footer />
+        </div>
+      )}
       {authModal === "login" && (
         <Login
           isModal

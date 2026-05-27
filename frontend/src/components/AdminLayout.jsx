@@ -86,12 +86,12 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="admin-theme flex h-screen overflow-hidden bg-gray-50">
+    <div className="admin-theme flex h-full min-h-0 overflow-hidden bg-gray-50">
       {/* Sidebar */}
       <aside
         className={`${
           isSidebarOpen ? "w-64" : "w-20"
-        } h-screen shrink-0 bg-gray-900 text-white transition-all duration-300 flex flex-col`}
+        } scrollbar-hide h-full min-h-0 shrink-0 bg-gray-900 text-white transition-all duration-300 flex flex-col overflow-y-auto`}
       >
         {/* Logo */}
         <div className="p-4 border-b border-gray-700">
@@ -494,7 +494,7 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto overflow-x-hidden">
+      <main className="scrollbar-hide flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
         {isAdminDashboard && (
           <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b bg-white px-4 py-3 sm:px-6">
             <h1
@@ -514,6 +514,14 @@ const AdminLayout = () => {
               >
                 ← Back to Site
               </Link>
+              <button
+                type="button"
+                onClick={handleAdminLogout}
+                className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50"
+                style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+              >
+                Logout
+              </button>
               <Link
                 to="/admin/profile"
                 className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50 ${

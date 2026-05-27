@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { openInvoiceWindow } from "../../utils/invoice";
+import AdminPagination, { ADMIN_PAGE_SIZE } from "../../components/admin/AdminPagination.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -39,6 +40,7 @@ const MyOrders = () => {
   const [orderStatus, setOrderStatus] = useState("all");
 
   const [paymentStatus, setPaymentStatus] = useState("all"); // all | paid | unpaid | failed | refundable
+  const [currentPage, setCurrentPage] = useState(1);
 
   const queryString = useMemo(() => {
     const params = new URLSearchParams();
@@ -69,6 +71,21 @@ const MyOrders = () => {
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryString]);
+
+  const totalPages = Math.max(1, Math.ceil(orders.length / ADMIN_PAGE_SIZE));
+
+  const paginatedOrders = useMemo(() => {
+    const start = (currentPage - 1) * ADMIN_PAGE_SIZE;
+    return orders.slice(start, start + ADMIN_PAGE_SIZE);
+  }, [orders, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [queryString]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   // (Row-wise status dropdown removed per request; keeping filters only.)
 
@@ -192,7 +209,7 @@ const MyOrders = () => {
             ) : orders.length === 0 ? (
               <tr><td colSpan={9} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>No orders found</td></tr>
             ) : (
-              orders.map((o) => {
+              paginatedOrders.map((o) => {
                 const dateLabel = o?.createdAt ? new Date(o.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "";
                 return (
                   <tr
@@ -280,6 +297,14 @@ const MyOrders = () => {
             )}
           </tbody>
         </table>
+        {!loading && orders.length > 0 && (
+          <AdminPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={orders.length}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
     </div>
   );

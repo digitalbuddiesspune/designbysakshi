@@ -283,6 +283,18 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Admin panel – hide scrollbars (scroll still works) */
+.admin-theme aside,
+.admin-theme > main {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.admin-theme aside::-webkit-scrollbar,
+.admin-theme > main::-webkit-scrollbar {
+  display: none;
+}
+
 /* Admin theme override: only table headers purple */
 
 .admin-theme main table thead tr,

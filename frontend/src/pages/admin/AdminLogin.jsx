@@ -90,12 +90,10 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black p-4">
-      <div 
+    <div className="min-h-screen flex items-center justify-center bg-white p-4">
+      <div
         className="rounded-lg shadow-xl max-w-md w-full p-8"
-        style={{
-          background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-        }}
+        style={{ background: "var(--brand-dark)" }}
       >
         <div className="text-center mb-8">
           <h1
@@ -177,7 +175,8 @@ const AdminLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full px-6 py-3 text-sm font-semibold text-white rounded-lg transition disabled:opacity-50 bg-black hover:bg-gray-900"
+              className="w-full px-6 py-3 text-sm font-semibold rounded-lg transition disabled:opacity-50 bg-white hover:opacity-95"
+              style={{ color: "var(--brand-dark)" }}
             >
               {loading ? "Logging in..." : "Login"}
             </button>
