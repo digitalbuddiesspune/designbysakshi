@@ -14,43 +14,32 @@ const getGuestId = () => {
   return id;
 };
 
-const getStoredAddresses = (guestId) => {
+const mapAddressFromApi = (address) => ({
+  id: address._id,
+  fullName: address.fullName || "",
+  phone: address.phone || "",
+  street: address.street || "",
+  city: address.city || "",
+  state: address.state || "",
+  pincode: address.pincode || "",
+  landmark: address.landmark || "",
+  isDefault: Boolean(address.isDefault),
+});
+
+const isLoggedIn = () => {
   try {
-    const raw = localStorage.getItem(`addresses_${guestId}`);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
+    return Boolean(localStorage.getItem("token") && localStorage.getItem("user"));
   } catch {
-    return [];
+    return false;
   }
 };
 
-const getAddressStorageKey = () => {
-  try {
-    const rawUser = localStorage.getItem("user");
-    const parsed = rawUser ? JSON.parse(rawUser) : null;
-    const userId = parsed?._id || parsed?.id;
-    const email = (parsed?.email || "").toLowerCase().trim();
-    if (userId) return `addresses_user_${userId}`;
-    if (email) return `addresses_email_${email}`;
-  } catch {
-    // ignore parse error and fall back
-  }
-  const guestId = getGuestId();
-  return `addresses_guest_${guestId}`;
-};
-
-const getStoredAddressesByKey = (storageKey) => {
-  try {
-    const raw = localStorage.getItem(storageKey);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-};
-
-const saveStoredAddresses = (storageKey, addresses) => {
-  localStorage.setItem(storageKey, JSON.stringify(addresses));
+const openLoginModal = () => {
+  window.dispatchEvent(
+    new CustomEvent("open-auth-modal", {
+      detail: { type: "login" },
+    }),
+  );
 };
 
 const Checkout = () => {
@@ -68,14 +57,9 @@ const Checkout = () => {
   const [showCouponInput, setShowCouponInput] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
-  const addressStorageKey = useMemo(() => getAddressStorageKey(), []);
-  const [addresses, setAddresses] = useState(() => getStoredAddressesByKey(addressStorageKey));
-  const [selectedAddressId, setSelectedAddressId] = useState(
-    () =>
-      getStoredAddressesByKey(addressStorageKey).find((a) => a?.isDefault)?.id ||
-      getStoredAddressesByKey(addressStorageKey)[0]?.id ||
-      ""
-  );
+  const [addresses, setAddresses] = useState([]);
+  const [addressesLoading, setAddressesLoading] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
 
   const [showNewAddress, setShowNewAddress] = useState(false);
   const [newAddress, setNewAddress] = useState({
@@ -108,14 +92,60 @@ const Checkout = () => {
     }
   };
 
+  const fetchAddresses = async () => {
+    if (!isLoggedIn()) {
+      setAddresses([]);
+      setSelectedAddressId("");
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setAddresses([]);
+      setSelectedAddressId("");
+      return;
+    }
+
+    try {
+      setAddressesLoading(true);
+      const res = await fetch(`${API_URL}/users/me/addresses`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        setAddresses([]);
+        setSelectedAddressId("");
+        return;
+      }
+      const data = await res.json();
+      const mapped = Array.isArray(data) ? data.map(mapAddressFromApi) : [];
+      setAddresses(mapped);
+      setSelectedAddressId(
+        mapped.find((a) => a.isDefault)?.id || mapped[0]?.id || "",
+      );
+    } catch (error) {
+      console.error("Error fetching addresses:", error);
+      setAddresses([]);
+      setSelectedAddressId("");
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchCart();
+    fetchAddresses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    saveStoredAddresses(addressStorageKey, addresses);
-  }, [addresses, addressStorageKey]);
+    const refreshAddressesAfterLogin = () => {
+      fetchAddresses();
+    };
+
+    window.addEventListener("auth-changed", refreshAddressesAfterLogin);
+    return () => window.removeEventListener("auth-changed", refreshAddressesAfterLogin);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const items = buyNowItem ? [buyNowItem] : (cart?.items || []);
   const subtotal = items.reduce(
@@ -125,30 +155,75 @@ const Checkout = () => {
 
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId);
 
-  const handleAddAddress = (e) => {
+  const handleAddNewAddressClick = () => {
+    if (!isLoggedIn()) {
+      openLoginModal();
+      return;
+    }
+    setShowNewAddress((s) => !s);
+  };
+
+  const handleAddAddress = async (e) => {
     e.preventDefault();
+    if (!isLoggedIn()) {
+      openLoginModal();
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      openLoginModal();
+      return;
+    }
+
     const normalizedPhone = String(newAddress.phone || "").replace(/\D/g, "");
     if (!validatePhone(normalizedPhone)) {
       setPhoneError("Phone must be 10 digits and start with 6, 7, 8, or 9.");
       return;
     }
     setPhoneError("");
-    const id = `addr_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const addr = { ...newAddress, phone: normalizedPhone, id, isDefault: addresses.length === 0 };
-    const next = [addr, ...addresses];
-    setAddresses(next);
-    setSelectedAddressId(addr.id);
-    setNewAddress({
-      fullName: "",
-      phone: "",
-      street: "",
-      city: "",
-      state: "",
-      pincode: "",
-      landmark: "",
-    });
-    setPhoneError("");
-    setShowNewAddress(false);
+
+    try {
+      setAddressesLoading(true);
+      const res = await fetch(`${API_URL}/users/me/addresses`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...newAddress,
+          phone: normalizedPhone,
+          isDefault: addresses.length === 0,
+        }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data?.error || "Failed to save address");
+        return;
+      }
+
+      const saved = mapAddressFromApi(data);
+      const next = [saved, ...addresses.filter((a) => a.id !== saved.id)];
+      setAddresses(next);
+      setSelectedAddressId(saved.id);
+      setNewAddress({
+        fullName: "",
+        phone: "",
+        street: "",
+        city: "",
+        state: "",
+        pincode: "",
+        landmark: "",
+      });
+      setShowNewAddress(false);
+    } catch (error) {
+      console.error("Error saving address:", error);
+      alert("Failed to save address. Please try again.");
+    } finally {
+      setAddressesLoading(false);
+    }
   };
 
   // Price calculation
@@ -314,6 +389,10 @@ const Checkout = () => {
     }
 
     if (!selectedAddress) {
+      if (!isLoggedIn()) {
+        openLoginModal();
+        return;
+      }
       setShowNewAddress(true);
       return;
     }
@@ -457,13 +536,33 @@ const Checkout = () => {
               </div>
 
               <div className="mt-4 space-y-3">
-                {addresses.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center text-sm text-gray-600">
-                    No saved address yet. Add one to continue.
+                {addressesLoading && (
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-center text-sm text-gray-600">
+                    Loading saved addresses...
                   </div>
                 )}
 
-                {addresses.map((a) => (
+                {!addressesLoading && addresses.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-5 text-center text-sm text-gray-600">
+                    {isLoggedIn() ? (
+                      "No saved address yet. Add one to continue."
+                    ) : (
+                      <>
+                        <p>Please login to add your delivery address.</p>
+                        <button
+                          type="button"
+                          onClick={openLoginModal}
+                          className="mt-3 rounded-lg bg-gray-900 px-5 py-2 text-sm font-bold text-white hover:bg-gray-800 transition"
+                        >
+                          Login to add address
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {!addressesLoading &&
+                  addresses.map((a) => (
                   <label
                     key={a.id}
                     className={`flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition ${
@@ -496,13 +595,13 @@ const Checkout = () => {
 
                 <button
                   type="button"
-                  onClick={() => setShowNewAddress((s) => !s)}
+                  onClick={handleAddNewAddressClick}
                   className="w-full rounded-xl border-2 border-dashed border-gray-300 bg-white px-4 py-3 text-sm font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition"
                 >
-                  + Add New Address
+                  {isLoggedIn() ? "+ Add New Address" : "+ Login to add address"}
                 </button>
 
-                {showNewAddress && (
+                {showNewAddress && isLoggedIn() && (
                   <form onSubmit={handleAddAddress} className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-6">
                     <h3 className="text-base font-bold text-gray-900 mb-4">New Address</h3>
                     <div className="grid gap-4 sm:grid-cols-2">

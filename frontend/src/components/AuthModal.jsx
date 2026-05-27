@@ -111,8 +111,10 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
 
         if (response.ok) {
           localStorage.setItem("user", JSON.stringify(data.user));
+          if (data.token) localStorage.setItem("token", data.token);
           setMessage("Login successful!");
           setTimeout(() => {
+            window.dispatchEvent(new Event("auth-changed"));
             onLogin(data.user);
             onClose();
             setFormData({
@@ -189,8 +191,10 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
 
         if (response.ok) {
           localStorage.setItem("user", JSON.stringify(data.user));
+          if (data.token) localStorage.setItem("token", data.token);
           setMessage("Signup successful!");
           setTimeout(() => {
+            window.dispatchEvent(new Event("auth-changed"));
             onLogin(data.user);
             onClose();
             setFormData({

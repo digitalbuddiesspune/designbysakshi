@@ -209,6 +209,79 @@ router.put('/admin/change-password', async (req, res) => {
   }
 });
 
+const formatAddressResponse = (address) => ({
+  _id: address._id,
+  fullName: address.fullName || `${address.firstName || ''} ${address.lastName || ''}`.trim(),
+  phone: address.phone,
+  street: address.street,
+  city: address.city,
+  state: address.state,
+  pincode: address.pincode,
+  landmark: address.landmark || '',
+  isDefault: Boolean(address.isDefault),
+  createdAt: address.createdAt,
+});
+
+// Logged-in user: list saved addresses from database
+router.get('/me/addresses', async (req, res) => {
+  try {
+    const userId = verifyToken(req, res);
+    if (!userId) return;
+
+    const addresses = await Address.find({ user: userId })
+      .sort({ isDefault: -1, createdAt: -1 })
+      .lean();
+
+    return res.json(addresses.map(formatAddressResponse));
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// Logged-in user: save a new address to database
+router.post('/me/addresses', async (req, res) => {
+  try {
+    const userId = verifyToken(req, res);
+    if (!userId) return;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const { fullName, phone, street, city, state, pincode, landmark = '', isDefault } = req.body;
+
+    if (!fullName || !phone || !street || !city || !state || !pincode) {
+      return res.status(400).json({ error: 'All required address fields must be provided' });
+    }
+
+    const existingCount = await Address.countDocuments({ user: userId });
+    const shouldBeDefault = Boolean(isDefault) || existingCount === 0;
+
+    if (shouldBeDefault) {
+      await Address.updateMany({ user: userId }, { $set: { isDefault: false } });
+    }
+
+    const nameParts = String(fullName).trim().split(/\s+/);
+    const created = await Address.create({
+      user: userId,
+      email: user.email || '',
+      fullName: String(fullName).trim(),
+      firstName: nameParts[0] || 'Unknown',
+      lastName: nameParts.slice(1).join(' ') || '',
+      phone: String(phone).trim(),
+      street: String(street).trim(),
+      city: String(city).trim(),
+      state: String(state).trim(),
+      pincode: String(pincode).trim(),
+      landmark: String(landmark || '').trim(),
+      isDefault: shouldBeDefault,
+    });
+
+    return res.status(201).json(formatAddressResponse(created));
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // Update user profile
 router.put('/:id', async (req, res) => {
   try {

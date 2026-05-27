@@ -3,23 +3,17 @@ import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-const getGuestId = () => {
-  if (typeof window === "undefined") return null;
-  let id = localStorage.getItem("guestId");
-  if (!id) {
-    id = `guest_${Math.random().toString(36).slice(2)}_${Date.now()}`;
-    localStorage.setItem("guestId", id);
-  }
-  return id;
-};
-
-const getAddressStorageKeyForUser = (userData) => {
-  const userId = userData?._id || userData?.id;
-  const email = (userData?.email || "").toLowerCase().trim();
-  if (userId) return `addresses_user_${userId}`;
-  if (email) return `addresses_email_${email}`;
-  return `addresses_guest_${getGuestId()}`;
-};
+const mapAddressFromApi = (address) => ({
+  id: address._id,
+  fullName: address.fullName || "",
+  phone: address.phone || "",
+  street: address.street || "",
+  city: address.city || "",
+  state: address.state || "",
+  pincode: address.pincode || "",
+  landmark: address.landmark || "",
+  isDefault: Boolean(address.isDefault),
+});
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -46,12 +40,18 @@ const Profile = () => {
         phone: userData.phone || "",
       });
 
-      try {
-        const key = getAddressStorageKeyForUser(userData);
-        const raw = localStorage.getItem(key);
-        const parsed = raw ? JSON.parse(raw) : [];
-        setAddresses(Array.isArray(parsed) ? parsed : []);
-      } catch {
+      const token = localStorage.getItem("token");
+      if (token) {
+        fetch(`${API_URL}/users/me/addresses`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+          .then((res) => (res.ok ? res.json() : []))
+          .then((data) => {
+            const mapped = Array.isArray(data) ? data.map(mapAddressFromApi) : [];
+            setAddresses(mapped);
+          })
+          .catch(() => setAddresses([]));
+      } else {
         setAddresses([]);
       }
     } else {

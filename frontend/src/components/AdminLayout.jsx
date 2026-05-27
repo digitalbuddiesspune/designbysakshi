@@ -5,6 +5,8 @@ const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
+const ADMIN_LOGO =
+  "https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png";
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [authChecking, setAuthChecking] = useState(true);
@@ -93,30 +95,39 @@ const AdminLayout = () => {
           isSidebarOpen ? "w-64" : "w-20"
         } scrollbar-hide h-full min-h-0 shrink-0 bg-gray-900 text-white transition-all duration-300 flex flex-col overflow-y-auto`}
       >
-        {/* Logo */}
-        <div className="p-4 border-b border-gray-700">
-          <div className="flex items-center justify-between">
+        {/* Brand logo */}
+        <div className="relative border-b border-gray-700 p-4">
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="absolute right-2 top-2 rounded p-2 transition hover:bg-gray-800"
+            aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              />
+            </svg>
+          </button>
+          <div
+            className={`flex flex-col items-center ${isSidebarOpen ? "px-1 pt-5" : "pt-1"}`}
+          >
+            <img
+              src={ADMIN_LOGO}
+              alt="Designs By Sakshi"
+              className={`object-contain ${isSidebarOpen ? "h-20 w-20" : "h-10 w-10"}`}
+            />
             {isSidebarOpen && (
-              <h1
-                className="text-xl font-bold"
-                style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
+              <p
+                className="mt-2 text-center text-2xl leading-tight text-white"
+                style={{ fontFamily: "'Caveat', cursive", fontWeight: 600 }}
               >
-                Admin Panel
-              </h1>
+                Designs By Sakshi
+              </p>
             )}
-            <button
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded hover:bg-gray-800"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-                />
-              </svg>
-            </button>
           </div>
         </div>
 
