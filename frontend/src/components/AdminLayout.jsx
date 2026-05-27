@@ -5,8 +5,8 @@ const AdminLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const API_URL = import.meta.env.VITE_API_URL;
-const ADMIN_LOGO =
-  "https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png";
+  const ADMIN_LOGO =
+    "https://res.cloudinary.com/dbfooaz44/image/upload/v1775117601/Untitled_600_x_600_px_3_iujtam.png";
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [authChecking, setAuthChecking] = useState(true);
@@ -96,14 +96,35 @@ const ADMIN_LOGO =
         } scrollbar-hide h-full min-h-0 shrink-0 bg-gray-900 text-white transition-all duration-300 flex flex-col overflow-y-auto`}
       >
         {/* Brand logo */}
-        <div className="relative border-b border-gray-700 p-4">
+        <div
+          className={`border-b border-gray-700 ${
+            isSidebarOpen ? "relative p-4" : "flex items-start justify-between gap-1 px-2 py-2"
+          }`}
+        >
+          <div className={`flex min-w-0 items-center ${isSidebarOpen ? "gap-2 pr-8" : ""}`}>
+            <img
+              src={ADMIN_LOGO}
+              alt="Designs By Sakshi"
+              className={`shrink-0 object-contain ${isSidebarOpen ? "h-9 w-9" : "h-8 w-8"}`}
+            />
+            {isSidebarOpen && (
+              <p
+                className="min-w-0 truncate text-lg leading-tight text-white"
+                style={{ fontFamily: "'Caveat', cursive", fontWeight: 600 }}
+              >
+                Designs By Sakshi
+              </p>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="absolute right-2 top-2 rounded p-2 transition hover:bg-gray-800"
+            className={`shrink-0 rounded p-1 transition hover:bg-gray-800 ${
+              isSidebarOpen ? "absolute right-2 top-2" : "-mt-0.5"
+            }`}
             aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -112,23 +133,6 @@ const ADMIN_LOGO =
               />
             </svg>
           </button>
-          <div
-            className={`flex flex-col items-center ${isSidebarOpen ? "px-1 pt-5" : "pt-1"}`}
-          >
-            <img
-              src={ADMIN_LOGO}
-              alt="Designs By Sakshi"
-              className={`object-contain ${isSidebarOpen ? "h-20 w-20" : "h-10 w-10"}`}
-            />
-            {isSidebarOpen && (
-              <p
-                className="mt-2 text-center text-2xl leading-tight text-white"
-                style={{ fontFamily: "'Caveat', cursive", fontWeight: 600 }}
-              >
-                Designs By Sakshi
-              </p>
-            )}
-          </div>
         </div>
 
         {/* Navigation */}
@@ -525,14 +529,6 @@ const ADMIN_LOGO =
               >
                 ← Back to Site
               </Link>
-              <button
-                type="button"
-                onClick={handleAdminLogout}
-                className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50"
-                style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
-              >
-                Logout
-              </button>
               <Link
                 to="/admin/profile"
                 className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-semibold transition hover:bg-gray-50 ${

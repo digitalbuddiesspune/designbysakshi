@@ -133,8 +133,7 @@ const AddBlog = () => {
                 setShowForm(true);
               }
             }}
-            className="rounded-md px-6 py-3 text-sm font-semibold text-white transition hover:opacity-90"
-            style={{ background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)" }}
+            className="rounded-lg bg-[#3D294D] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95"
           >
             {showForm ? "Close Form" : "Add Blog"}
           </button>
@@ -223,10 +222,7 @@ const AddBlog = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="rounded-md px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-50"
-                style={{
-                  background: "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                }}
+                className="rounded-lg bg-[#3D294D] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-50"
               >
                 {loading ? "Saving..." : editingId ? "Update Blog" : "Add Blog"}
               </button>
