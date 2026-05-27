@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -26,9 +26,14 @@ const ProductDetail = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [relatedLoading, setRelatedLoading] = useState(false);
   const [relatedWishlistedIds, setRelatedWishlistedIds] = useState(new Set());
+  const [canReview, setCanReview] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ stars: 5, review: "", image: "" });
+  const [showReviewModal, setShowReviewModal] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -71,6 +76,36 @@ const ProductDetail = () => {
 
     loadState();
   }, [product?._id, guestId]);
+
+  useEffect(() => {
+    const checkReviewEligibility = async () => {
+      if (!product?._id) return;
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setCanReview(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_URL}/products/${product._id}/can-review`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = res.ok ? await res.json() : {};
+        setCanReview(Boolean(data?.canReview));
+      } catch (_e) {
+        setCanReview(false);
+      }
+    };
+
+    checkReviewEligibility();
+  }, [product?._id]);
+
+  useEffect(() => {
+    if (!location.state?.openReviewModal) return;
+    if (!product?._id) return;
+    if (!canReview) return;
+    setShowReviewModal(true);
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location.state, location.pathname, navigate, product?._id, canReview]);
 
   useEffect(() => {
     const loadRelatedProducts = async () => {
@@ -213,6 +248,55 @@ const ProductDetail = () => {
     navigate(`/product/${productId}`);
   };
 
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    if (!canReview) {
+      alert("You can review only after purchasing this product.");
+      return;
+    }
+    const reviewText = String(reviewForm.review || "").trim();
+    if (!reviewText) {
+      alert("Please write your review.");
+      return;
+    }
+
+    try {
+      setReviewSubmitting(true);
+      const res = await fetch(`${API_URL}/products/${product._id}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          stars: Number(reviewForm.stars),
+          review: reviewText,
+          image: reviewForm.image,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data?.error || "Failed to submit review");
+        return;
+      }
+      setProduct((prev) =>
+        prev ? { ...prev, userReviews: Array.isArray(data.userReviews) ? data.userReviews : prev.userReviews } : prev,
+      );
+      setReviewForm({ stars: 5, review: "", image: "" });
+      setShowReviewModal(false);
+      alert("Review submitted successfully.");
+    } catch (_e) {
+      alert("Failed to submit review");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -234,6 +318,10 @@ const ProductDetail = () => {
   const inStock = product.inStock && remainingStock > 0;
   const galleryImages = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image].filter(Boolean);
   const activeImage = galleryImages[activeImageIndex] || galleryImages[0] || product.image;
+  const features = Array.isArray(product.features) ? product.features : [];
+  const stylingTips = Array.isArray(product.stylingTips) ? product.stylingTips : [];
+  const userReviews = Array.isArray(product.userReviews) ? product.userReviews : [];
+  const showReviewsSection = canReview || userReviews.length > 0;
 
   return (
     <div className="min-h-screen bg-white py-6">
@@ -323,6 +411,34 @@ const ProductDetail = () => {
               <p className="text-sm leading-relaxed text-gray-600">{product.description}</p>
             )}
 
+            {product.color && (
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">Color:</span> {product.color}
+              </p>
+            )}
+
+            {features.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800">Features</h3>
+                <ul className="mt-1 list-disc pl-5 text-sm text-gray-600 space-y-1">
+                  {features.map((item, idx) => (
+                    <li key={`feature-${idx}`}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {stylingTips.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800">Styling Tips</h3>
+                <ul className="mt-1 list-disc pl-5 text-sm text-gray-600 space-y-1">
+                  {stylingTips.map((item, idx) => (
+                    <li key={`tip-${idx}`}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* ── Quantity selector ── */}
             <div className="flex items-center gap-3 pt-1">
               <span className="text-sm font-semibold text-gray-700">Qty:</span>
@@ -348,6 +464,56 @@ const ProductDetail = () => {
                 </button>
               </div>
             </div>
+
+            {showReviewsSection && (
+              <div className="rounded-xl border border-gray-200 bg-white p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <h2
+                    className="text-lg font-semibold text-gray-900"
+                    style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
+                  >
+                    User Reviews
+                  </h2>
+                  {canReview && (
+                    <button
+                      type="button"
+                      onClick={() => setShowReviewModal(true)}
+                      className="rounded-full bg-[#3D294D] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+                    >
+                      Add Review
+                    </button>
+                  )}
+                </div>
+
+                {userReviews.length > 0 && (
+                  <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+                    {userReviews.map((r, idx) => (
+                      <div
+                        key={`${r._id || idx}`}
+                        className="min-w-[240px] max-w-[260px] flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <p className="truncate pr-2 text-sm font-semibold text-gray-900">
+                            {r?.user?.name || "User"}
+                          </p>
+                          <p className="text-xs text-amber-600">
+                            {"★".repeat(Number(r.stars || 0))}
+                          </p>
+                        </div>
+                        <p className="mt-1 text-xs leading-relaxed text-gray-700 line-clamp-4">{r.review}</p>
+                        {r.image && (
+                          <img
+                            src={r.image}
+                            alt="Review"
+                            className="mt-2 h-16 w-full rounded object-cover"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* ── Action buttons ── */}
             <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -379,6 +545,64 @@ const ProductDetail = () => {
           </div>
 
         </div>
+
+        {showReviewModal && canReview && (
+          <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 px-4">
+            <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
+              <div className="mb-3 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">Add Review</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowReviewModal(false)}
+                  className="text-gray-500 hover:text-gray-800"
+                  aria-label="Close review modal"
+                >
+                  ✕
+                </button>
+              </div>
+              <form onSubmit={handleSubmitReview} className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-semibold text-gray-700" htmlFor="review-stars">
+                    Stars
+                  </label>
+                  <select
+                    id="review-stars"
+                    value={reviewForm.stars}
+                    onChange={(e) => setReviewForm((prev) => ({ ...prev, stars: Number(e.target.value) }))}
+                    className="rounded-md border border-gray-300 px-2 py-1 text-sm"
+                  >
+                    {[5, 4, 3, 2, 1].map((n) => (
+                      <option key={n} value={n}>
+                        {n}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <textarea
+                  rows={4}
+                  value={reviewForm.review}
+                  onChange={(e) => setReviewForm((prev) => ({ ...prev, review: e.target.value }))}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  placeholder="Write your review..."
+                />
+                <input
+                  type="url"
+                  value={reviewForm.image}
+                  onChange={(e) => setReviewForm((prev) => ({ ...prev, image: e.target.value }))}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+                  placeholder="Optional image URL"
+                />
+                <button
+                  type="submit"
+                  disabled={reviewSubmitting}
+                  className="rounded-full bg-[#3D294D] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+                >
+                  {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
 
         {/* You May Also Like */}
         <div className="mt-10">

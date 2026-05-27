@@ -12,6 +12,9 @@ const AdminAddProduct = () => {
     image: "",
     price: "",
     discountType: "",
+    color: "",
+    featuresText: "",
+    stylingTipsText: "",
     category: "",
     subcategory: "",
     description: "",
@@ -56,7 +59,17 @@ const AdminAddProduct = () => {
         ...formData,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock) || 0,
+        features: String(formData.featuresText || "")
+          .split("\n")
+          .map((item) => item.trim())
+          .filter(Boolean),
+        stylingTips: String(formData.stylingTipsText || "")
+          .split("\n")
+          .map((item) => item.trim())
+          .filter(Boolean),
       };
+      delete productData.featuresText;
+      delete productData.stylingTipsText;
 
       // Remove subcategory if it's empty (categories like Bestseller/New Arrival have none)
       if (!productData.subcategory) {
@@ -83,6 +96,9 @@ const AdminAddProduct = () => {
           image: "",
           price: "",
           discountType: "",
+          color: "",
+          featuresText: "",
+          stylingTipsText: "",
           category: "",
           subcategory: "",
           description: "",
@@ -244,6 +260,29 @@ const AdminAddProduct = () => {
             </div>
           </div>
 
+          <div>
+            <label
+              htmlFor="color"
+              className="block text-sm font-medium"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              Color
+            </label>
+            <input
+              type="text"
+              id="color"
+              name="color"
+              value={formData.color}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
+              style={{
+                borderColor: "var(--brand-lavender-soft)",
+                color: "var(--brand-dark)",
+              }}
+              placeholder="e.g. Royal Purple"
+            />
+          </div>
+
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             <div>
               <label
@@ -335,6 +374,52 @@ const AdminAddProduct = () => {
                 borderColor: "var(--brand-lavender-soft)",
                 color: "var(--brand-dark)",
               }}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="featuresText"
+              className="block text-sm font-medium"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              Features (one per line)
+            </label>
+            <textarea
+              id="featuresText"
+              name="featuresText"
+              rows="4"
+              value={formData.featuresText}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
+              style={{
+                borderColor: "var(--brand-lavender-soft)",
+                color: "var(--brand-dark)",
+              }}
+              placeholder={"Lightweight\nAnti-tarnish\nHandcrafted"}
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="stylingTipsText"
+              className="block text-sm font-medium"
+              style={{ color: "var(--brand-dark)" }}
+            >
+              Styling Tips (one per line)
+            </label>
+            <textarea
+              id="stylingTipsText"
+              name="stylingTipsText"
+              rows="4"
+              value={formData.stylingTipsText}
+              onChange={handleChange}
+              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
+              style={{
+                borderColor: "var(--brand-lavender-soft)",
+                color: "var(--brand-dark)",
+              }}
+              placeholder={"Pair with saree for festive look\nUse with studs for office look"}
             />
           </div>
 

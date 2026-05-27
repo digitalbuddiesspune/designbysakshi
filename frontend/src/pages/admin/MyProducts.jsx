@@ -3,6 +3,12 @@ import ImageUploader from "../../components/admin/ImageUploader.jsx";
 import AdminPagination, { ADMIN_PAGE_SIZE } from "../../components/admin/AdminPagination.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const joinLines = (arr) => (Array.isArray(arr) ? arr.join("\n") : "");
+const splitLines = (text) =>
+  String(text || "")
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
 
 const MyProducts = () => {
   const [products, setProducts] = useState([]);
@@ -123,7 +129,11 @@ const MyProducts = () => {
 
   const handleViewDetail = (product) => {
     setSelectedProduct(product);
-    setEditFormData({ ...product });
+    setEditFormData({
+      ...product,
+      featuresText: joinLines(product.features),
+      stylingTipsText: joinLines(product.stylingTips),
+    });
     setIsModalOpen(true);
     setIsEditing(false);
   };
@@ -154,6 +164,8 @@ const MyProducts = () => {
           images,
           price: parseFloat(editFormData.price),
           stock: parseInt(editFormData.stock) || 0,
+          features: splitLines(editFormData.featuresText),
+          stylingTips: splitLines(editFormData.stylingTipsText),
         }),
       });
 
@@ -304,6 +316,9 @@ const MyProducts = () => {
                     Category
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
+                    Color
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
                     Price
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider border-b">
@@ -336,6 +351,9 @@ const MyProducts = () => {
                       <div className="text-sm text-gray-600">
                         {product.category} / {product.subcategory}
                       </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="text-sm text-gray-600">{product.color || "-"}</div>
                     </td>
                     <td className="px-4 py-3">
                       <div className="text-sm font-semibold">{formatPrice(product.price)}</div>
@@ -375,7 +393,11 @@ const MyProducts = () => {
                         <button
                           onClick={() => {
                             setSelectedProduct(product);
-                            setEditFormData({ ...product });
+                            setEditFormData({
+                              ...product,
+                              featuresText: joinLines(product.features),
+                              stylingTipsText: joinLines(product.stylingTips),
+                            });
                             // Initialize image gallery inputs for editor
                             const gallery = Array.isArray(product.images) && product.images.length > 0 ? product.images : (product.image ? [product.image] : []);
                             const mainImage = gallery[0] || "";
@@ -553,6 +575,16 @@ const MyProducts = () => {
                     </div>
                   </div>
                   <div>
+                    <label className="block text-sm font-medium mb-1">Color</label>
+                    <input
+                      type="text"
+                      name="color"
+                      value={editFormData.color || ""}
+                      onChange={handleEditChange}
+                      className="w-full px-3 py-2 border rounded-lg"
+                    />
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium mb-1">Category</label>
                     <input
                       type="text"
@@ -579,6 +611,26 @@ const MyProducts = () => {
                     <textarea
                       name="description"
                       value={editFormData.description || ""}
+                      onChange={handleEditChange}
+                      rows="4"
+                      className="w-full px-3 py-2 border rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Features (one per line)</label>
+                    <textarea
+                      name="featuresText"
+                      value={editFormData.featuresText || ""}
+                      onChange={handleEditChange}
+                      rows="4"
+                      className="w-full px-3 py-2 border rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Styling Tips (one per line)</label>
+                    <textarea
+                      name="stylingTipsText"
+                      value={editFormData.stylingTipsText || ""}
                       onChange={handleEditChange}
                       rows="4"
                       className="w-full px-3 py-2 border rounded-lg"
@@ -647,6 +699,11 @@ const MyProducts = () => {
                     <p className="text-gray-600 mt-1">
                       <strong>Price:</strong> {formatPrice(selectedProduct.price)}
                     </p>
+                    {selectedProduct.color && (
+                      <p className="text-gray-600 mt-1">
+                        <strong>Color:</strong> {selectedProduct.color}
+                      </p>
+                    )}
                     {selectedProduct.discountType && (
                       <p className="text-gray-600 mt-1">
                         <strong>Discount:</strong> {selectedProduct.discountType}
@@ -663,6 +720,43 @@ const MyProducts = () => {
                     <p className="text-gray-600 mt-1">
                       <strong>In Stock:</strong> {selectedProduct.inStock ? "Yes" : "No"}
                     </p>
+                    {Array.isArray(selectedProduct.features) && selectedProduct.features.length > 0 && (
+                      <div className="mt-2">
+                        <strong className="text-gray-700">Features:</strong>
+                        <ul className="list-disc pl-5 text-gray-600">
+                          {selectedProduct.features.map((item, idx) => (
+                            <li key={`feature-${idx}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {Array.isArray(selectedProduct.stylingTips) && selectedProduct.stylingTips.length > 0 && (
+                      <div className="mt-2">
+                        <strong className="text-gray-700">Styling Tips:</strong>
+                        <ul className="list-disc pl-5 text-gray-600">
+                          {selectedProduct.stylingTips.map((item, idx) => (
+                            <li key={`tip-${idx}`}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <div className="mt-2">
+                      <strong className="text-gray-700">User Reviews:</strong>
+                      {Array.isArray(selectedProduct.userReviews) && selectedProduct.userReviews.length > 0 ? (
+                        <ul className="mt-1 space-y-2 text-gray-600">
+                          {selectedProduct.userReviews.map((rev, idx) => (
+                            <li key={`review-${idx}`} className="rounded border border-gray-200 p-2">
+                              <div className="text-sm font-semibold text-gray-700">
+                                {rev?.user?.name || "User"} - {rev?.stars || 0}/5
+                              </div>
+                              <div className="text-sm">{rev?.review || "-"}</div>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-1 text-gray-600">No reviews yet</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}

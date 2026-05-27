@@ -55,6 +55,7 @@ const Checkout = () => {
   const [couponError, setCouponError] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [showCouponInput, setShowCouponInput] = useState(false);
+  const [lastOrderedProductId, setLastOrderedProductId] = useState("");
 
   const guestId = useMemo(() => getGuestId(), []);
   const [addresses, setAddresses] = useState([]);
@@ -282,6 +283,7 @@ const Checkout = () => {
       const err = await orderRes.json().catch(() => ({}));
       throw new Error(err?.message || "Failed to create order");
     }
+    const createdOrder = await orderRes.json();
 
     if (!buyNowItem) {
       await fetch(`${API_URL}/cart/clear`, {
@@ -291,6 +293,7 @@ const Checkout = () => {
       });
       window.dispatchEvent(new Event("cart-updated"));
     }
+    return createdOrder;
   };
 
   const handleOnlinePayment = async (token) => {
@@ -406,7 +409,14 @@ const Checkout = () => {
         transactionId = paymentResponse?.razorpay_payment_id || "";
       }
 
-      await createOrderInSystem(token, paymentMode, transactionId);
+      const createdOrder = await createOrderInSystem(token, paymentMode, transactionId);
+      const firstOrderedProductId =
+        createdOrder?.items?.[0]?.product?._id ||
+        createdOrder?.items?.[0]?.product ||
+        items?.[0]?.product?._id ||
+        items?.[0]?.product ||
+        "";
+      setLastOrderedProductId(String(firstOrderedProductId || ""));
       setShowConfirmModal(true);
     } catch (e) {
       console.error("Place order failed:", e);
@@ -854,6 +864,19 @@ const Checkout = () => {
               >
                 View My Orders
               </Link>
+              {lastOrderedProductId && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(`/product/${lastOrderedProductId}`, {
+                      state: { openReviewModal: true },
+                    })
+                  }
+                  className="rounded-xl bg-[#3D294D] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-95 transition"
+                >
+                  Add Review
+                </button>
+              )}
             </div>
           </div>
         </div>

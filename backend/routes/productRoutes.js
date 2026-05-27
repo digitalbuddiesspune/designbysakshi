@@ -1,7 +1,43 @@
 import express from 'express';
+import jwt from 'jsonwebtoken';
 import Product from '../models/Product.js';
+import Order from '../models/Order.js';
+import User from '../models/User.js';
 
 const router = express.Router();
+
+const verifyToken = (req, res) => {
+  if (!req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
+    res.status(401).json({ error: 'Not authorized, no token' });
+    return null;
+  }
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded.id;
+  } catch (_e) {
+    res.status(401).json({ error: 'Not authorized, token failed' });
+    return null;
+  }
+};
+
+const sanitizeStringArray = (value) => {
+  const source = Array.isArray(value)
+    ? value
+    : typeof value === 'string'
+      ? value.split('\n')
+      : [];
+  return source
+    .map((item) => String(item || '').trim())
+    .filter(Boolean);
+};
+
+const normalizeProductPayload = (body) => ({
+  ...body,
+  color: String(body?.color || '').trim(),
+  features: sanitizeStringArray(body?.features),
+  stylingTips: sanitizeStringArray(body?.stylingTips),
+});
 
 // Get all products
 router.get('/', async (req, res) => {
@@ -33,7 +69,7 @@ router.get('/', async (req, res) => {
 // Get single product
 router.get('/:id', async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const product = await Product.findById(req.params.id).populate('userReviews.user', 'name');
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
@@ -43,10 +79,88 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Check if user can review a product (must have purchased)
+router.get('/:id/can-review', async (req, res) => {
+  try {
+    const userId = verifyToken(req, res);
+    if (!userId) return;
+
+    const productId = req.params.id;
+    const hasPurchased = await Order.exists({
+      user: userId,
+      'items.product': productId,
+    });
+
+    return res.json({ canReview: Boolean(hasPurchased) });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// Add review to product (only purchased users)
+router.post('/:id/reviews', async (req, res) => {
+  try {
+    const userId = verifyToken(req, res);
+    if (!userId) return;
+
+    const { stars, review, image } = req.body;
+    const normalizedStars = Number(stars);
+    const normalizedReview = String(review || '').trim();
+    const normalizedImage = String(image || '').trim();
+
+    if (!normalizedReview) {
+      return res.status(400).json({ error: 'Review is required' });
+    }
+    if (!Number.isFinite(normalizedStars) || normalizedStars < 1 || normalizedStars > 5) {
+      return res.status(400).json({ error: 'Stars must be between 1 and 5' });
+    }
+
+    const productId = req.params.id;
+    const hasPurchased = await Order.exists({
+      user: userId,
+      'items.product': productId,
+    });
+    if (!hasPurchased) {
+      return res.status(403).json({ error: 'Only purchased users can add a review' });
+    }
+
+    const user = await User.findById(userId).select('_id name');
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    // If same user already reviewed, update their review instead of duplicating
+    const existingReview = product.userReviews.find((r) => String(r.user) === String(userId));
+    if (existingReview) {
+      existingReview.stars = normalizedStars;
+      existingReview.review = normalizedReview;
+      existingReview.image = normalizedImage;
+    } else {
+      product.userReviews.unshift({
+        user: userId,
+        stars: normalizedStars,
+        review: normalizedReview,
+        image: normalizedImage,
+      });
+    }
+
+    await product.save();
+    await product.populate('userReviews.user', 'name');
+
+    return res.status(201).json({
+      message: 'Review saved successfully',
+      userReviews: product.userReviews,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // Create product
 router.post('/', async (req, res) => {
   try {
-    const product = new Product(req.body);
+    const product = new Product(normalizeProductPayload(req.body));
     await product.save();
     res.status(201).json(product);
   } catch (error) {
@@ -59,7 +173,7 @@ router.put('/:id', async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      normalizeProductPayload(req.body),
       { returnDocument: 'after', runValidators: true }
     );
     if (!product) {

@@ -1,5 +1,35 @@
 import mongoose from 'mongoose';
 
+const userReviewSchema = new mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    stars: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 5,
+    },
+    review: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    image: {
+      type: String,
+      required: false,
+      trim: true,
+      default: "",
+    },
+  },
+  {
+    timestamps: true,
+  },
+);
+
 const productSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -26,6 +56,22 @@ const productSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  color: {
+    type: String,
+    trim: true,
+    required: false,
+    default: "",
+  },
+  features: {
+    type: [String],
+    required: false,
+    default: [],
+  },
+  stylingTips: {
+    type: [String],
+    required: false,
+    default: [],
+  },
   category: {
     type: String,
     required: true,
@@ -50,6 +96,11 @@ const productSchema = new mongoose.Schema({
     required: true,
     min: 0,
     default: 0
+  },
+  userReviews: {
+    type: [userReviewSchema],
+    required: false,
+    default: [],
   }
 }, {
   timestamps: true
