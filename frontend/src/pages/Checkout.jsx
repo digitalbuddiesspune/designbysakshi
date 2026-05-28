@@ -864,19 +864,6 @@ const Checkout = () => {
               >
                 View My Orders
               </Link>
-              {lastOrderedProductId && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    navigate(`/product/${lastOrderedProductId}`, {
-                      state: { openReviewModal: true },
-                    })
-                  }
-                  className="rounded-xl bg-[#3D294D] px-6 py-2.5 text-sm font-semibold text-white hover:opacity-95 transition"
-                >
-                  Add Review
-                </button>
-              )}
             </div>
           </div>
         </div>
