@@ -30,7 +30,7 @@ const ProductDetail = () => {
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewForm, setReviewForm] = useState({ stars: 5, review: "", image: "" });
   const [showReviewModal, setShowReviewModal] = useState(false);
-  const [forcedReviewAccess, setForcedReviewAccess] = useState(false);
+  const [routeReviewOpen, setRouteReviewOpen] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
   const navigate = useNavigate();
@@ -53,10 +53,6 @@ const ProductDetail = () => {
       }
     };
     if (id) fetchProduct();
-  }, [id]);
-
-  useEffect(() => {
-    setForcedReviewAccess(false);
   }, [id]);
 
   useEffect(() => {
@@ -107,10 +103,27 @@ const ProductDetail = () => {
   useEffect(() => {
     if (!location.state?.openReviewModal) return;
     if (!product?._id) return;
-    setForcedReviewAccess(true);
+    const alreadyReviewed = (() => {
+      try {
+        const raw = localStorage.getItem("user");
+        if (!raw) return false;
+        const parsed = JSON.parse(raw);
+        const currentUserId = String(parsed?._id || parsed?.id || "");
+        if (!currentUserId) return false;
+        const reviews = Array.isArray(product?.userReviews) ? product.userReviews : [];
+        return reviews.some((r) => {
+          const reviewUserId = String(r?.user?._id || r?.user?.id || r?.userId || "");
+          return reviewUserId && reviewUserId === currentUserId;
+        });
+      } catch (_e) {
+        return false;
+      }
+    })();
+    if (alreadyReviewed) return;
+    setRouteReviewOpen(true);
     setShowReviewModal(true);
     navigate(location.pathname, { replace: true, state: {} });
-  }, [location.state, location.pathname, navigate, product?._id]);
+  }, [location.state, location.pathname, navigate, product?._id, product?.userReviews]);
 
   useEffect(() => {
     const loadRelatedProducts = async () => {
@@ -260,7 +273,7 @@ const ProductDetail = () => {
       navigate("/login");
       return;
     }
-    if (!canReview && !forcedReviewAccess) {
+    if (!canReview && !routeReviewOpen) {
       alert("You can review only after purchasing this product.");
       return;
     }
@@ -294,6 +307,7 @@ const ProductDetail = () => {
       );
       setReviewForm({ stars: 5, review: "", image: "" });
       setShowReviewModal(false);
+      setRouteReviewOpen(false);
       alert("Review submitted successfully.");
     } catch (_e) {
       alert("Failed to submit review");
@@ -343,7 +357,7 @@ const ProductDetail = () => {
         return reviewUserId && reviewUserId === currentUserId;
       }),
   );
-  const canOpenReview = (canReview || forcedReviewAccess) && !hasUserReviewed;
+  const canOpenReview = (canReview || routeReviewOpen) && !hasUserReviewed;
   const showReviewsSection = canOpenReview || userReviews.length > 0;
 
   return (
@@ -490,13 +504,22 @@ const ProductDetail = () => {
 
             {showReviewsSection && (
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <h2
                     className="text-lg font-semibold text-gray-900"
                     style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
                   >
                     Reviews
                   </h2>
+                  {canOpenReview && (
+                    <button
+                      type="button"
+                      onClick={() => setShowReviewModal(true)}
+                      className="rounded-full bg-[#3D294D] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+                    >
+                      Add Review
+                    </button>
+                  )}
                 </div>
 
                 {userReviews.length > 0 && (
@@ -562,14 +585,17 @@ const ProductDetail = () => {
 
         </div>
 
-        {showReviewModal && canOpenReview && (
+        {showReviewModal && (
           <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 px-4">
             <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Add Review</h3>
                 <button
                   type="button"
-                  onClick={() => setShowReviewModal(false)}
+                  onClick={() => {
+                    setShowReviewModal(false);
+                    setRouteReviewOpen(false);
+                  }}
                   className="text-gray-500 hover:text-gray-800"
                   aria-label="Close review modal"
                 >
