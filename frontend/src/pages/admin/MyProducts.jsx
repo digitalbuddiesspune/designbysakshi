@@ -230,6 +230,46 @@ const MyProducts = () => {
     }
   };
 
+  const handleDeleteReview = async (productId, reviewId) => {
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    if (!token) {
+      alert("Admin token missing");
+      return;
+    }
+
+    if (!window.confirm("Remove this review?")) return;
+
+    try {
+      const response = await fetch(`${API_URL}/products/${productId}/reviews/${reviewId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        alert(data?.error || "Failed to remove review");
+        return;
+      }
+
+      const updatedProduct = data?.product;
+      if (updatedProduct?._id) {
+        setProducts((prev) => prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p)));
+        setSelectedProduct(updatedProduct);
+        setEditFormData((prev) => ({
+          ...prev,
+          ...updatedProduct,
+          featuresText: joinLines(updatedProduct.features),
+          stylingTipsText: joinLines(updatedProduct.stylingTips),
+        }));
+      }
+    } catch (error) {
+      console.error("Error removing review:", error);
+      alert("Failed to remove review");
+    }
+  };
+
   const formatPrice = (price) => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -672,8 +712,17 @@ const MyProducts = () => {
                       <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-2">
                         {selectedProduct.userReviews.map((rev, idx) => (
                           <div key={`edit-review-${idx}`} className="rounded border border-gray-200 p-2">
-                            <div className="text-sm font-semibold text-gray-700">
-                              {rev?.user?.name || "User"} - {rev?.stars || 0}/5
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="text-sm font-semibold text-gray-700">
+                                {rev?.user?.name || "User"} - {rev?.stars || 0}/5
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteReview(selectedProduct._id, rev?._id)}
+                                className="rounded border border-red-200 px-2 py-0.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+                              >
+                                Remove
+                              </button>
                             </div>
                             <div className="text-sm text-gray-600">{rev?.review || "-"}</div>
                           </div>
@@ -791,8 +840,17 @@ const MyProducts = () => {
                         <ul className="mt-1 space-y-2 text-gray-600">
                           {selectedProduct.userReviews.map((rev, idx) => (
                             <li key={`review-${idx}`} className="rounded border border-gray-200 p-2">
-                              <div className="text-sm font-semibold text-gray-700">
-                                {rev?.user?.name || "User"} - {rev?.stars || 0}/5
+                              <div className="flex items-start justify-between gap-2">
+                                <div className="text-sm font-semibold text-gray-700">
+                                  {rev?.user?.name || "User"} - {rev?.stars || 0}/5
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteReview(selectedProduct._id, rev?._id)}
+                                  className="rounded border border-red-200 px-2 py-0.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+                                >
+                                  Remove
+                                </button>
                               </div>
                               <div className="text-sm">{rev?.review || "-"}</div>
                             </li>

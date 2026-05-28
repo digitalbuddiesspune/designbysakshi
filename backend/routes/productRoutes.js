@@ -157,6 +157,39 @@ router.post('/:id/reviews', async (req, res) => {
   }
 });
 
+// Admin: remove a specific review from a product
+router.delete('/:id/reviews/:reviewId', async (req, res) => {
+  try {
+    const userId = verifyToken(req, res);
+    if (!userId) return;
+
+    const requester = await User.findById(userId).select('role');
+    if (!requester || requester.role !== 'admin') {
+      return res.status(403).json({ error: 'Admin access required' });
+    }
+
+    const { id: productId, reviewId } = req.params;
+    const product = await Product.findById(productId);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    const beforeCount = product.userReviews.length;
+    product.userReviews = product.userReviews.filter((rev) => String(rev._id) !== String(reviewId));
+    if (product.userReviews.length === beforeCount) {
+      return res.status(404).json({ error: 'Review not found' });
+    }
+
+    await product.save();
+    await product.populate('userReviews.user', 'name');
+
+    return res.json({
+      message: 'Review removed successfully',
+      product,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // Create product
 router.post('/', async (req, res) => {
   try {
