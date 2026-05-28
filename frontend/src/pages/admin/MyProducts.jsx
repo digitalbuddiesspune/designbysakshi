@@ -3,6 +3,7 @@ import ImageUploader from "../../components/admin/ImageUploader.jsx";
 import AdminPagination, { ADMIN_PAGE_SIZE } from "../../components/admin/AdminPagination.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const REVIEW_FILTER_KEY = "__with_reviews__";
 const joinLines = (arr) => (Array.isArray(arr) ? arr.join("\n") : "");
 const splitLines = (text) =>
   String(text || "")
@@ -59,6 +60,14 @@ const MyProducts = () => {
     return Object.entries(summary).map(([name, count]) => ({ name, count }));
   }, [products]);
 
+  const productsWithReviewsCount = useMemo(
+    () =>
+      products.filter(
+        (product) => Array.isArray(product.userReviews) && product.userReviews.length > 0,
+      ).length,
+    [products],
+  );
+
   // Filter and sort products
   const filteredAndSortedProducts = useMemo(() => {
     let filtered = products;
@@ -75,11 +84,22 @@ const MyProducts = () => {
 
     // Filter by category
     if (selectedCategory) {
-      filtered = filtered.filter((p) => p.category === selectedCategory);
+      if (selectedCategory === REVIEW_FILTER_KEY) {
+        filtered = filtered.filter(
+          (p) => Array.isArray(p.userReviews) && p.userReviews.length > 0,
+        );
+      } else {
+        filtered = filtered.filter((p) => p.category === selectedCategory);
+      }
     }
 
     // Sort
     const sorted = [...filtered].sort((a, b) => {
+      if (selectedCategory === REVIEW_FILTER_KEY) {
+        const aReviews = Array.isArray(a.userReviews) ? a.userReviews.length : 0;
+        const bReviews = Array.isArray(b.userReviews) ? b.userReviews.length : 0;
+        if (aReviews !== bReviews) return bReviews - aReviews;
+      }
       let aVal, bVal;
       let isNumeric = false;
       switch (sortBy) {
@@ -235,6 +255,16 @@ const MyProducts = () => {
             }`}
           >
             All ({products.length})
+          </button>
+          <button
+            onClick={() => setSelectedCategory(REVIEW_FILTER_KEY)}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+              selectedCategory === REVIEW_FILTER_KEY
+                ? "bg-purple-600 text-white"
+                : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
+            }`}
+          >
+            Product Reviews ({productsWithReviewsCount})
           </button>
           {categorySummary.map((cat) => (
             <button
@@ -636,6 +666,21 @@ const MyProducts = () => {
                       className="w-full px-3 py-2 border rounded-lg"
                     />
                   </div>
+                  {Array.isArray(selectedProduct?.userReviews) && selectedProduct.userReviews.length > 0 && (
+                    <div>
+                      <label className="block text-sm font-medium mb-1">User Reviews</label>
+                      <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-2">
+                        {selectedProduct.userReviews.map((rev, idx) => (
+                          <div key={`edit-review-${idx}`} className="rounded border border-gray-200 p-2">
+                            <div className="text-sm font-semibold text-gray-700">
+                              {rev?.user?.name || "User"} - {rev?.stars || 0}/5
+                            </div>
+                            <div className="text-sm text-gray-600">{rev?.review || "-"}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">Stock (Quantity) *</label>

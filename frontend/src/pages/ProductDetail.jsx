@@ -30,6 +30,7 @@ const ProductDetail = () => {
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [reviewForm, setReviewForm] = useState({ stars: 5, review: "", image: "" });
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [forcedReviewAccess, setForcedReviewAccess] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
   const navigate = useNavigate();
@@ -52,6 +53,10 @@ const ProductDetail = () => {
       }
     };
     if (id) fetchProduct();
+  }, [id]);
+
+  useEffect(() => {
+    setForcedReviewAccess(false);
   }, [id]);
 
   useEffect(() => {
@@ -102,10 +107,10 @@ const ProductDetail = () => {
   useEffect(() => {
     if (!location.state?.openReviewModal) return;
     if (!product?._id) return;
-    if (!canReview) return;
+    setForcedReviewAccess(true);
     setShowReviewModal(true);
     navigate(location.pathname, { replace: true, state: {} });
-  }, [location.state, location.pathname, navigate, product?._id, canReview]);
+  }, [location.state, location.pathname, navigate, product?._id]);
 
   useEffect(() => {
     const loadRelatedProducts = async () => {
@@ -255,7 +260,7 @@ const ProductDetail = () => {
       navigate("/login");
       return;
     }
-    if (!canReview) {
+    if (!canReview && !forcedReviewAccess) {
       alert("You can review only after purchasing this product.");
       return;
     }
@@ -321,7 +326,25 @@ const ProductDetail = () => {
   const features = Array.isArray(product.features) ? product.features : [];
   const stylingTips = Array.isArray(product.stylingTips) ? product.stylingTips : [];
   const userReviews = Array.isArray(product.userReviews) ? product.userReviews : [];
-  const showReviewsSection = canReview || userReviews.length > 0;
+  const currentUserId = (() => {
+    try {
+      const raw = localStorage.getItem("user");
+      if (!raw) return "";
+      const parsed = JSON.parse(raw);
+      return String(parsed?._id || parsed?.id || "");
+    } catch (_e) {
+      return "";
+    }
+  })();
+  const hasUserReviewed = Boolean(
+    currentUserId &&
+      userReviews.some((r) => {
+        const reviewUserId = String(r?.user?._id || r?.user?.id || r?.userId || "");
+        return reviewUserId && reviewUserId === currentUserId;
+      }),
+  );
+  const canOpenReview = (canReview || forcedReviewAccess) && !hasUserReviewed;
+  const showReviewsSection = canOpenReview || userReviews.length > 0;
 
   return (
     <div className="min-h-screen bg-white py-6">
@@ -466,23 +489,14 @@ const ProductDetail = () => {
             </div>
 
             {showReviewsSection && (
-              <div className="rounded-xl border border-gray-200 bg-white p-4">
-                <div className="flex items-center justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2">
                   <h2
                     className="text-lg font-semibold text-gray-900"
                     style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
                   >
-                    User Reviews
+                    Reviews
                   </h2>
-                  {canReview && (
-                    <button
-                      type="button"
-                      onClick={() => setShowReviewModal(true)}
-                      className="rounded-full bg-[#3D294D] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
-                    >
-                      Add Review
-                    </button>
-                  )}
                 </div>
 
                 {userReviews.length > 0 && (
@@ -490,7 +504,7 @@ const ProductDetail = () => {
                     {userReviews.map((r, idx) => (
                       <div
                         key={`${r._id || idx}`}
-                        className="min-w-[240px] max-w-[260px] flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        className="h-[130px] w-[220px] flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 p-3"
                       >
                         <div className="flex items-center justify-between">
                           <p className="truncate pr-2 text-sm font-semibold text-gray-900">
@@ -500,7 +514,9 @@ const ProductDetail = () => {
                             {"★".repeat(Number(r.stars || 0))}
                           </p>
                         </div>
-                        <p className="mt-1 text-xs leading-relaxed text-gray-700 line-clamp-4">{r.review}</p>
+                        <p className="mt-1 h-[54px] overflow-y-auto text-xs leading-relaxed text-gray-700">
+                          {r.review}
+                        </p>
                         {r.image && (
                           <img
                             src={r.image}
@@ -546,7 +562,7 @@ const ProductDetail = () => {
 
         </div>
 
-        {showReviewModal && canReview && (
+        {showReviewModal && canOpenReview && (
           <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 px-4">
             <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
               <div className="mb-3 flex items-center justify-between">

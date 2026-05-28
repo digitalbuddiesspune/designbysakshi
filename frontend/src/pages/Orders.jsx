@@ -103,7 +103,9 @@ const Orders = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {orders.map((order) => (
+              {orders.map((order) => {
+                const reviewProductId = order.items?.find((item) => item?.product?._id)?.product?._id;
+                return (
       <div key={order._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
   {/* Top row: order number, total, date, status */}
   <div className="flex items-center justify-between mb-3">
@@ -155,6 +157,19 @@ const Orders = () => {
 
   {/* Action buttons — compact, right-aligned */}
   <div className="mt-3 flex gap-2 border-t border-gray-50 pt-3 justify-end">
+    {reviewProductId ? (
+      <button
+        type="button"
+        onClick={() =>
+          navigate(`/product/${reviewProductId}`, {
+            state: { openReviewModal: true },
+          })
+        }
+        className="rounded-lg bg-[#3D294D] px-4 py-1.5 text-xs font-semibold text-white hover:opacity-95 transition"
+      >
+        Add Review
+      </button>
+    ) : null}
     <Link
       to={`/orders/${order._id}`}
       className="rounded-lg border border-gray-300 px-4 py-1.5 text-center text-xs font-semibold text-gray-700 hover:bg-gray-50 transition no-underline"
@@ -171,7 +186,8 @@ const Orders = () => {
     </button>
   </div>
 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
