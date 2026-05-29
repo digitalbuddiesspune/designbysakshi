@@ -31,6 +31,7 @@ const ProductDetail = () => {
   const [reviewForm, setReviewForm] = useState({ stars: 5, review: "", image: "" });
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [routeReviewOpen, setRouteReviewOpen] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
 
   const guestId = useMemo(() => getGuestId(), []);
   const navigate = useNavigate();
@@ -363,10 +364,10 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-white py-6">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-6">
-        <div className="grid gap-8 md:grid-cols-2 items-start">
+        <div className="grid gap-8 md:grid-cols-2 md:items-start">
 
-          {/* ── Left: Image ── */}
-          <div className="flex items-start justify-center gap-4 w-full">
+          {/* ── Left: Image (sticky on desktop) ── */}
+          <div className="flex items-start justify-center gap-4 w-full md:sticky md:top-4 md:self-start lg:top-6">
             {/* Thumbnails (left) */}
             {galleryImages.length > 1 && (
               <div className="hidden sm:flex flex-col gap-2 w-20 flex-shrink-0">
@@ -421,8 +422,8 @@ const ProductDetail = () => {
             </div>
           )}
 
-          {/* ── Right: Details ── */}
-          <div className="flex flex-col gap-6 justify-start pt-2">
+          {/* ── Right: Details (scrollable on desktop; image stays sticky) ── */}
+          <div className="scrollbar-hide flex min-h-0 flex-col gap-6 justify-start pt-2 md:max-h-[calc(100dvh-8.5rem)] md:overflow-y-auto md:overscroll-y-auto md:pr-1 md:pb-2 lg:max-h-[calc(100dvh-10.5rem)]">
             {/* Name */}
             <h1
               className="text-2xl sm:text-3xl font-semibold text-gray-900"
@@ -523,39 +524,53 @@ const ProductDetail = () => {
                 </div>
 
                 {userReviews.length > 0 && (
-                  <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-                    {userReviews.map((r, idx) => (
-                      <div
-                        key={`${r._id || idx}`}
-                        className="h-[130px] w-[220px] flex-shrink-0 rounded-lg border border-gray-200 bg-gray-50 p-3"
-                      >
-                        <div className="flex items-center justify-between">
-                          <p className="truncate pr-2 text-sm font-semibold text-gray-900">
-                            {r?.user?.name || "User"}
-                          </p>
-                          <p className="text-xs text-amber-600">
-                            {"★".repeat(Number(r.stars || 0))}
-                          </p>
-                        </div>
-                        <p className="mt-1 h-[54px] overflow-y-auto text-xs leading-relaxed text-gray-700">
-                          {r.review}
-                        </p>
-                        {r.image && (
-                          <img
-                            src={r.image}
-                            alt="Review"
-                            className="mt-2 h-16 w-full rounded object-cover"
-                          />
-                        )}
-                      </div>
-                    ))}
+                  <div className="scrollbar-hide mt-3 flex gap-3 overflow-x-auto pb-1">
+                    {userReviews.map((r, idx) => {
+                      const reviewerName = r?.user?.name || "User";
+                      const reviewerInitial = reviewerName.charAt(0).toUpperCase();
+                      return (
+                        <button
+                          key={`${r._id || idx}`}
+                          type="button"
+                          onClick={() => setSelectedReview(r)}
+                          className="flex min-w-[220px] max-w-[300px] flex-shrink-0 cursor-pointer items-start gap-2.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-left transition hover:border-[#3D294D]/40 hover:bg-gray-100"
+                        >
+                          {r.image ? (
+                            <img
+                              src={r.image}
+                              alt={`${reviewerName} review`}
+                              className="h-10 w-10 flex-shrink-0 rounded-full object-cover ring-1 ring-gray-200"
+                            />
+                          ) : (
+                            <div
+                              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+                              style={{ background: "#3D294D" }}
+                              aria-hidden
+                            >
+                              {reviewerInitial}
+                            </div>
+                          )}
+                          <div className="min-w-0 flex-1 space-y-0.5">
+                            <p className="text-sm font-semibold leading-tight text-gray-900">
+                              {reviewerName}
+                            </p>
+                            <p className="text-xs leading-none text-amber-600">
+                              {"★".repeat(Number(r.stars || 0))}
+                            </p>
+                            <p className="line-clamp-3 text-xs leading-relaxed text-gray-600">
+                              {r.review}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
               </div>
             )}
 
             {/* ── Action buttons ── */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
               <button
                 type="button"
                 onClick={handleAddToCart}
@@ -584,6 +599,63 @@ const ProductDetail = () => {
           </div>
 
         </div>
+
+        {selectedReview && (
+          <div
+            className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 px-4"
+            onClick={() => setSelectedReview(null)}
+            role="presentation"
+          >
+            <div
+              className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="review-detail-title"
+            >
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  {selectedReview.image ? (
+                    <img
+                      src={selectedReview.image}
+                      alt=""
+                      className="h-12 w-12 flex-shrink-0 rounded-full object-cover ring-1 ring-gray-200"
+                    />
+                  ) : (
+                    <div
+                      className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full text-base font-semibold text-white"
+                      style={{ background: "#3D294D" }}
+                    >
+                      {(selectedReview?.user?.name || "User").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <h3 id="review-detail-title" className="text-lg font-semibold text-gray-900">
+                      {selectedReview?.user?.name || "User"}
+                    </h3>
+                    <p className="mt-1 text-sm text-amber-600">
+                      {"★".repeat(Number(selectedReview.stars || 0))}
+                      <span className="ml-1 text-gray-500">
+                        ({selectedReview.stars || 0}/5)
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedReview(null)}
+                  className="text-gray-500 hover:text-gray-800"
+                  aria-label="Close review"
+                >
+                  ✕
+                </button>
+              </div>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+                {selectedReview.review}
+              </p>
+            </div>
+          </div>
+        )}
 
         {showReviewModal && (
           <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 px-4">
