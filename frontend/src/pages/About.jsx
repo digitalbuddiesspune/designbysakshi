@@ -25,12 +25,14 @@ const About = () => {
 
           <div className="space-y-10 lg:space-y-12">
             <div className="grid items-center gap-6 lg:grid-cols-[1.15fr_1fr]">
-              <div>
-                <img
-                  src="https://res.cloudinary.com/dbfooaz44/image/upload/q_auto/f_auto/v1775049378/free-photo-of-portrait-of-a-young-couple-posing-in-a-park_qntxio.jpg"
-                  alt="Our Story"
-                  className="h-[220px] w-full  object-cover shadow-md sm:h-[260px] lg:h-[320px]"
-                />
+              <div className="flex justify-center pl-4 sm:pl-8 lg:justify-center lg:pl-6">
+                <div className="flex h-[290px] w-full max-w-sm items-end justify-center overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-0 shadow-md sm:h-[330px] lg:h-[380px]">
+                  <img
+                    src="/owner2.png"
+                    alt="Sakshi - Designs By Sakshi"
+                    className="max-h-full max-w-full object-contain object-bottom"
+                  />
+                </div>
               </div>
               <div className="lg:pl-8">
                 <h2
@@ -46,12 +48,14 @@ const About = () => {
             </div>
 
             <div className="grid items-center gap-6 lg:grid-cols-[1fr_1.15fr]">
-              <div className="lg:order-2">
-                <img
-                  src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775112209/Untitled_1080_x_1080_px_1080_x_600_px_700_x_600_px_700_x_500_px_650_x_500_px_huzm4s.png"
-                  alt="Our Brand Store"
-                  className=" w-auto object-cover shadow-md h-auto"
-                />
+              <div className="flex justify-center lg:order-2">
+                <div className="flex h-[250px] w-full max-w-md items-end justify-center overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pt-4 pb-0 shadow-md sm:h-[290px] lg:h-[330px]">
+                  <img
+                    src="https://res.cloudinary.com/dbfooaz44/image/upload/v1775112209/Untitled_1080_x_1080_px_1080_x_600_px_700_x_600_px_700_x_500_px_650_x_500_px_huzm4s.png"
+                    alt="Our Brand Store"
+                    className="max-h-full max-w-full object-contain object-bottom"
+                  />
+                </div>
               </div>
               <div className="lg:order-1 lg:pr-8">
                 <h2
