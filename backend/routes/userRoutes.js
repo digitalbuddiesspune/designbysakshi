@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import Order from '../models/Order.js';
 import Address from '../models/Address.js';
+import { dedupeAddressDocuments } from '../utils/addressUtils.js';
 import Cart from '../models/Cart.js';
 import Wishlist from '../models/Wishlist.js';
 
@@ -232,7 +233,7 @@ router.get('/me/addresses', async (req, res) => {
       .sort({ isDefault: -1, createdAt: -1 })
       .lean();
 
-    return res.json(addresses.map(formatAddressResponse));
+    return res.json(dedupeAddressDocuments(addresses).map(formatAddressResponse));
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -251,6 +252,18 @@ router.post('/me/addresses', async (req, res) => {
 
     if (!fullName || !phone || !street || !city || !state || !pincode) {
       return res.status(400).json({ error: 'All required address fields must be provided' });
+    }
+
+    const duplicate = await Address.findOne({
+      user: userId,
+      phone: String(phone).trim(),
+      pincode: String(pincode).trim(),
+      street: String(street).trim(),
+      city: String(city).trim(),
+      state: String(state).trim(),
+    });
+    if (duplicate) {
+      return res.status(200).json(formatAddressResponse(duplicate));
     }
 
     const existingCount = await Address.countDocuments({ user: userId });

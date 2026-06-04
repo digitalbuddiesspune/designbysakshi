@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
+import StarRatingPicker from "../components/StarRatingPicker";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -675,23 +676,11 @@ const ProductDetail = () => {
                 </button>
               </div>
               <form onSubmit={handleSubmitReview} className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <label className="text-sm font-semibold text-gray-700" htmlFor="review-stars">
-                    Stars
-                  </label>
-                  <select
-                    id="review-stars"
-                    value={reviewForm.stars}
-                    onChange={(e) => setReviewForm((prev) => ({ ...prev, stars: Number(e.target.value) }))}
-                    className="rounded-md border border-gray-300 px-2 py-1 text-sm"
-                  >
-                    {[5, 4, 3, 2, 1].map((n) => (
-                      <option key={n} value={n}>
-                        {n}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                <StarRatingPicker
+                  label="Your rating"
+                  value={reviewForm.stars}
+                  onChange={(stars) => setReviewForm((prev) => ({ ...prev, stars }))}
+                />
                 <textarea
                   rows={4}
                   value={reviewForm.review}

@@ -26,6 +26,32 @@ const mapAddressFromApi = (address) => ({
   isDefault: Boolean(address.isDefault),
 });
 
+const addressFingerprint = (a) =>
+  [
+    String(a.phone || "").trim(),
+    String(a.pincode || "").trim(),
+    String(a.street || "").trim().toLowerCase(),
+    String(a.city || "").trim().toLowerCase(),
+    String(a.state || "").trim().toLowerCase(),
+    String(a.fullName || "").trim().toLowerCase(),
+  ].join("|");
+
+const dedupeAddresses = (list) => {
+  const byKey = new Map();
+  for (const addr of list) {
+    const key = addressFingerprint(addr);
+    const existing = byKey.get(key);
+    if (!existing) {
+      byKey.set(key, addr);
+      continue;
+    }
+    if (addr.isDefault && !existing.isDefault) {
+      byKey.set(key, addr);
+    }
+  }
+  return [...byKey.values()];
+};
+
 const isLoggedIn = () => {
   try {
     return Boolean(localStorage.getItem("token") && localStorage.getItem("user"));
@@ -118,7 +144,9 @@ const Checkout = () => {
         return;
       }
       const data = await res.json();
-      const mapped = Array.isArray(data) ? data.map(mapAddressFromApi) : [];
+      const mapped = dedupeAddresses(
+        Array.isArray(data) ? data.map(mapAddressFromApi) : [],
+      );
       setAddresses(mapped);
       setSelectedAddressId(
         mapped.find((a) => a.isDefault)?.id || mapped[0]?.id || "",

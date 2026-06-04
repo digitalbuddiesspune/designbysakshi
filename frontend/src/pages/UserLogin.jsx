@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PasswordInput from "../components/PasswordInput";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -339,15 +340,12 @@ const UserLogin = () => {
               >
                 Password *
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${
-                  errors.password ? "border-red-500" : ""
-                }`}
+                error={Boolean(errors.password)}
                 style={{
                   borderColor: errors.password
                     ? "#ef4444"
@@ -375,15 +373,12 @@ const UserLogin = () => {
                 >
                   Confirm Password *
                 </label>
-                <input
-                  type="password"
+                <PasswordInput
                   id="confirmPassword"
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 ${
-                    errors.confirmPassword ? "border-red-500" : ""
-                  }`}
+                  error={Boolean(errors.confirmPassword)}
                   style={{
                     borderColor: errors.confirmPassword
                       ? "#ef4444"

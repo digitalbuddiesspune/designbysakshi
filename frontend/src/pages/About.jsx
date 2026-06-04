@@ -30,7 +30,7 @@ const About = () => {
                   <img
                     src="/owner2.png"
                     alt="Sakshi - Designs By Sakshi"
-                    className="max-h-full max-w-full object-contain object-bottom"
+                    className="max-h-full max-w-full object-cover "
                   />
                 </div>
               </div>

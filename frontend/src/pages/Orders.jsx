@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import StarRatingPicker from "../components/StarRatingPicker";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -49,25 +50,8 @@ const Orders = () => {
     fetchOrders();
   }, [navigate]);
 
-  const cancelOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to cancel this order?")) return;
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(`${API_URL}/orders/${orderId}/cancel`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        setOrders((prev) =>
-          prev.map((o) => (o._id === orderId ? { ...o, status: "cancelled" } : o))
-        );
-      }
-    } catch (err) {
-      console.error("Cancel order failed:", err);
-    }
-  };
-
-  const handleOpenReviewModal = (productId) => {
+  const handleOpenReviewModal = (productId, e) => {
+    e?.stopPropagation();
     if (!productId) return;
     setSelectedReviewProductId(productId);
     setReviewForm({ stars: 5, review: "", image: "" });
@@ -162,82 +146,82 @@ const Orders = () => {
               {orders.map((order) => {
                 const reviewProductId = order.items?.find((item) => item?.product?._id)?.product?._id;
                 return (
-      <div key={order._id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
-  {/* Top row: order number, total, date, status */}
-  <div className="flex items-center justify-between mb-3">
-    <div className="text-xs font-bold text-gray-700">
-      #{order.orderNumber || order._id.slice(-6)}
-    </div>
-    <div className="flex items-center gap-3">
-      <div className="text-right">
-        <div className="text-xs text-gray-500">
-          {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-        </div>
-        <div className="text-sm font-bold text-gray-900">₹{order.totalAmount.toLocaleString("en-IN")}</div>
-      </div>
-      <div className="flex items-center gap-2">
-        <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${statusColor(order.status)}`}>
-          {normalizeStatus(order.status)}
-        </span>
-        <span
-          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${
-            order.paymentStatus === "paid"
-              ? "bg-green-100 text-green-800"
-              : order.paymentStatus === "failed"
-                ? "bg-red-100 text-red-800"
-                : "bg-yellow-100 text-yellow-800"
-          }`}
-        >
-          {order.paymentStatus || "unpaid"}
-        </span>
-      </div>
-    </div>
-  </div>
+                  <div
+                    key={order._id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => navigate(`/orders/${order._id}`)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        navigate(`/orders/${order._id}`);
+                      }
+                    }}
+                    className="cursor-pointer rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition hover:border-[#3D294D]/20 hover:shadow-md"
+                  >
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                      <div className="text-xs font-bold text-gray-700">
+                        #{order.orderNumber || order._id.slice(-6)}
+                      </div>
+                      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
+                        <span className="hidden text-xs text-gray-500 md:inline">
+                          {new Date(order.createdAt).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                        <span className="text-sm font-bold text-gray-900">
+                          ₹{order.totalAmount.toLocaleString("en-IN")}
+                        </span>
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold capitalize ${statusColor(order.status)}`}
+                        >
+                          {normalizeStatus(order.status)}
+                        </span>
+                      </div>
+                    </div>
 
-  {/* Products */}
-  <div className="divide-y divide-gray-50">
-    {order.items.map((item, idx) => (
-      <div key={idx} className="flex items-center gap-3 py-2">
-        <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
-          {item.product?.image && (
-            <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
-          )}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-xs font-semibold text-gray-900 truncate">{item.product?.name || "Product"}</div>
-          <div className="text-[11px] text-gray-400">Qty: {item.quantity}</div>
-        </div>
-      </div>
-    ))}
-  </div>
+                    <div className="divide-y divide-gray-50">
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-3 py-2">
+                          <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-gray-100">
+                            {item.product?.image && (
+                              <img
+                                src={item.product.image}
+                                alt={item.product.name}
+                                className="h-full w-full object-cover"
+                              />
+                            )}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-xs font-semibold text-gray-900">
+                              {item.product?.name || "Product"}
+                            </div>
+                            <div className="text-[11px] text-gray-400">Qty: {item.quantity}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
 
-  {/* Action buttons — compact, right-aligned */}
-  <div className="mt-3 flex gap-2 border-t border-gray-50 pt-3 justify-end">
-    {reviewProductId ? (
-      <button
-        type="button"
-        onClick={() => handleOpenReviewModal(reviewProductId)}
-        className="rounded-lg bg-[#3D294D] px-4 py-1.5 text-xs font-semibold text-white hover:opacity-95 transition"
-      >
-        Add Review
-      </button>
-    ) : null}
-    <Link
-      to={`/orders/${order._id}`}
-      className="rounded-lg border border-gray-300 px-4 py-1.5 text-center text-xs font-semibold text-gray-700 hover:bg-gray-50 transition no-underline"
-    >
-      View Details
-    </Link>
-    <button
-      type="button"
-      onClick={() => cancelOrder(order._id)}
-      disabled={["processing", "shipped", "delivered", "refundable", "cancelled"].includes(normalizeStatus(order.status))}
-      className="rounded-lg border border-red-200 px-4 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 transition disabled:opacity-40 disabled:cursor-not-allowed"
-    >
-      Cancel Order
-    </button>
-  </div>
-</div>
+                    {reviewProductId ? (
+                      <div
+                        className="mt-3 flex justify-end border-t border-gray-50 pt-3"
+                        onClick={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
+                        role="presentation"
+                      >
+                        <button
+                          type="button"
+                          onClick={(e) => handleOpenReviewModal(reviewProductId, e)}
+                          className="bg-transparent px-0 py-1.5 text-xs font-semibold transition hover:opacity-80"
+                          style={{ color: "#3D294D" }}
+                        >
+                          Rate Order
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
                 );
               })}
             </div>
@@ -249,7 +233,7 @@ const Orders = () => {
         <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Add Review</h3>
+              <h3 className="text-lg font-semibold text-gray-900">Rate Order</h3>
               <button
                 type="button"
                 onClick={() => {
@@ -263,23 +247,11 @@ const Orders = () => {
               </button>
             </div>
             <form onSubmit={handleSubmitReview} className="space-y-3">
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-semibold text-gray-700" htmlFor="order-review-stars">
-                  Stars
-                </label>
-                <select
-                  id="order-review-stars"
-                  value={reviewForm.stars}
-                  onChange={(e) => setReviewForm((prev) => ({ ...prev, stars: Number(e.target.value) }))}
-                  className="rounded-md border border-gray-300 px-2 py-1 text-sm"
-                >
-                  {[5, 4, 3, 2, 1].map((n) => (
-                    <option key={n} value={n}>
-                      {n}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <StarRatingPicker
+                label="Your rating"
+                value={reviewForm.stars}
+                onChange={(stars) => setReviewForm((prev) => ({ ...prev, stars }))}
+              />
               <textarea
                 rows={4}
                 value={reviewForm.review}
@@ -299,7 +271,7 @@ const Orders = () => {
                 disabled={reviewSubmitting}
                 className="rounded-full bg-[#3D294D] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
               >
-                {reviewSubmitting ? "Submitting..." : "Submit Review"}
+                {reviewSubmitting ? "Submitting..." : "Submit Rating"}
               </button>
             </form>
           </div>

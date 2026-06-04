@@ -5,7 +5,7 @@ import Razorpay from 'razorpay';
 import Order from '../models/Order.js';
 import Payment from '../models/Payment.js';
 import Coupon from '../models/Coupon.js';
-import Address from '../models/Address.js';
+import { resolveOrderAddress } from '../utils/addressUtils.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 
@@ -185,27 +185,14 @@ router.post('/', async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    const nameParts = (shippingAddress.fullName || '').split(' ');
-    const createdAddress = await Address.create({
-      fullName: shippingAddress.fullName || user.name || '',
-      email: user.email || '',
-      firstName: nameParts[0] || 'Unknown',
-      lastName: nameParts.slice(1).join(' ') || '',
-      phone: shippingAddress.phone || '',
-      street: shippingAddress.street || '',
-      city: shippingAddress.city || '',
-      state: shippingAddress.state || '',
-      pincode: shippingAddress.pincode || '',
-      landmark: shippingAddress.landmark || '',
-      user: userId,
-    });
+    const orderAddress = await resolveOrderAddress(userId, user, shippingAddress);
 
     const order = await Order.create({
       user: userId,
       name: user.name,
       email: user.email,
       phone: user.phone || shippingAddress.phone || '',
-      address: createdAddress._id,
+      address: orderAddress._id,
       items: items.map(i => ({
         product: i.product,
         quantity: i.quantity,

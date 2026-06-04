@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import PasswordInput from "../../components/PasswordInput";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -153,17 +154,16 @@ const AdminLogin = () => {
               >
                 Password *
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 bg-white ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                }`}
+                error={Boolean(errors.password)}
                 style={{
                   color: "var(--brand-dark)",
+                  borderColor: errors.password ? "#ef4444" : "#d1d5db",
+                  background: "#ffffff",
                 }}
                 placeholder="Enter password"
               />
