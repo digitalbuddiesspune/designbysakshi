@@ -150,29 +150,39 @@ const AdminLayout = () => {
         {/* Brand logo */}
         <div
           className={`border-b border-gray-700 ${
-            isSidebarOpen ? "relative p-4" : "flex items-start justify-between gap-1 px-2 py-2"
+            isSidebarOpen ? "relative p-4" : "relative px-2 py-3"
           }`}
         >
-          <div className={`flex min-w-0 items-center ${isSidebarOpen ? "gap-2 pr-8" : ""}`}>
-            <img
-              src={ADMIN_LOGO}
-              alt="Designs By Sakshi"
-              className={`shrink-0 object-contain ${isSidebarOpen ? "h-9 w-9" : "h-8 w-8"}`}
-            />
-            {isSidebarOpen && (
+          {isSidebarOpen ? (
+            <div className="flex min-w-0 items-center gap-2 pr-8">
+              <img
+                src={ADMIN_LOGO}
+                alt="Designs By Sakshi"
+                className="h-9 w-9 shrink-0 object-contain"
+              />
               <p
                 className="min-w-0 truncate text-lg leading-tight text-white"
                 style={{ fontFamily: "'Caveat', cursive", fontWeight: 600 }}
               >
                 Designs By Sakshi
               </p>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center pt-1">
+              <span
+                className="text-2xl font-bold leading-none text-white"
+                style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
+                aria-label="Designs By Sakshi"
+              >
+                D
+              </span>
+            </div>
+          )}
           <button
             type="button"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className={`shrink-0 rounded p-1 transition hover:bg-gray-800 ${
-              isSidebarOpen ? "absolute right-2 top-2" : "-mt-0.5"
+              isSidebarOpen ? "absolute right-2 top-2" : "absolute right-1 top-1"
             }`}
             aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
