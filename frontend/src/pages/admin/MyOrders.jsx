@@ -130,12 +130,6 @@ const MyOrders = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <div className="mb-6">
-        <p className="text-sm" style={{ color: "var(--brand-muted)" }}>
-          {orders.length} orders
-        </p>
-      </div>
-
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
           <div className="flex flex-col flex-1">
@@ -194,7 +188,6 @@ const MyOrders = () => {
             <tr className="text-xs uppercase tracking-wider" style={{ color: "var(--brand-muted)" }}>
               <th className="text-left px-5 py-4">Order ID</th>
               <th className="text-left px-5 py-4">Customer</th>
-              <th className="text-left px-5 py-4">Products</th>
               <th className="text-left px-5 py-4">Qty</th>
               <th className="text-left px-5 py-4">Price</th>
               <th className="text-left px-5 py-4">Status</th>
@@ -205,9 +198,9 @@ const MyOrders = () => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={9} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>Loading...</td></tr>
+              <tr><td colSpan={8} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>Loading...</td></tr>
             ) : orders.length === 0 ? (
-              <tr><td colSpan={9} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>No orders found</td></tr>
+              <tr><td colSpan={8} className="px-5 py-10 text-center" style={{ color: "var(--brand-muted)" }}>No orders found</td></tr>
             ) : (
               paginatedOrders.map((o) => {
                 const dateLabel = o?.createdAt ? new Date(o.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "";
@@ -243,12 +236,6 @@ const MyOrders = () => {
                         <div className="font-semibold">{o.name || "Customer"}</div>
                         <div className="text-xs" style={{ color: "var(--brand-muted)" }}>{o.phone || o.email}</div>
                       </button>
-                    </td>
-                    <td className="px-5 py-4">
-                      <div className="flex flex-col">
-                        <div className="font-semibold">{firstProductName(o)}</div>
-                        {o.items?.length > 1 && <div className="text-xs" style={{ color: "var(--brand-muted)" }}>+{o.items.length - 1} more</div>}
-                      </div>
                     </td>
                     <td className="px-5 py-4">{sumQty(o)}</td>
                     <td className="px-5 py-4">₹{(o.totalAmount || 0).toLocaleString("en-IN")}</td>

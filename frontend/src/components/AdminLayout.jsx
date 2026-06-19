@@ -21,16 +21,68 @@ const AdminLayout = () => {
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + "/");
 
-  const normalizedPath = location.pathname.replace(/\/$/, "");
-  const isAdminDashboard = normalizedPath === "/admin/dashboard";
+  const getAdminPageTitle = (pathname) => {
+    const p = pathname.replace(/\/$/, "");
+    if (p === "/admin/dashboard") return "Dashboard";
+    if (p === "/admin/orders") return "My Orders";
+    if (p.startsWith("/admin/order-details/")) return "Order Details";
+    if (p === "/admin/payments") return "Payments";
+    if (p === "/admin/coupons") return "Coupons";
+    if (p === "/admin/add-coupon") return "Create Coupon";
+    if (p === "/admin/users") return "Users";
+    if (p === "/admin/profile") return "Admin Profile";
+    if (p === "/admin/add-product") return "Add Product";
+    if (p.startsWith("/admin/edit-product/")) return "Edit Product";
+    if (p.startsWith("/admin/products/")) return "Product Details";
+    if (p === "/admin/products") return "My Products";
+    if (p === "/admin/categories") return "My Categories";
+    if (p === "/admin/add-category") return "Add Category";
+    if (p.startsWith("/admin/edit-category/")) return "Edit Category";
+    if (p === "/admin/testimonials") return "Testimonials";
+    if (p === "/admin/add-testimonial") return "Add Testimonial";
+    if (p === "/admin/blogs") return "Blog";
+    if (p === "/admin/banners") return "Banners";
+    if (p === "/admin/add-banner") return "Add Banner";
+    if (p.startsWith("/admin/edit-banner/")) return "Edit Banner";
+    if (p === "/admin/collections-showcase") return "Shop By Collection";
+    if (p === "/admin/add-collection") return "Add Collection";
+    if (p.startsWith("/admin/edit-collection/")) return "Edit Collection";
+    return "";
+  };
+
+  const pageTitle = getAdminPageTitle(location.pathname);
+  const path = location.pathname;
+  const isBannerSection =
+    path === "/admin/banners" || path.startsWith("/admin/add-banner") || path.startsWith("/admin/edit-banner");
+  const isCollectionSection =
+    path === "/admin/collections-showcase" ||
+    path.startsWith("/admin/add-collection") ||
+    path.startsWith("/admin/edit-collection");
 
   // Auto-open dropdown if on a page within that section
   useEffect(() => {
-    const path = location.pathname;
-    if (path.startsWith("/admin/products") || path.startsWith("/admin/add-product")) {
+    const currentPath = location.pathname;
+    if (
+      currentPath.startsWith("/admin/products") ||
+      currentPath.startsWith("/admin/add-product") ||
+      currentPath.startsWith("/admin/edit-product")
+    ) {
       setOpenDropdown("products");
-    } else if (path.startsWith("/admin/categories") || path.startsWith("/admin/add-category") || path.includes("/admin/edit-category")) {
+    } else if (
+      currentPath.startsWith("/admin/categories") ||
+      currentPath.startsWith("/admin/add-category") ||
+      currentPath.includes("/admin/edit-category")
+    ) {
       setOpenDropdown("categories");
+    } else if (
+      currentPath.startsWith("/admin/banners") ||
+      currentPath.startsWith("/admin/add-banner") ||
+      currentPath.startsWith("/admin/edit-banner") ||
+      currentPath.startsWith("/admin/collections-showcase") ||
+      currentPath.startsWith("/admin/add-collection") ||
+      currentPath.startsWith("/admin/edit-collection")
+    ) {
+      setOpenDropdown("homepage");
     }
   }, [location.pathname]);
 
@@ -374,7 +426,7 @@ const AdminLayout = () => {
                   type="button"
                   onClick={() => setOpenDropdown(openDropdown === "homepage" ? null : "homepage")}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                    isActive("/admin/banners") || isActive("/admin/collections-showcase")
+                    isBannerSection || isCollectionSection
                       ? "bg-purple-600 text-white"
                       : "text-gray-300 hover:bg-gray-800"
                   }`}
@@ -404,7 +456,7 @@ const AdminLayout = () => {
                       <Link
                         to="/admin/banners"
                         className={`block px-4 py-2 rounded-lg transition ${
-                          isActive("/admin/banners")
+                          isBannerSection
                             ? "bg-purple-700 text-white"
                             : "text-gray-400 hover:bg-gray-800"
                         }`}
@@ -417,7 +469,7 @@ const AdminLayout = () => {
                       <Link
                         to="/admin/collections-showcase"
                         className={`block px-4 py-2 rounded-lg transition ${
-                          isActive("/admin/collections-showcase")
+                          isCollectionSection
                             ? "bg-purple-700 text-white"
                             : "text-gray-400 hover:bg-gray-800"
                         }`}
@@ -510,7 +562,7 @@ const AdminLayout = () => {
 
       {/* Main Content */}
       <main className="scrollbar-hide flex-1 min-h-0 overflow-y-auto overflow-x-hidden">
-        {isAdminDashboard && (
+        {pageTitle && (
           <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b bg-white px-4 py-3 sm:px-6">
             <h1
               className="text-xl font-medium sm:text-2xl"
@@ -519,7 +571,7 @@ const AdminLayout = () => {
                 fontFamily: "Cormorant Garamond, Georgia, serif",
               }}
             >
-              Dashboard
+              {pageTitle}
             </h1>
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Link

@@ -14,10 +14,12 @@ import AdminLayout from "../components/AdminLayout.jsx";
 import Dashboard from "../pages/admin/Dashboard.jsx";
 import AdminAddProduct from "../pages/AdminAddProduct.jsx";
 import MyProducts from "../pages/admin/MyProducts.jsx";
+import AdminProductDetail from "../pages/admin/AdminProductDetail.jsx";
 import MyCategories from "../pages/admin/MyCategories.jsx";
 import AddCategory from "../pages/admin/AddCategory.jsx";
 import EditCategory from "../pages/admin/EditCategory.jsx";
 import AdminTestimonials from "../pages/admin/AdminTestimonials.jsx";
+import AddTestimonial from "../pages/admin/AddTestimonial.jsx";
 import AdminLogin from "../pages/admin/AdminLogin.jsx";
 import Login from "../pages/Login.jsx";
 import Signup from "../pages/Signup.jsx";
@@ -42,9 +44,12 @@ import AdminOrderDetails from "../pages/admin/OrderDetails.jsx";
 import Users from "../pages/admin/Users.jsx";
 import AdminProfile from "../pages/admin/AdminProfile.jsx";
 import AdminBanners from "../pages/admin/AdminBanners.jsx";
+import BannerForm from "../pages/admin/BannerForm.jsx";
 import AdminCollections from "../pages/admin/AdminCollections.jsx";
+import CollectionShowcaseForm from "../pages/admin/CollectionShowcaseForm.jsx";
 import AdminPayments from "../pages/admin/Payments.jsx";
 import AdminCoupons from "../pages/admin/Coupons.jsx";
+import AddCoupon from "../pages/admin/AddCoupon.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -69,18 +74,26 @@ const router = createBrowserRouter(
         <Route path="orders" element={<MyOrders />} />
         <Route path="payments" element={<AdminPayments />} />
         <Route path="coupons" element={<AdminCoupons />} />
+        <Route path="add-coupon" element={<AddCoupon />} />
         <Route path="users" element={<Users />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="order-details/:id" element={<AdminOrderDetails />} />
         <Route path="add-product" element={<AdminAddProduct />} />
+        <Route path="edit-product/:id" element={<AdminAddProduct />} />
+        <Route path="products/:id" element={<AdminProductDetail />} />
         <Route path="products" element={<MyProducts />} />
         <Route path="categories" element={<MyCategories />} />
         <Route path="add-category" element={<AddCategory />} />
         <Route path="edit-category/:id" element={<EditCategory />} />
         <Route path="testimonials" element={<AdminTestimonials />} />
+        <Route path="add-testimonial" element={<AddTestimonial />} />
         <Route path="blogs" element={<AddBlog />} />
         <Route path="banners" element={<AdminBanners />} />
+        <Route path="add-banner" element={<BannerForm />} />
+        <Route path="edit-banner/:id" element={<BannerForm />} />
         <Route path="collections-showcase" element={<AdminCollections />} />
+        <Route path="add-collection" element={<CollectionShowcaseForm />} />
+        <Route path="edit-collection/:id" element={<CollectionShowcaseForm />} />
       </Route>
       <Route path="necklace-sets" element={<CategoryPage />} />
       <Route path="earrings" element={<CategoryPage />} />

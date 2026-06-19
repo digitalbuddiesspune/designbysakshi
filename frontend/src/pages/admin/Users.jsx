@@ -67,12 +67,9 @@ const Users = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <div className="mb-6">
-        <p className="text-sm" style={{ color: "var(--brand-muted)" }}>
-          {users.length} users
-        </p>
-        <div className="mt-3">
-          <label className="text-xs font-semibold mr-2" style={{ color: "var(--brand-muted)" }}>
+      <div className="mb-6 flex justify-end">
+        <div>
+          <label className="mr-2 text-xs font-semibold" style={{ color: "var(--brand-muted)" }}>
             Sort by Qty Purchased
           </label>
           <select

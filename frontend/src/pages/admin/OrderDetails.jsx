@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { openInvoiceWindow } from "../../utils/invoice";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -20,7 +20,6 @@ const formatDateTime = (v) =>
     : "-";
 
 const OrderDetails = () => {
-  const navigate = useNavigate();
   const { id } = useParams();
 
   const [loading, setLoading] = useState(true);
@@ -114,36 +113,6 @@ const OrderDetails = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <button
-            type="button"
-            onClick={() => navigate("/admin/orders")}
-            className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
-            style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
-          >
-            ← Orders
-          </button>
-          <div>
-            <p className="text-sm" style={{ color: "var(--brand-muted)" }}>
-              {loading ? "Loading..." : orderNumberLabel}
-            </p>
-          </div>
-        </div>
-        <div className="hidden md:flex items-center gap-3">
-          {!loading && order ? (
-            <button
-              type="button"
-              onClick={() => openInvoiceWindow(order)}
-              className="rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-gray-50"
-              style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
-            >
-              Bill Invoice
-            </button>
-          ) : null}
-        </div>
-      </div>
-
       {loading || !order ? (
         <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6 text-center" style={{ color: "var(--brand-muted)" }}>
           Loading...
@@ -180,9 +149,12 @@ const OrderDetails = () => {
                   </select>
                 </div>
 
-                <div className="flex-1">
-                  <div className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--brand-muted)" }}>
-                    PAYMENT STATUS
+                <div className="min-w-[140px] flex-1">
+                  <div
+                    className="mb-2 whitespace-nowrap text-xs font-semibold uppercase tracking-wider"
+                    style={{ color: "var(--brand-muted)" }}
+                  >
+                    Payment Status
                   </div>
                   <select
                     value={paymentStatus || "unpaid"}
@@ -252,48 +224,51 @@ const OrderDetails = () => {
             </div>
           </div>
 
-          {/* Billing summary */}
+          {/* Customer & payment */}
           <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-2">
                 <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--brand-muted)" }}>
-                  CUSTOMER
+                  Customer
                 </div>
                 <div className="font-bold" style={{ color: "var(--brand-dark)" }}>
-                  {order.name}{" "}
-                  <span className="text-sm font-medium" style={{ color: "var(--brand-muted)" }}>
-                    ({order.email})
-                  </span>
-                </div>
-                <div className="text-sm" style={{ color: "var(--brand-muted)" }}>
-                  Phone: {order.phone}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--brand-muted)" }}>
-                  ADDRESS
+                  {order.name || "Customer"}
                 </div>
                 <div className="text-sm" style={{ color: "var(--brand-dark)" }}>
-                  {order.address?.street}, {order.address?.city}, {order.address?.state} - {order.address?.pincode}
+                  {order.email || "-"}
+                </div>
+                <div className="text-sm" style={{ color: "var(--brand-dark)" }}>
+                  {order.phone || "-"}
+                </div>
+                <div className="text-sm" style={{ color: "var(--brand-dark)" }}>
+                  {[order.address?.street, order.address?.city, order.address?.state]
+                    .filter(Boolean)
+                    .join(", ")}
+                  {order.address?.pincode ? ` - ${order.address.pincode}` : ""}
+                </div>
+              </div>
+
+              <div className="space-y-2 md:text-right">
+                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--brand-muted)" }}>
+                  Payment Details
+                </div>
+                <div className="text-sm" style={{ color: "var(--brand-dark)" }}>
+                  Payment Mode: {order.paymentMode || "-"}
+                </div>
+                <div className="text-sm" style={{ color: "var(--brand-dark)" }}>
+                  Payment Status: {order.paymentStatus || "unpaid"}
+                </div>
+                <div className="pt-1">
+                  <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--brand-muted)" }}>
+                    Total
+                  </div>
+                  <div className="text-lg font-bold" style={{ color: "var(--brand-dark)" }}>
+                    ₹{(order.totalAmount || 0).toLocaleString("en-IN")}
+                  </div>
                 </div>
                 <div className="text-sm" style={{ color: "var(--brand-muted)" }}>
-                  Payment Mode: {order.paymentMode} • Payment Status: {order.paymentStatus}
+                  Items total: ₹{subtotal.toLocaleString("en-IN")}
                 </div>
-              </div>
-            </div>
-
-            <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--brand-muted)" }}>
-                  TOTAL
-                </div>
-                <div className="text-lg font-bold" style={{ color: "var(--brand-dark)" }}>
-                  ₹{(order.totalAmount || 0).toLocaleString("en-IN")}
-                </div>
-              </div>
-              <div className="text-xs" style={{ color: "var(--brand-muted)" }}>
-                Items total: ₹{sumTotal(order).toLocaleString("en-IN")}
               </div>
             </div>
           </div>
@@ -375,6 +350,17 @@ const OrderDetails = () => {
                 <span>₹{(order?.totalAmount || 0).toLocaleString("en-IN")}</span>
               </div>
             </div>
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => openInvoiceWindow(order)}
+              className="rounded-lg border px-5 py-2.5 text-sm font-semibold transition hover:bg-gray-50"
+              style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+            >
+              Bill Invoice
+            </button>
           </div>
         </div>
       )}

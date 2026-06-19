@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ImageUploader from "../components/admin/ImageUploader.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const AdminAddProduct = () => {
   const navigate = useNavigate();
+  const { id: editId } = useParams();
+  const isEditMode = Boolean(editId);
   const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
@@ -13,23 +15,68 @@ const AdminAddProduct = () => {
     price: "",
     discountType: "",
     color: "",
-    featuresText: "",
-    stylingTipsText: "",
     category: "",
     subcategory: "",
     description: "",
     inStock: true,
     stock: "",
   });
+  const [features, setFeatures] = useState([""]);
+  const [stylingTips, setStylingTips] = useState([""]);
   // Additional image URLs (dynamically add up to 4)
   const [additionalImageUrls, setAdditionalImageUrls] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [fetchingProduct, setFetchingProduct] = useState(false);
   const [message, setMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    if (!editId) return;
+
+    const loadProduct = async () => {
+      setFetchingProduct(true);
+      setMessage("");
+      try {
+        const response = await fetch(`${API_URL}/products/${editId}`);
+        if (!response.ok) throw new Error("Product not found");
+        const product = await response.json();
+        const gallery =
+          Array.isArray(product.images) && product.images.length > 0
+            ? product.images
+            : product.image
+              ? [product.image]
+              : [];
+        const mainImage = gallery[0] || "";
+        const extra = gallery.slice(1);
+
+        setFormData({
+          name: product.name || "",
+          image: mainImage,
+          price: product.price ?? "",
+          discountType: product.discountType || "",
+          color: product.color || "",
+          category: product.category || "",
+          subcategory: product.subcategory || "",
+          description: product.description || "",
+          inStock: product.inStock !== false,
+          stock: product.stock ?? "",
+        });
+        setFeatures(product.features?.length ? product.features : [""]);
+        setStylingTips(product.stylingTips?.length ? product.stylingTips : [""]);
+        setAdditionalImageUrls(extra.length ? extra : []);
+      } catch (error) {
+        setMessage(`Error: ${error.message}`);
+      } finally {
+        setFetchingProduct(false);
+      }
+    };
+
+    loadProduct();
+  }, [editId]);
 
   const fetchCategories = async () => {
     try {
@@ -49,6 +96,27 @@ const AdminAddProduct = () => {
     }));
   };
 
+  const handleListChange = (setter, index, value) => {
+    setter((prev) => prev.map((item, i) => (i === index ? value : item)));
+  };
+
+  const handleAddListItem = (setter) => {
+    setter((prev) => [...prev, ""]);
+  };
+
+  const handleRemoveListItem = (setter, index) => {
+    setter((prev) => (prev.length <= 1 ? [""] : prev.filter((_, i) => i !== index)));
+  };
+
+  const inputClass =
+    "mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2";
+  const inputStyle = {
+    borderColor: "var(--brand-lavender-soft)",
+    color: "var(--brand-dark)",
+  };
+  const labelClass = "block text-sm font-medium";
+  const labelStyle = { color: "var(--brand-dark)" };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -59,17 +127,9 @@ const AdminAddProduct = () => {
         ...formData,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock) || 0,
-        features: String(formData.featuresText || "")
-          .split("\n")
-          .map((item) => item.trim())
-          .filter(Boolean),
-        stylingTips: String(formData.stylingTipsText || "")
-          .split("\n")
-          .map((item) => item.trim())
-          .filter(Boolean),
+        features: features.map((item) => item.trim()).filter(Boolean),
+        stylingTips: stylingTips.map((item) => item.trim()).filter(Boolean),
       };
-      delete productData.featuresText;
-      delete productData.stylingTipsText;
 
       // Remove subcategory if it's empty (categories like Bestseller/New Arrival have none)
       if (!productData.subcategory) {
@@ -80,36 +140,42 @@ const AdminAddProduct = () => {
       const extraImages = (additionalImageUrls || []).map((s) => (s || "").trim()).filter(Boolean);
       productData.images = [formData.image, ...extraImages];
 
-      const response = await fetch(`${API_URL}/products`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await fetch(
+        isEditMode ? `${API_URL}/products/${editId}` : `${API_URL}/products`,
+        {
+          method: isEditMode ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(productData),
         },
-        body: JSON.stringify(productData),
-      });
+      );
 
       if (response.ok) {
-        setMessage("Product added successfully!");
+        setMessage(isEditMode ? "Product updated successfully!" : "Product added successfully!");
         setShowSuccessModal(true);
-        setFormData({
-          name: "",
-          image: "",
-          price: "",
-          discountType: "",
-          color: "",
-          featuresText: "",
-          stylingTipsText: "",
-          category: "",
-          subcategory: "",
-          description: "",
-          inStock: true,
-          stock: "",
-        });
-        setAdditionalImageUrls([""]);
-        // Stay on the same page, don't redirect
+        if (!isEditMode) {
+          setFormData({
+            name: "",
+            image: "",
+            price: "",
+            discountType: "",
+            color: "",
+            category: "",
+            subcategory: "",
+            description: "",
+            inStock: true,
+            stock: "",
+          });
+          setFeatures([""]);
+          setStylingTips([""]);
+          setAdditionalImageUrls([]);
+        }
       } else {
         const error = await response.json();
-        setMessage(`Error: ${error.error || "Failed to add product"}`);
+        setMessage(
+          `Error: ${error.error || (isEditMode ? "Failed to update product" : "Failed to add product")}`,
+        );
       }
     } catch (error) {
       setMessage(`Error: ${error.message}`);
@@ -122,9 +188,17 @@ const AdminAddProduct = () => {
     (cat) => cat.slug === formData.category
   );
 
+  if (isEditMode && fetchingProduct) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center text-gray-600">
+        Loading product...
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-white py-12 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-3xl">
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl">
         {message && (
           <div
             className={`mb-6 rounded-md p-4 ${
@@ -137,357 +211,326 @@ const AdminAddProduct = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium"
-              style={{ color: "var(--brand-dark)" }}
-            >
-              Product Name *
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              value={formData.name}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-              style={{
-                borderColor: "var(--brand-lavender-soft)",
-                color: "var(--brand-dark)",
-              }}
-            />
-          </div>
-
-          <ImageUploader
-            label="Main Image *"
-            value={formData.image}
-            onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
-            folder="designbysakshi/products/main"
-          />
-
-          <div>
-            <div className="mt-3 space-y-4">
-              {additionalImageUrls.map((val, idx) => (
-                <div key={`extra-uploader-${idx}`} className="space-y-2">
-                  <ImageUploader
-                    label={`Additional Image ${idx + 1}`}
-                    value={val}
-                    onChange={(url) =>
-                      setAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? url : item)))
-                    }
-                    folder="designbysakshi/products/extra"
-                  />
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))
-                      }
-                      className="text-xs font-semibold text-red-600 hover:opacity-90"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
-              <div className="flex">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setAdditionalImageUrls((prev) =>
-                      prev.length >= 4 ? prev : [...prev, ""]
-                    )
-                  }
-                  disabled={additionalImageUrls.length >= 4}
-                  className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90 disabled:opacity-40"
-                  style={{ background: "#111111", color: "white" }}
-                >
-                  + Add Image
-                </button>
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-xl border border-gray-200 bg-white px-3 py-5 shadow-sm sm:px-4 sm:py-6"
+        >
+          <div className="space-y-6">
+            {/* Row 1: Name + Color */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="name" className={labelClass} style={labelStyle}>
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  value={formData.name}
+                  onChange={handleChange}
+                  className={inputClass}
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label htmlFor="color" className={labelClass} style={labelStyle}>
+                  Color
+                </label>
+                <input
+                  type="text"
+                  id="color"
+                  name="color"
+                  value={formData.color}
+                  onChange={handleChange}
+                  className={inputClass}
+                  style={inputStyle}
+                  placeholder="e.g. Royal Purple"
+                />
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="price"
-                className="block text-sm font-medium"
-                style={{ color: "var(--brand-dark)" }}
-              >
-                Price (₹) *
-              </label>
-              <input
-                type="number"
-                id="price"
-                name="price"
-                required
-                min="0"
-                step="0.01"
-                value={formData.price}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-                style={{
-                  borderColor: "var(--brand-lavender-soft)",
-                  color: "var(--brand-dark)",
-                }}
-              />
+            {/* Row 2: Price + Discount Type */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="price" className={labelClass} style={labelStyle}>
+                  Price (₹) *
+                </label>
+                <input
+                  type="number"
+                  id="price"
+                  name="price"
+                  required
+                  min="0"
+                  step="0.01"
+                  value={formData.price}
+                  onChange={handleChange}
+                  className={inputClass}
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label htmlFor="discountType" className={labelClass} style={labelStyle}>
+                  Discount Type (e.g. 10% OFF)
+                </label>
+                <input
+                  type="text"
+                  id="discountType"
+                  name="discountType"
+                  value={formData.discountType}
+                  onChange={handleChange}
+                  className={inputClass}
+                  style={inputStyle}
+                />
+              </div>
             </div>
 
-            <div>
-              <label
-                htmlFor="discountType"
-                className="block text-sm font-medium"
-                style={{ color: "var(--brand-dark)" }}
-              >
-                Discount Type (e.g. 10% OFF)
-              </label>
-              <input
-                type="text"
-                id="discountType"
-                name="discountType"
-                value={formData.discountType}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-                style={{
-                  borderColor: "var(--brand-lavender-soft)",
-                  color: "var(--brand-dark)",
-                }}
-              />
+            {/* Row 3: Features + Styling Tips */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className={labelClass} style={labelStyle}>
+                  Features
+                </label>
+                <div className="mt-1 space-y-2">
+                  {features.map((item, idx) => (
+                    <div key={`feature-${idx}`} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => handleListChange(setFeatures, idx, e.target.value)}
+                        className={inputClass.replace("mt-1 ", "")}
+                        style={inputStyle}
+                        placeholder="e.g. Lightweight"
+                      />
+                      {features.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveListItem(setFeatures, idx)}
+                          className="shrink-0 px-2 text-xs font-semibold text-red-600"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => handleAddListItem(setFeatures)}
+                    className="text-xs font-semibold hover:opacity-80"
+                    style={{ color: "#3D294D" }}
+                  >
+                    + Add More
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className={labelClass} style={labelStyle}>
+                  Styling Tips
+                </label>
+                <div className="mt-1 space-y-2">
+                  {stylingTips.map((item, idx) => (
+                    <div key={`tip-${idx}`} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={item}
+                        onChange={(e) => handleListChange(setStylingTips, idx, e.target.value)}
+                        className={inputClass.replace("mt-1 ", "")}
+                        style={inputStyle}
+                        placeholder="e.g. Pair with saree"
+                      />
+                      {stylingTips.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveListItem(setStylingTips, idx)}
+                          className="shrink-0 px-2 text-xs font-semibold text-red-600"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => handleAddListItem(setStylingTips)}
+                    className="text-xs font-semibold hover:opacity-80"
+                    style={{ color: "#3D294D" }}
+                  >
+                    + Add More
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label
-              htmlFor="color"
-              className="block text-sm font-medium"
-              style={{ color: "var(--brand-dark)" }}
-            >
-              Color
-            </label>
-            <input
-              type="text"
-              id="color"
-              name="color"
-              value={formData.color}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-              style={{
-                borderColor: "var(--brand-lavender-soft)",
-                color: "var(--brand-dark)",
-              }}
-              placeholder="e.g. Royal Purple"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <label
-                htmlFor="category"
-                className="block text-sm font-medium"
-                style={{ color: "var(--brand-dark)" }}
-              >
-                Main Category *
-              </label>
-              <select
-                id="category"
-                name="category"
-                required
-                value={formData.category}
-                onChange={(e) => {
-                  // when main category changes, also reset subcategory
-                  handleChange(e);
-                  setFormData((prev) => ({ ...prev, subcategory: "" }));
-                }}
-                className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-                style={{
-                  borderColor: "var(--brand-lavender-soft)",
-                  color: "var(--brand-dark)",
-                }}
-              >
-                <option value="">Select a category</option>
-                {categories.map((cat) => (
-                  <option key={cat._id || cat.slug} value={cat.slug}>
-                    {cat.name}
+            {/* Category */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="category" className={labelClass} style={labelStyle}>
+                  Main Category *
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  required
+                  value={formData.category}
+                  onChange={(e) => {
+                    handleChange(e);
+                    setFormData((prev) => ({ ...prev, subcategory: "" }));
+                  }}
+                  className={inputClass}
+                  style={inputStyle}
+                >
+                  <option value="">Select a category</option>
+                  {categories.map((cat) => (
+                    <option key={cat._id || cat.slug} value={cat.slug}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="subcategory" className={labelClass} style={labelStyle}>
+                  Subcategory {selectedCategory && selectedCategory.subcategories.length > 0 ? "*" : ""}
+                </label>
+                <select
+                  id="subcategory"
+                  name="subcategory"
+                  required={selectedCategory && selectedCategory.subcategories.length > 0}
+                  disabled={!selectedCategory || selectedCategory.subcategories.length === 0}
+                  value={formData.subcategory}
+                  onChange={handleChange}
+                  className={`${inputClass} disabled:bg-gray-100 disabled:text-gray-400`}
+                  style={inputStyle}
+                >
+                  <option value="">
+                    {!selectedCategory
+                      ? "Select main category first"
+                      : selectedCategory.subcategories.length === 0
+                        ? "No subcategory available"
+                        : "Select a subcategory"}
                   </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label
-                htmlFor="subcategory"
-                className="block text-sm font-medium"
-                style={{ color: "var(--brand-dark)" }}
-              >
-                Subcategory {selectedCategory && selectedCategory.subcategories.length > 0 ? "*" : ""}
-              </label>
-              <select
-                id="subcategory"
-                name="subcategory"
-                required={selectedCategory && selectedCategory.subcategories.length > 0}
-                disabled={!selectedCategory || (selectedCategory && selectedCategory.subcategories.length === 0)}
-                value={formData.subcategory}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 disabled:bg-gray-100 disabled:text-gray-400"
-                style={{
-                  borderColor: "var(--brand-lavender-soft)",
-                  color: "var(--brand-dark)",
-                }}
-              >
-                <option value="">
-                  {!selectedCategory
-                    ? "Select main category first"
-                    : selectedCategory.subcategories.length === 0
-                    ? "No subcategory available"
-                    : "Select a subcategory"}
-                </option>
-                {selectedCategory &&
-                  selectedCategory.subcategories.map((sub) => (
+                  {selectedCategory?.subcategories.map((sub) => (
                     <option key={sub.slug} value={sub.slug}>
                       {sub.name}
                     </option>
                   ))}
-              </select>
+                </select>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium"
-              style={{ color: "var(--brand-dark)" }}
-            >
-              Description
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              rows="4"
-              value={formData.description}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-              style={{
-                borderColor: "var(--brand-lavender-soft)",
-                color: "var(--brand-dark)",
-              }}
-            />
-          </div>
+            {/* Row 4: Image + Stock */}
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div>
+                <ImageUploader
+                  label="Main Image *"
+                  value={formData.image}
+                  onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+                  folder="designbysakshi/products/main"
+                />
+                <div className="mt-3 space-y-3">
+                  {additionalImageUrls.map((val, idx) => (
+                    <div key={`extra-uploader-${idx}`} className="space-y-2">
+                      <ImageUploader
+                        label={`Additional Image ${idx + 1}`}
+                        value={val}
+                        onChange={(url) =>
+                          setAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? url : item)))
+                        }
+                        folder="designbysakshi/products/extra"
+                      />
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))
+                          }
+                          className="text-xs font-semibold text-red-600 hover:opacity-90"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setAdditionalImageUrls((prev) =>
+                        prev.length >= 4 ? prev : [...prev, ""]
+                      )
+                    }
+                    disabled={additionalImageUrls.length >= 4}
+                    className="rounded-md px-3 py-2 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-40"
+                    style={{ background: "#3D294D" }}
+                  >
+                    + Add Image
+                  </button>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="stock" className={labelClass} style={labelStyle}>
+                    Stock (Quantity) *
+                  </label>
+                  <input
+                    type="number"
+                    id="stock"
+                    name="stock"
+                    required
+                    min="0"
+                    value={formData.stock}
+                    onChange={handleChange}
+                    className={inputClass}
+                    style={inputStyle}
+                    placeholder="Enter stock quantity"
+                  />
+                </div>
+                <div className="flex items-center pt-1">
+                  <input
+                    type="checkbox"
+                    id="inStock"
+                    name="inStock"
+                    checked={formData.inStock}
+                    onChange={handleChange}
+                    className="h-4 w-4 rounded"
+                    style={{ accentColor: "var(--brand-purple)" }}
+                  />
+                  <label htmlFor="inStock" className="ml-2 text-sm font-medium" style={labelStyle}>
+                    In Stock
+                  </label>
+                </div>
+              </div>
+            </div>
 
-          <div>
-            <label
-              htmlFor="featuresText"
-              className="block text-sm font-medium"
-              style={{ color: "var(--brand-dark)" }}
-            >
-              Features (one per line)
-            </label>
-            <textarea
-              id="featuresText"
-              name="featuresText"
-              rows="4"
-              value={formData.featuresText}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-              style={{
-                borderColor: "var(--brand-lavender-soft)",
-                color: "var(--brand-dark)",
-              }}
-              placeholder={"Lightweight\nAnti-tarnish\nHandcrafted"}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="stylingTipsText"
-              className="block text-sm font-medium"
-              style={{ color: "var(--brand-dark)" }}
-            >
-              Styling Tips (one per line)
-            </label>
-            <textarea
-              id="stylingTipsText"
-              name="stylingTipsText"
-              rows="4"
-              value={formData.stylingTipsText}
-              onChange={handleChange}
-              className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-              style={{
-                borderColor: "var(--brand-lavender-soft)",
-                color: "var(--brand-dark)",
-              }}
-              placeholder={"Pair with saree for festive look\nUse with studs for office look"}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {/* Row 5: Description */}
             <div>
-              <label
-                htmlFor="stock"
-                className="block text-sm font-medium"
-                style={{ color: "var(--brand-dark)" }}
-              >
-                Stock (Quantity) *
+              <label htmlFor="description" className={labelClass} style={labelStyle}>
+                Description
               </label>
-              <input
-                type="number"
-                id="stock"
-                name="stock"
-                required
-                min="0"
-                value={formData.stock}
+              <textarea
+                id="description"
+                name="description"
+                rows="4"
+                value={formData.description}
                 onChange={handleChange}
-                className="mt-1 block w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-                style={{
-                  borderColor: "var(--brand-lavender-soft)",
-                  color: "var(--brand-dark)",
-                }}
-                placeholder="Enter stock quantity"
+                className={inputClass}
+                style={inputStyle}
               />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="inStock"
-                name="inStock"
-                checked={formData.inStock}
-                onChange={handleChange}
-                className="h-4 w-4 rounded"
-                style={{ accentColor: "var(--brand-purple)" }}
-              />
-              <label
-                htmlFor="inStock"
-                className="ml-2 text-sm font-medium"
-                style={{ color: "var(--brand-dark)" }}
-              >
-                In Stock
-              </label>
             </div>
           </div>
 
-          <div className="flex gap-4">
+          <div className="mt-8 flex gap-4 border-t border-gray-100 pt-6">
             <button
               type="submit"
               disabled={loading}
               className="flex-1 rounded-md px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-50"
-              style={{
-                background: "#16a34a",
-              }}
+              style={{ background: "#3D294D" }}
             >
-              {loading ? "Adding..." : "Add Product"}
+              {loading ? (isEditMode ? "Updating..." : "Adding...") : isEditMode ? "Update Product" : "Add Product"}
             </button>
             <button
               type="button"
               onClick={() => navigate("/admin/products")}
               className="rounded-md border px-6 py-3 text-sm font-semibold transition hover:opacity-90"
-              style={{
-                borderColor: "#111111",
-                color: "#111111",
-              }}
+              style={{ borderColor: "#3D294D", color: "#3D294D" }}
             >
               Cancel
             </button>
@@ -501,11 +544,16 @@ const AdminAddProduct = () => {
             <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-2xl text-green-700">
               ✓
             </div>
-            <h3 className="text-xl font-semibold text-gray-900">Product added successfully</h3>
+            <h3 className="text-xl font-semibold text-gray-900">
+              {isEditMode ? "Product updated successfully" : "Product added successfully"}
+            </h3>
             <p className="mt-2 text-sm text-gray-600">Your product has been saved.</p>
             <button
               type="button"
-              onClick={() => setShowSuccessModal(false)}
+              onClick={() => {
+                setShowSuccessModal(false);
+                if (isEditMode) navigate("/admin/products");
+              }}
               className="mt-5 rounded-md bg-black px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90"
             >
               OK

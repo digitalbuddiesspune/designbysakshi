@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -86,33 +86,11 @@ const MyCategories = () => {
 
   return (
     <div className="p-6 sm:p-8">
-      <div className="flex items-center justify-end mb-8">
-        <Link
-          to="/admin/add-category"
-          className="px-4 py-2 text-sm font-semibold text-white rounded-lg transition"
-          style={{
-            background: "#000000",
-          }}
-        >
-          + Add Category
-        </Link>
-      </div>
-
       {loading ? (
         <div className="text-center py-12">Loading categories...</div>
       ) : categories.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-600 mb-4">No categories found.</p>
-          <Link
-            to="/admin/add-category"
-            className="inline-block px-4 py-2 text-sm font-semibold text-white rounded-lg transition"
-            style={{
-              background:
-                "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-            }}
-          >
-            Add Your First Category
-          </Link>
+          <p className="text-gray-600">No categories found.</p>
         </div>
       ) : (
         <div className="bg-white rounded-lg shadow-md overflow-hidden">

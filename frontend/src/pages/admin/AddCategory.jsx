@@ -19,6 +19,15 @@ const AddCategory = () => {
   const [message, setMessage] = useState("");
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  const inputClass =
+    "mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2";
+  const inputStyle = {
+    borderColor: "var(--brand-lavender-soft)",
+    color: "var(--brand-dark)",
+  };
+  const labelClass = "block text-sm font-medium";
+  const labelStyle = { color: "var(--brand-dark)" };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -26,7 +35,6 @@ const AddCategory = () => {
       [name]: value,
     }));
 
-    // Auto-generate slug from name
     if (name === "name") {
       const slug = value
         .toLowerCase()
@@ -100,204 +108,187 @@ const AddCategory = () => {
   };
 
   return (
-    <div className="p-6 sm:p-8">
-      {message && (
-        <div
-          className={`mb-6 rounded-md p-4 ${
-            message.includes("Error")
-              ? "bg-red-50 text-red-800"
-              : "bg-green-50 text-green-800"
-          }`}
+    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl">
+        {message && (
+          <div
+            className={`mb-6 rounded-md p-4 ${
+              message.includes("Error")
+                ? "bg-red-50 text-red-800"
+                : "bg-green-50 text-green-800"
+            }`}
+          >
+            {message}
+          </div>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-6 rounded-xl border border-gray-200 bg-white px-3 py-5 shadow-sm sm:px-4 sm:py-6"
         >
-          {message}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-md p-6 space-y-6">
-        {/* Category Name - Required */}
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium mb-1"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Category Name *
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            required
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-            style={{
-              borderColor: "var(--brand-lavender-soft)",
-              color: "var(--brand-dark)",
-            }}
-          />
-        </div>
-
-        {/* Slug (auto-generated) */}
-        <div>
-          <label
-            htmlFor="slug"
-            className="block text-sm font-medium mb-1"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Slug (auto-generated)
-          </label>
-          <input
-            type="text"
-            id="slug"
-            name="slug"
-            value={formData.slug}
-            onChange={handleChange}
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2 bg-gray-50"
-            style={{
-              borderColor: "var(--brand-lavender-soft)",
-              color: "var(--brand-dark)",
-            }}
-          />
-        </div>
-
-        {/* Subcategories */}
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: "var(--brand-dark)" }}>
-            Subcategories
-          </label>
-          <div className="space-y-3">
-            {formData.subcategories.map((sub, index) => (
-              <div key={index} className="flex items-center gap-2 p-3 bg-gray-50 rounded">
-                <span className="flex-1 text-sm">
-                  {sub.name} ({sub.slug})
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveSubcategory(index)}
-                  className="text-red-600 hover:text-red-800 text-sm"
-                >
-                  Remove
-                </button>
-              </div>
-            ))}
-            <div className="flex gap-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="name" className={labelClass} style={labelStyle}>
+                Category Name *
+              </label>
               <input
                 type="text"
-                placeholder="Subcategory Name"
-                value={newSubcategory.name}
-                onChange={(e) =>
-                  setNewSubcategory((prev) => ({
-                    ...prev,
-                    name: e.target.value,
-                    slug: e.target.value
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]+/g, "-")
-                      .replace(/(^-|-$)/g, ""),
-                  }))
-                }
-                className="flex-1 rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-                style={{
-                  borderColor: "var(--brand-lavender-soft)",
-                  color: "var(--brand-dark)",
-                }}
+                id="name"
+                name="name"
+                required
+                value={formData.name}
+                onChange={handleChange}
+                className={inputClass}
+                style={inputStyle}
               />
+            </div>
+            <div>
+              <label htmlFor="slug" className={labelClass} style={labelStyle}>
+                Slug (auto-generated)
+              </label>
+              <input
+                type="text"
+                id="slug"
+                name="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                className={`${inputClass} bg-gray-50`}
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className={labelClass} style={labelStyle}>
+              Subcategories
+            </label>
+            <div className="mt-2 space-y-3">
+              {formData.subcategories.map((sub, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between gap-2 rounded-lg border border-gray-100 bg-gray-50 p-3"
+                >
+                  <span className="text-sm">
+                    {sub.name} ({sub.slug})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveSubcategory(index)}
+                    className="text-sm font-semibold text-red-600 hover:text-red-800"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <label className={labelClass} style={labelStyle}>
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={formData.name || "—"}
+                    className={`${inputClass} bg-gray-50`}
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass} style={labelStyle}>
+                    Subcategory Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="New subcategory name"
+                    value={newSubcategory.name}
+                    onChange={(e) =>
+                      setNewSubcategory((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                        slug: e.target.value
+                          .toLowerCase()
+                          .replace(/[^a-z0-9]+/g, "-")
+                          .replace(/(^-|-$)/g, ""),
+                      }))
+                    }
+                    className={inputClass}
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
               <button
                 type="button"
                 onClick={handleAddSubcategory}
-                className="px-4 py-2 text-sm font-medium text-white rounded-md transition"
-                style={{
-                  background: "#111111",
-                }}
+                className="rounded-md px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                style={{ background: "#3D294D" }}
               >
-                Add
+                + Add Subcategory
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Image - Optional */}
-        <div>
-          <ImageUploader
-            label="Category Image (optional)"
-            value={formData.image}
-            onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
-            folder="designbysakshi/categories"
-          />
-        </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <ImageUploader
+              label="Category Image (optional)"
+              value={formData.image}
+              onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+              folder="designbysakshi/categories"
+              compact
+            />
+            <div>
+              <label htmlFor="priority" className={labelClass} style={labelStyle}>
+                Priority
+              </label>
+              <input
+                type="number"
+                id="priority"
+                name="priority"
+                min="0"
+                value={formData.priority}
+                onChange={handleChange}
+                className={inputClass}
+                style={inputStyle}
+                placeholder="0 = highest priority"
+              />
+            </div>
+          </div>
 
-        {/* Priority - Optional */}
-        <div>
-          <label
-            htmlFor="priority"
-            className="block text-sm font-medium mb-1"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Priority
-          </label>
-          <input
-            type="number"
-            id="priority"
-            name="priority"
-            min="0"
-            value={formData.priority}
-            onChange={handleChange}
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-            style={{
-              borderColor: "var(--brand-lavender-soft)",
-              color: "var(--brand-dark)",
-            }}
-          />
-        </div>
+          <div>
+            <label htmlFor="description" className={labelClass} style={labelStyle}>
+              Description
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              rows="4"
+              value={formData.description}
+              onChange={handleChange}
+              className={inputClass}
+              style={inputStyle}
+            />
+          </div>
 
-        {/* Description - Optional */}
-        <div>
-          <label
-            htmlFor="description"
-            className="block text-sm font-medium mb-1"
-            style={{ color: "var(--brand-dark)" }}
-          >
-            Description
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            rows="4"
-            value={formData.description}
-            onChange={handleChange}
-            className="w-full rounded-md border px-3 py-2 focus:outline-none focus:ring-2"
-            style={{
-              borderColor: "var(--brand-lavender-soft)",
-              color: "var(--brand-dark)",
-            }}
-          />
-        </div>
-
-        {/* Submit Buttons */}
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex-1 px-6 py-3 text-sm font-semibold text-white rounded-md transition disabled:opacity-50"
-            style={{
-              background: "#16a34a",
-            }}
-          >
-            {loading ? "Adding..." : "Add Category"}
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/admin/categories")}
-            className="px-6 py-3 text-sm font-semibold rounded-md border transition"
-            style={{
-              borderColor: "#111111",
-              color: "#111111",
-            }}
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
+          <div className="flex gap-4 border-t border-gray-100 pt-6">
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 rounded-md px-6 py-3 text-sm font-semibold text-white transition disabled:opacity-50"
+              style={{ background: "#3D294D" }}
+            >
+              {loading ? "Adding..." : "Add Category"}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/admin/categories")}
+              className="rounded-md border px-6 py-3 text-sm font-semibold transition hover:opacity-90"
+              style={{ borderColor: "#3D294D", color: "#3D294D" }}
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
 
       {showSuccessModal && (
         <div className="fixed inset-0 z-[1200] flex items-center justify-center bg-black/45 px-4">

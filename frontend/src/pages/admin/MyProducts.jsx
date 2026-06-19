@@ -1,24 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
-import ImageUploader from "../../components/admin/ImageUploader.jsx";
+import { useNavigate } from "react-router-dom";
 import AdminPagination, { ADMIN_PAGE_SIZE } from "../../components/admin/AdminPagination.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const REVIEW_FILTER_KEY = "__with_reviews__";
-const joinLines = (arr) => (Array.isArray(arr) ? arr.join("\n") : "");
-const splitLines = (text) =>
-  String(text || "")
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
 
 const MyProducts = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editFormData, setEditFormData] = useState({});
-  const [editAdditionalImageUrls, setEditAdditionalImageUrls] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [sortBy, setSortBy] = useState("name");
@@ -147,66 +137,6 @@ const MyProducts = () => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
   }, [currentPage, totalPages]);
 
-  const handleViewDetail = (product) => {
-    setSelectedProduct(product);
-    setEditFormData({
-      ...product,
-      featuresText: joinLines(product.features),
-      stylingTipsText: joinLines(product.stylingTips),
-    });
-    setIsModalOpen(true);
-    setIsEditing(false);
-  };
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setEditFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
-
-  const handleSaveEdit = async () => {
-    try {
-      const extraImages = (editAdditionalImageUrls || []).map((s) => (s || "").trim()).filter(Boolean);
-      const images = [editFormData.image, ...extraImages];
-      const response = await fetch(`${API_URL}/products/${selectedProduct._id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...editFormData,
-          images,
-          price: parseFloat(editFormData.price),
-          stock: parseInt(editFormData.stock) || 0,
-          features: splitLines(editFormData.featuresText),
-          stylingTips: splitLines(editFormData.stylingTipsText),
-        }),
-      });
-
-      if (response.ok) {
-        const updatedProduct = await response.json();
-        setProducts(products.map((p) => (p._id === updatedProduct._id ? updatedProduct : p)));
-        setIsModalOpen(false);
-        setIsEditing(false);
-        setSelectedProduct(null);
-        setEditFormData({});
-        setEditAdditionalImageUrls([""]);
-        alert("Product updated successfully!");
-      } else {
-        alert("Failed to update product");
-      }
-    } catch (error) {
-      console.error("Error updating product:", error);
-      alert("Error updating product");
-    }
-  };
-
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
 
@@ -217,9 +147,6 @@ const MyProducts = () => {
 
       if (response.ok) {
         setProducts(products.filter((p) => p._id !== id));
-        if (selectedProduct?._id === id) {
-          setIsModalOpen(false);
-        }
         alert("Product deleted successfully!");
       } else {
         alert("Failed to delete product");
@@ -227,46 +154,6 @@ const MyProducts = () => {
     } catch (error) {
       console.error("Error deleting product:", error);
       alert("Error deleting product");
-    }
-  };
-
-  const handleDeleteReview = async (productId, reviewId) => {
-    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
-    if (!token) {
-      alert("Admin token missing");
-      return;
-    }
-
-    if (!window.confirm("Remove this review?")) return;
-
-    try {
-      const response = await fetch(`${API_URL}/products/${productId}/reviews/${reviewId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok) {
-        alert(data?.error || "Failed to remove review");
-        return;
-      }
-
-      const updatedProduct = data?.product;
-      if (updatedProduct?._id) {
-        setProducts((prev) => prev.map((p) => (p._id === updatedProduct._id ? updatedProduct : p)));
-        setSelectedProduct(updatedProduct);
-        setEditFormData((prev) => ({
-          ...prev,
-          ...updatedProduct,
-          featuresText: joinLines(updatedProduct.features),
-          stylingTipsText: joinLines(updatedProduct.stylingTips),
-        }));
-      }
-    } catch (error) {
-      console.error("Error removing review:", error);
-      alert("Failed to remove review");
     }
   };
 
@@ -436,7 +323,7 @@ const MyProducts = () => {
                     <td className="px-4 py-3">
                       <div className="flex gap-3 items-center">
                         <button
-                          onClick={() => handleViewDetail(product)}
+                          onClick={() => navigate(`/admin/products/${product._id}`)}
                           className="p-2 hover:bg-gray-100 rounded transition"
                           title="View Details"
                         >
@@ -461,22 +348,7 @@ const MyProducts = () => {
                           </svg>
                         </button>
                         <button
-                          onClick={() => {
-                            setSelectedProduct(product);
-                            setEditFormData({
-                              ...product,
-                              featuresText: joinLines(product.features),
-                              stylingTipsText: joinLines(product.stylingTips),
-                            });
-                            // Initialize image gallery inputs for editor
-                            const gallery = Array.isArray(product.images) && product.images.length > 0 ? product.images : (product.image ? [product.image] : []);
-                            const mainImage = gallery[0] || "";
-                            const extra = gallery.slice(1);
-                            setEditAdditionalImageUrls(extra.length > 0 ? extra : [""]);
-                            setEditFormData((prev) => ({ ...prev, image: mainImage }));
-                            setIsModalOpen(true);
-                            setIsEditing(true);
-                          }}
+                          onClick={() => navigate(`/admin/edit-product/${product._id}`)}
                           className="p-2 hover:bg-gray-100 rounded transition"
                           title="Edit"
                         >
@@ -526,345 +398,6 @@ const MyProducts = () => {
             totalItems={filteredAndSortedProducts.length}
             onPageChange={setCurrentPage}
           />
-        </div>
-      )}
-
-      {/* Product Detail Modal */}
-      {isModalOpen && selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2
-                  className="text-2xl font-medium"
-                  style={{
-                    color: "var(--brand-dark)",
-                    fontFamily: "Cormorant Garamond, Georgia, serif",
-                  }}
-                >
-                  {isEditing ? "Edit Product" : "Product Details"}
-                </h2>
-                <button
-                  onClick={() => {
-                    setIsModalOpen(false);
-                    setIsEditing(false);
-                  }}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              {isEditing ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Product Name *</label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={editFormData.name || ""}
-                      onChange={handleEditChange}
-                      className="w-full px-3 py-2 border rounded-lg"
-                      required
-                    />
-                  </div>
-                  <ImageUploader
-                    label="Main Image *"
-                    value={editFormData.image || ""}
-                    onChange={(url) => setEditFormData((prev) => ({ ...prev, image: url }))}
-                    folder="designbysakshi/products/main"
-                  />
-                  <div className="space-y-4">
-                    {editAdditionalImageUrls.map((val, idx) => (
-                      <div key={`edit-extra-${idx}`} className="space-y-2">
-                        <ImageUploader
-                          label={`Additional Image ${idx + 1}`}
-                          value={val}
-                          onChange={(url) =>
-                            setEditAdditionalImageUrls((prev) => prev.map((item, i) => (i === idx ? url : item)))
-                          }
-                          folder="designbysakshi/products/extra"
-                        />
-                        <div className="flex justify-end">
-                          <button
-                            type="button"
-                            onClick={() => setEditAdditionalImageUrls((prev) => prev.filter((_, i) => i !== idx))}
-                            className="text-xs font-semibold text-red-600 hover:opacity-90"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="flex">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setEditAdditionalImageUrls((prev) => (prev.length >= 4 ? prev : [...prev, ""]))
-                        }
-                        disabled={editAdditionalImageUrls.length >= 4}
-                        className="px-3 py-2 text-sm font-semibold rounded-md transition hover:opacity-90 disabled:opacity-40"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                          color: "white",
-                        }}
-                      >
-                        + Add Image
-                      </button>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Price (₹) *</label>
-                      <input
-                        type="number"
-                        name="price"
-                        value={editFormData.price || ""}
-                        onChange={handleEditChange}
-                        className="w-full px-3 py-2 border rounded-lg"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Discount Type</label>
-                      <input
-                        type="text"
-                        name="discountType"
-                        value={editFormData.discountType || ""}
-                        onChange={handleEditChange}
-                        className="w-full px-3 py-2 border rounded-lg"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Color</label>
-                    <input
-                      type="text"
-                      name="color"
-                      value={editFormData.color || ""}
-                      onChange={handleEditChange}
-                      className="w-full px-3 py-2 border rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Category</label>
-                    <input
-                      type="text"
-                      name="category"
-                      value={editFormData.category || ""}
-                      onChange={handleEditChange}
-                      className="w-full px-3 py-2 border rounded-lg"
-                      readOnly
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Subcategory</label>
-                    <input
-                      type="text"
-                      name="subcategory"
-                      value={editFormData.subcategory || ""}
-                      onChange={handleEditChange}
-                      className="w-full px-3 py-2 border rounded-lg"
-                      readOnly
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Description</label>
-                    <textarea
-                      name="description"
-                      value={editFormData.description || ""}
-                      onChange={handleEditChange}
-                      rows="4"
-                      className="w-full px-3 py-2 border rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Features (one per line)</label>
-                    <textarea
-                      name="featuresText"
-                      value={editFormData.featuresText || ""}
-                      onChange={handleEditChange}
-                      rows="4"
-                      className="w-full px-3 py-2 border rounded-lg"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Styling Tips (one per line)</label>
-                    <textarea
-                      name="stylingTipsText"
-                      value={editFormData.stylingTipsText || ""}
-                      onChange={handleEditChange}
-                      rows="4"
-                      className="w-full px-3 py-2 border rounded-lg"
-                    />
-                  </div>
-                  {Array.isArray(selectedProduct?.userReviews) && selectedProduct.userReviews.length > 0 && (
-                    <div>
-                      <label className="block text-sm font-medium mb-1">User Reviews</label>
-                      <div className="max-h-44 space-y-2 overflow-y-auto rounded-lg border border-gray-200 p-2">
-                        {selectedProduct.userReviews.map((rev, idx) => (
-                          <div key={`edit-review-${idx}`} className="rounded border border-gray-200 p-2">
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="text-sm font-semibold text-gray-700">
-                                {rev?.user?.name || "User"} - {rev?.stars || 0}/5
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteReview(selectedProduct._id, rev?._id)}
-                                className="rounded border border-red-200 px-2 py-0.5 text-xs font-semibold text-red-600 hover:bg-red-50"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                            <div className="text-sm text-gray-600">{rev?.review || "-"}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Stock (Quantity) *</label>
-                      <input
-                        type="number"
-                        name="stock"
-                        value={editFormData.stock || ""}
-                        onChange={handleEditChange}
-                        min="0"
-                        className="w-full px-3 py-2 border rounded-lg"
-                        required
-                      />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        name="inStock"
-                        checked={editFormData.inStock || false}
-                        onChange={handleEditChange}
-                        className="h-4 w-4"
-                      />
-                      <label className="text-sm font-medium">In Stock</label>
-                    </div>
-                  </div>
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      onClick={handleSaveEdit}
-                      className="flex-1 px-4 py-2 text-sm font-semibold text-white rounded-lg transition"
-                      style={{
-                        background:
-                          "linear-gradient(135deg, var(--brand-lavender) 0%, var(--brand-purple) 100%)",
-                      }}
-                    >
-                      Save Changes
-                    </button>
-                    <button
-                      onClick={() => setIsEditing(false)}
-                      className="px-4 py-2 text-sm font-semibold border rounded-lg transition"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="flex justify-center">
-                    <img
-                      src={selectedProduct.image}
-                      alt={selectedProduct.name}
-                      className="h-48 w-48 object-cover rounded-lg"
-                      onError={(e) => {
-                        e.target.src = "https://via.placeholder.com/192";
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-semibold mb-2">{selectedProduct.name}</h3>
-                    <p className="text-gray-600">
-                      <strong>Category:</strong> {selectedProduct.category} / {selectedProduct.subcategory}
-                    </p>
-                    <p className="text-gray-600 mt-1">
-                      <strong>Price:</strong> {formatPrice(selectedProduct.price)}
-                    </p>
-                    {selectedProduct.color && (
-                      <p className="text-gray-600 mt-1">
-                        <strong>Color:</strong> {selectedProduct.color}
-                      </p>
-                    )}
-                    {selectedProduct.discountType && (
-                      <p className="text-gray-600 mt-1">
-                        <strong>Discount:</strong> {selectedProduct.discountType}
-                      </p>
-                    )}
-                    {selectedProduct.description && (
-                      <p className="text-gray-600 mt-2">
-                        <strong>Description:</strong> {selectedProduct.description}
-                      </p>
-                    )}
-                    <p className="text-gray-600 mt-1">
-                      <strong>Stock:</strong> {selectedProduct.stock || 0}
-                    </p>
-                    <p className="text-gray-600 mt-1">
-                      <strong>In Stock:</strong> {selectedProduct.inStock ? "Yes" : "No"}
-                    </p>
-                    {Array.isArray(selectedProduct.features) && selectedProduct.features.length > 0 && (
-                      <div className="mt-2">
-                        <strong className="text-gray-700">Features:</strong>
-                        <ul className="list-disc pl-5 text-gray-600">
-                          {selectedProduct.features.map((item, idx) => (
-                            <li key={`feature-${idx}`}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {Array.isArray(selectedProduct.stylingTips) && selectedProduct.stylingTips.length > 0 && (
-                      <div className="mt-2">
-                        <strong className="text-gray-700">Styling Tips:</strong>
-                        <ul className="list-disc pl-5 text-gray-600">
-                          {selectedProduct.stylingTips.map((item, idx) => (
-                            <li key={`tip-${idx}`}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    <div className="mt-2">
-                      <strong className="text-gray-700">User Reviews:</strong>
-                      {Array.isArray(selectedProduct.userReviews) && selectedProduct.userReviews.length > 0 ? (
-                        <ul className="mt-1 space-y-2 text-gray-600">
-                          {selectedProduct.userReviews.map((rev, idx) => (
-                            <li key={`review-${idx}`} className="rounded border border-gray-200 p-2">
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="text-sm font-semibold text-gray-700">
-                                  {rev?.user?.name || "User"} - {rev?.stars || 0}/5
-                                </div>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteReview(selectedProduct._id, rev?._id)}
-                                  className="rounded border border-red-200 px-2 py-0.5 text-xs font-semibold text-red-600 hover:bg-red-50"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                              <div className="text-sm">{rev?.review || "-"}</div>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="mt-1 text-gray-600">No reviews yet</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
         </div>
       )}
     </div>
