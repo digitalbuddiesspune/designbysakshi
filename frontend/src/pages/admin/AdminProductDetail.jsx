@@ -145,6 +145,17 @@ const AdminProductDetail = () => {
               <DetailField label="In Stock">{product.inStock ? "Yes" : "No"}</DetailField>
             </div>
 
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <DetailField label="Bestseller">{product.isBestseller ? "Yes" : "No"}</DetailField>
+              <DetailField label="New Arrival">{product.isNewArrival ? "Yes" : "No"}</DetailField>
+            </div>
+
+            {product.latestCollectionSubcategory ? (
+              <DetailField label="Latest Collection Subcategory">
+                {product.latestCollectionSubcategory}
+              </DetailField>
+            ) : null}
+
             {product.description && (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <DetailField label="Description" className="sm:col-span-2">

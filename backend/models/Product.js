@@ -97,6 +97,20 @@ const productSchema = new mongoose.Schema({
     min: 0,
     default: 0
   },
+  isBestseller: {
+    type: Boolean,
+    default: false,
+  },
+  isNewArrival: {
+    type: Boolean,
+    default: false,
+  },
+  // When set, product also appears under latest-collection / this subcategory
+  latestCollectionSubcategory: {
+    type: String,
+    trim: true,
+    default: "",
+  },
   userReviews: {
     type: [userReviewSchema],
     required: false,

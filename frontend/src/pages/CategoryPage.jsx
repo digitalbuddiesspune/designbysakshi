@@ -61,9 +61,27 @@ const CategoryPage = () => {
 
       const filtered = (Array.isArray(data) ? data : []).filter((product) => {
         const productCategorySlug = normalizeSlug(product?.category);
+        const productSubcategorySlug = normalizeSlug(product?.subcategory);
+        const productLatestSubSlug = normalizeSlug(product?.latestCollectionSubcategory);
+
+        if (normalizedCategorySlug === "bestseller") {
+          return product.isBestseller || productCategorySlug === "bestseller";
+        }
+        if (normalizedCategorySlug === "new-arrival") {
+          return product.isNewArrival || productCategorySlug === "new-arrival";
+        }
+        if (normalizedCategorySlug === "latest-collection") {
+          if (normalizedSelectedSub) {
+            return (
+              (productCategorySlug === "latest-collection" && productSubcategorySlug === normalizedSelectedSub) ||
+              productLatestSubSlug === normalizedSelectedSub
+            );
+          }
+          return productCategorySlug === "latest-collection" || Boolean(product.latestCollectionSubcategory);
+        }
+
         if (productCategorySlug !== normalizedCategorySlug) return false;
         if (!normalizedSelectedSub) return true;
-        const productSubcategorySlug = normalizeSlug(product?.subcategory);
         if (productSubcategorySlug === normalizedSelectedSub) return true;
         const productSubText = String(product?.subcategory || "").toLowerCase().replace(/[_-]+/g, " ").trim();
         const selectedSubText = String(selectedSubcategory || "").toLowerCase().replace(/[_-]+/g, " ").trim();

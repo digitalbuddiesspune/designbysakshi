@@ -32,33 +32,75 @@ const sanitizeStringArray = (value) => {
     .filter(Boolean);
 };
 
+const normalizeSlug = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
 const normalizeProductPayload = (body) => ({
   ...body,
   color: String(body?.color || '').trim(),
   features: sanitizeStringArray(body?.features),
   stylingTips: sanitizeStringArray(body?.stylingTips),
+  isBestseller: Boolean(body?.isBestseller),
+  isNewArrival: Boolean(body?.isNewArrival),
+  latestCollectionSubcategory: String(body?.latestCollectionSubcategory || '').trim(),
 });
+
+const buildProductListQuery = ({ category, subcategory, search }) => {
+  const query = {};
+  const normalizedCategory = normalizeSlug(category);
+  const normalizedSubcategory = normalizeSlug(subcategory);
+
+  if (normalizedCategory === 'bestseller') {
+    query.$or = [{ isBestseller: true }, { category: 'bestseller' }];
+  } else if (normalizedCategory === 'new-arrival') {
+    query.$or = [{ isNewArrival: true }, { category: 'new-arrival' }];
+  } else if (normalizedCategory === 'latest-collection') {
+    if (normalizedSubcategory) {
+      query.$or = [
+        { category: 'latest-collection', subcategory: normalizedSubcategory },
+        { latestCollectionSubcategory: normalizedSubcategory },
+      ];
+    } else {
+      query.$or = [
+        { category: 'latest-collection' },
+        { latestCollectionSubcategory: { $exists: true, $nin: ['', null] } },
+      ];
+    }
+  } else if (category) {
+    query.category = category;
+    if (subcategory) {
+      query.subcategory = subcategory;
+    }
+  } else if (subcategory) {
+    query.subcategory = subcategory;
+  }
+
+  if (search) {
+    const searchClause = {
+      $or: [
+        { name: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } },
+        { subcategory: { $regex: search, $options: 'i' } },
+      ],
+    };
+    if (query.$or) {
+      return { $and: [query, searchClause] };
+    }
+    Object.assign(query, searchClause);
+  }
+
+  return query;
+};
 
 // Get all products
 router.get('/', async (req, res) => {
   try {
     const { category, subcategory, search } = req.query;
-    let query = {};
-
-    if (category) {
-      query.category = category;
-    }
-    if (subcategory) {
-      query.subcategory = subcategory;
-    }
-    if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } },
-        { subcategory: { $regex: search, $options: 'i' } }
-      ];
-    }
-
+    const query = buildProductListQuery({ category, subcategory, search });
     const products = await Product.find(query).sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {

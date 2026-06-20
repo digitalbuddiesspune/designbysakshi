@@ -76,13 +76,18 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
         const filtered = (Array.isArray(data) ? data : []).filter((product) => {
           const productCategoryName = normalizeText(product?.category);
           const productCategorySlug = slugify(product?.category);
-          const isLatestCollectionCategory =
-            productCategorySlug === categorySlug || productCategoryName === categoryName;
-          if (!isLatestCollectionCategory) return false;
-
           const productSubName = normalizeText(product?.subcategory);
           const productSubSlug = slugify(product?.subcategory);
-          return productSubName === targetName || productSubSlug === targetSlug;
+          const productLatestSubSlug = slugify(product?.latestCollectionSubcategory);
+
+          const isLatestCollectionCategory =
+            productCategorySlug === categorySlug || productCategoryName === categoryName;
+          const matchesLegacySub =
+            isLatestCollectionCategory &&
+            (productSubName === targetName || productSubSlug === targetSlug);
+          const matchesFeaturedSub = productLatestSubSlug === targetSlug;
+
+          return matchesLegacySub || matchesFeaturedSub;
         });
 
         setProducts(filtered);

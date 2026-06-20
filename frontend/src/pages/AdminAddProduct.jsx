@@ -20,6 +20,9 @@ const AdminAddProduct = () => {
     description: "",
     inStock: true,
     stock: "",
+    isBestseller: false,
+    isNewArrival: false,
+    latestCollectionSubcategory: "",
   });
   const [features, setFeatures] = useState([""]);
   const [stylingTips, setStylingTips] = useState([""]);
@@ -64,6 +67,9 @@ const AdminAddProduct = () => {
           description: product.description || "",
           inStock: product.inStock !== false,
           stock: product.stock ?? "",
+          isBestseller: Boolean(product.isBestseller),
+          isNewArrival: Boolean(product.isNewArrival),
+          latestCollectionSubcategory: product.latestCollectionSubcategory || "",
         });
         setFeatures(product.features?.length ? product.features : [""]);
         setStylingTips(product.stylingTips?.length ? product.stylingTips : [""]);
@@ -166,6 +172,9 @@ const AdminAddProduct = () => {
             description: "",
             inStock: true,
             stock: "",
+            isBestseller: false,
+            isNewArrival: false,
+            latestCollectionSubcategory: "",
           });
           setFeatures([""]);
           setStylingTips([""]);
@@ -187,6 +196,9 @@ const AdminAddProduct = () => {
   const selectedCategory = categories.find(
     (cat) => cat.slug === formData.category
   );
+  const featuredCategorySlugs = new Set(["bestseller", "new-arrival", "latest-collection"]);
+  const mainCategories = categories.filter((cat) => !featuredCategorySlugs.has(cat.slug));
+  const latestCollectionCategory = categories.find((cat) => cat.slug === "latest-collection");
 
   if (isEditMode && fetchingProduct) {
     return (
@@ -380,7 +392,7 @@ const AdminAddProduct = () => {
                   style={inputStyle}
                 >
                   <option value="">Select a category</option>
-                  {categories.map((cat) => (
+                  {mainCategories.map((cat) => (
                     <option key={cat._id || cat.slug} value={cat.slug}>
                       {cat.name}
                     </option>
@@ -409,6 +421,57 @@ const AdminAddProduct = () => {
                         : "Select a subcategory"}
                   </option>
                   {selectedCategory?.subcategories.map((sub) => (
+                    <option key={sub.slug} value={sub.slug}>
+                      {sub.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Featured in special sections */}
+            <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+              <p className="mb-3 text-sm font-semibold" style={labelStyle}>
+                Also show in
+              </p>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <label className="flex items-center gap-2 text-sm font-medium" style={labelStyle}>
+                  <input
+                    type="checkbox"
+                    name="isBestseller"
+                    checked={formData.isBestseller}
+                    onChange={handleChange}
+                    className="h-4 w-4 rounded"
+                    style={{ accentColor: "var(--brand-purple)" }}
+                  />
+                  Bestseller
+                </label>
+                <label className="flex items-center gap-2 text-sm font-medium" style={labelStyle}>
+                  <input
+                    type="checkbox"
+                    name="isNewArrival"
+                    checked={formData.isNewArrival}
+                    onChange={handleChange}
+                    className="h-4 w-4 rounded"
+                    style={{ accentColor: "var(--brand-purple)" }}
+                  />
+                  New Arrival
+                </label>
+              </div>
+              <div className="mt-4">
+                <label htmlFor="latestCollectionSubcategory" className={labelClass} style={labelStyle}>
+                  Latest Collection Subcategory (optional)
+                </label>
+                <select
+                  id="latestCollectionSubcategory"
+                  name="latestCollectionSubcategory"
+                  value={formData.latestCollectionSubcategory}
+                  onChange={handleChange}
+                  className={inputClass}
+                  style={inputStyle}
+                >
+                  <option value="">Not in Latest Collection</option>
+                  {latestCollectionCategory?.subcategories?.map((sub) => (
                     <option key={sub.slug} value={sub.slug}>
                       {sub.name}
                     </option>
