@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import HomeProductCard from "./HomeProductCard.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const HOMEPAGE_NEW_ARRIVAL_LIMIT = 16;
 
 const TopProducts = () => {
   const [products, setProducts] = useState([]);
@@ -14,19 +16,10 @@ const TopProducts = () => {
     try {
       const response = await fetch(`${API_URL}/products?category=new-arrival`);
       const data = await response.json();
-      setProducts(data.slice(0, 8)); // Fetch up to 8 new arrivals
+      setProducts(Array.isArray(data) ? data.slice(0, HOMEPAGE_NEW_ARRIVAL_LIMIT) : []);
     } catch (error) {
       console.error("Error fetching new arrival products:", error);
     }
-  };
-
-  const formatPrice = (price) => {
-    if (!price) return "";
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency: "INR",
-      maximumFractionDigits: 0,
-    }).format(price);
   };
 
   const getGuestId = () => {
@@ -72,151 +65,32 @@ const TopProducts = () => {
   return (
     <section className="py-0 sm:pt-0 sm:pb-16">
       <section className="bg-white sm:mt-0 lg:mt-2">
-      <Link to="/new-arrival" className="block w-full">
-        {/* Desktop banner */}
-        <img
-          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773742412/3_xx5pf1.png"
-          alt="DesignBySakshi collection banner"
-          className="hidden sm:block w-full h-auto object-cover sm:mt-4 lg:mt-4"
-        />
-        {/* Mobile banner */}
-        <img
-          src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773769835/3_lvbj7z.png"
-          alt="DesignBySakshi collection banner"
-          className="block sm:hidden w-full h-auto object-cover mt-10"
-        />
+        <Link to="/new-arrival" className="block w-full">
+          <img
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773742412/3_xx5pf1.png"
+            alt="DesignBySakshi collection banner"
+            className="hidden sm:block w-full h-auto object-cover sm:mt-4 lg:mt-4"
+          />
+          <img
+            src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773769835/3_lvbj7z.png"
+            alt="DesignBySakshi collection banner"
+            className="block sm:hidden w-full h-auto object-cover mt-10"
+          />
         </Link>
       </section>
 
-      <div className="mx-auto max-w-7xl pt-3 sm:pt-6 lg:pt-8 lg:mt-0 px-4 sm:px-6 lg:px-8">
-        
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+      <div className="mx-auto max-w-7xl px-4 pt-3 sm:px-6 sm:pt-6 lg:mt-0 lg:px-8 lg:pt-8">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {products.map((product, index) => (
-            <div
+            <HomeProductCard
               key={product._id || index}
-              className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg"
-              style={{
-                animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
-              }}
-            >
-              {/* New Arrival Tag */}
-              <div 
-                className="absolute left-0 top-2 z-10 px-3 py-1 text-xs font-semibold text-white bg-green-600"
-                style={{
-                  background: "#116766",
-                }}
-              >
-                New Arrival
-              </div>
-
-              {/* Image Container */}
-              <Link to={`/product/${product._id}`}>
-                <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  
-                  {/* Heart Icon - Wishlist */}
-                  <button
-                    className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300"
-                    style={{
-                      "--hover-bg": "var(--brand-lavender-soft)"
-                    }}
-                    onMouseEnter={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.style.backgroundColor = "var(--brand-lavender-soft)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.preventDefault();
-                      e.currentTarget.style.backgroundColor = "white";
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleAddToWishlist(product._id);
-                    }}
-                    aria-label="Add to wishlist"
-                  >
-                    <svg
-                      className="h-4 w-4 text-gray-600"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </Link>
-
-              {/* Product Info */}
-              <div className="p-4">
-                {/* Rating */}
-                <div className="mb-2 flex items-center gap-1">
-                  <div className="flex items-center">
-                    <svg className="h-4 w-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  </div>
-                  <span className="text-sm font-semibold text-gray-800">{product.rating || "4.8"}</span>
-                  <span className="text-xs text-gray-500">({product.reviews || "925"} reviews)</span>
-                </div>
-
-                {/* Product Name */}
-                <h3
-                  className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-1"
-                  style={{
-                    fontFamily: "Cormorant Garamond, Georgia, serif",
-                  }}
-                >
-                  {product.name}
-                </h3>
-
-                {/* Price */}
-                <div className="mb-2 flex items-center gap-2">
-                  <span className="text-lg font-bold text-gray-900">
-                    {formatPrice(product.price)}
-                  </span>
-                  <span className="text-sm text-gray-500 line-through">
-                    {formatPrice(product.originalPrice || product.price * 1.2)}
-                  </span>
-                </div>
-
-                {/* Offer */}
-                <p 
-                  className="mb-3 text-xs font-medium"
-                  style={{ color: "var(--brand-purple)" }}
-                >
-                  {product.discountType || product.offer || "EXTRA 15% OFF with coupon"}
-                </p>
-
-                {/* Add to Cart Button */}
-                <button 
-                  className="w-full px-4 py-2 text-sm font-semibold text-white transition-all duration-300 active:scale-95"
-                  style={{
-                    background: "#3D294D",
-                    boxShadow: "0 4px 6px -1px rgba(93, 75, 107, 0.3)"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#3D294D";
-                    e.currentTarget.style.boxShadow = "0 6px 8px -1px rgba(93, 75, 107, 0.4)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "#3D294D";
-                    e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(93, 75, 107, 0.3)";
-                  }}
-                  onClick={() => handleAddToCart(product._id)}
-                >
-                  Add to Cart
-                </button>
-              </div>
-            </div>
+              product={product}
+              index={index}
+              badgeLabel="New Arrival"
+              badgeStyle={{ background: "#116766" }}
+              onAddToCart={handleAddToCart}
+              onAddToWishlist={handleAddToWishlist}
+            />
           ))}
         </div>
       </div>
