@@ -33,6 +33,7 @@ const ProductDetail = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [routeReviewOpen, setRouteReviewOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
+  const [showMoreDetails, setShowMoreDetails] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
   const navigate = useNavigate();
@@ -55,6 +56,7 @@ const ProductDetail = () => {
       }
     };
     if (id) fetchProduct();
+    setShowMoreDetails(false);
   }, [id]);
 
   useEffect(() => {
@@ -361,6 +363,10 @@ const ProductDetail = () => {
   );
   const canOpenReview = (canReview || routeReviewOpen) && !hasUserReviewed;
   const showReviewsSection = canOpenReview || userReviews.length > 0;
+  const previewFeatures = features.slice(0, 3);
+  const hasMoreFeatures = features.length > 3;
+  const hasHiddenDetails =
+    hasMoreFeatures || stylingTips.length > 0 || Boolean(product.color) || showReviewsSection;
 
   return (
     <div className="min-h-screen bg-white py-6">
@@ -450,32 +456,129 @@ const ProductDetail = () => {
               <p className="text-sm leading-relaxed text-gray-600">{product.description}</p>
             )}
 
-            {product.color && (
-              <p className="text-sm text-gray-700">
-                <span className="font-semibold">Color:</span> {product.color}
-              </p>
-            )}
-
             {features.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold text-gray-800">Features</h3>
                 <ul className="mt-1 list-disc pl-5 text-sm text-gray-600 space-y-1">
-                  {features.map((item, idx) => (
+                  {(showMoreDetails ? features : previewFeatures).map((item, idx) => (
                     <li key={`feature-${idx}`}>{item}</li>
                   ))}
                 </ul>
+                {!showMoreDetails && hasHiddenDetails && (
+                  <button
+                    type="button"
+                    onClick={() => setShowMoreDetails(true)}
+                    className="mt-0.5 text-left text-sm font-semibold text-green-600 hover:text-green-700"
+                  >
+                    ... read more
+                  </button>
+                )}
               </div>
             )}
 
-            {stylingTips.length > 0 && (
-              <div>
-                <h3 className="text-sm font-semibold text-gray-800">Styling Tips</h3>
-                <ul className="mt-1 list-disc pl-5 text-sm text-gray-600 space-y-1">
-                  {stylingTips.map((item, idx) => (
-                    <li key={`tip-${idx}`}>{item}</li>
-                  ))}
-                </ul>
-              </div>
+            {features.length === 0 && !showMoreDetails && hasHiddenDetails && (
+              <button
+                type="button"
+                onClick={() => setShowMoreDetails(true)}
+                className="text-left text-sm font-semibold text-green-600 hover:text-green-700"
+              >
+                ... read more
+              </button>
+            )}
+
+            {showMoreDetails && (
+              <>
+                {stylingTips.length > 0 && (
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800">Styling Tips</h3>
+                    <ul className="mt-1 list-disc pl-5 text-sm text-gray-600 space-y-1">
+                      {stylingTips.map((item, idx) => (
+                        <li key={`tip-${idx}`}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {product.color && (
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">Color:</span> {product.color}
+                  </p>
+                )}
+
+                {showReviewsSection && (
+                  <div>
+                    <div className="flex items-center justify-between gap-2">
+                      <h2
+                        className="text-lg font-semibold text-gray-900"
+                        style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
+                      >
+                        Reviews
+                      </h2>
+                      {canOpenReview && (
+                        <button
+                          type="button"
+                          onClick={() => setShowReviewModal(true)}
+                          className="rounded-full bg-[#3D294D] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
+                        >
+                          Add Review
+                        </button>
+                      )}
+                    </div>
+
+                    {userReviews.length > 0 && (
+                      <div className="scrollbar-hide mt-3 flex gap-3 overflow-x-auto pb-1">
+                        {userReviews.map((r, idx) => {
+                          const reviewerName = r?.user?.name || "User";
+                          const reviewerInitial = reviewerName.charAt(0).toUpperCase();
+                          return (
+                            <button
+                              key={`${r._id || idx}`}
+                              type="button"
+                              onClick={() => setSelectedReview(r)}
+                              className="flex min-w-[220px] max-w-[300px] flex-shrink-0 cursor-pointer items-start gap-2.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-left transition hover:border-[#3D294D]/40 hover:bg-gray-100"
+                            >
+                              {r.image ? (
+                                <img
+                                  src={r.image}
+                                  alt={`${reviewerName} review`}
+                                  className="h-10 w-10 flex-shrink-0 rounded-full object-cover ring-1 ring-gray-200"
+                                />
+                              ) : (
+                                <div
+                                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
+                                  style={{ background: "#3D294D" }}
+                                  aria-hidden
+                                >
+                                  {reviewerInitial}
+                                </div>
+                              )}
+                              <div className="min-w-0 flex-1 space-y-0.5">
+                                <p className="text-sm font-semibold leading-tight text-gray-900">
+                                  {reviewerName}
+                                </p>
+                                <p className="text-xs leading-none text-amber-600">
+                                  {"★".repeat(Number(r.stars || 0))}
+                                </p>
+                                <p className="line-clamp-3 text-xs leading-relaxed text-gray-600">
+                                  {r.review}
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setShowMoreDetails(false)}
+                  className="text-left text-sm font-semibold text-green-600 hover:text-green-700"
+                >
+                  read less
+                </button>
+              </>
             )}
 
             {/* ── Quantity selector ── */}
@@ -503,72 +606,6 @@ const ProductDetail = () => {
                 </button>
               </div>
             </div>
-
-            {showReviewsSection && (
-              <div>
-                <div className="flex items-center justify-between gap-2">
-                  <h2
-                    className="text-lg font-semibold text-gray-900"
-                    style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
-                  >
-                    Reviews
-                  </h2>
-                  {canOpenReview && (
-                    <button
-                      type="button"
-                      onClick={() => setShowReviewModal(true)}
-                      className="rounded-full bg-[#3D294D] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90"
-                    >
-                      Add Review
-                    </button>
-                  )}
-                </div>
-
-                {userReviews.length > 0 && (
-                  <div className="scrollbar-hide mt-3 flex gap-3 overflow-x-auto pb-1">
-                    {userReviews.map((r, idx) => {
-                      const reviewerName = r?.user?.name || "User";
-                      const reviewerInitial = reviewerName.charAt(0).toUpperCase();
-                      return (
-                        <button
-                          key={`${r._id || idx}`}
-                          type="button"
-                          onClick={() => setSelectedReview(r)}
-                          className="flex min-w-[220px] max-w-[300px] flex-shrink-0 cursor-pointer items-start gap-2.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-left transition hover:border-[#3D294D]/40 hover:bg-gray-100"
-                        >
-                          {r.image ? (
-                            <img
-                              src={r.image}
-                              alt={`${reviewerName} review`}
-                              className="h-10 w-10 flex-shrink-0 rounded-full object-cover ring-1 ring-gray-200"
-                            />
-                          ) : (
-                            <div
-                              className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white"
-                              style={{ background: "#3D294D" }}
-                              aria-hidden
-                            >
-                              {reviewerInitial}
-                            </div>
-                          )}
-                          <div className="min-w-0 flex-1 space-y-0.5">
-                            <p className="text-sm font-semibold leading-tight text-gray-900">
-                              {reviewerName}
-                            </p>
-                            <p className="text-xs leading-none text-amber-600">
-                              {"★".repeat(Number(r.stars || 0))}
-                            </p>
-                            <p className="line-clamp-3 text-xs leading-relaxed text-gray-600">
-                              {r.review}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* ── Action buttons ── */}
             <div className="flex flex-col gap-3 pt-2 sm:flex-row">
@@ -708,7 +745,7 @@ const ProductDetail = () => {
         )}
 
         {/* You May Also Like */}
-        <div className="mt-10">
+        <div className="mt-14">
           <h2
             className="text-2xl sm:text-3xl font-semibold text-center mb-6"
             style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
