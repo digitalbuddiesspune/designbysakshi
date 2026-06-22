@@ -39,6 +39,73 @@ const normalizeSlug = (value) =>
     .replace(/\s+/g, '-')
     .replace(/-+/g, '-');
 
+const escapeRegex = (value) => String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const PRIMARY_SEARCH_FIELDS = ['name', 'category', 'subcategory'];
+const SECONDARY_SEARCH_FIELDS = ['description', 'color', 'features', 'stylingTips'];
+
+const SEARCHABLE_FIELDS = [...PRIMARY_SEARCH_FIELDS, ...SECONDARY_SEARCH_FIELDS];
+
+const JEWELRY_TYPE_KEYWORDS = new Set([
+  'necklace',
+  'bangle',
+  'bracelet',
+  'earring',
+  'ring',
+  'pendant',
+  'anklet',
+  'choker',
+  'bridal',
+]);
+
+const tokenizeSearch = (search) =>
+  String(search || '')
+    .trim()
+    .toLowerCase()
+    .split(/[\s,-]+/)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 1);
+
+const toStem = (token) => {
+  if (token.length > 3 && token.endsWith('s') && !token.endsWith('ss')) {
+    return token.slice(0, -1);
+  }
+  return token;
+};
+
+const isJewelryTypeToken = (token) => JEWELRY_TYPE_KEYWORDS.has(toStem(token));
+
+const buildWordBoundaryRegex = (token) => {
+  const stem = escapeRegex(toStem(token));
+  const pluralSuffix = token.length > 3 ? 's?' : '';
+  return new RegExp(`\\b${stem}${pluralSuffix}\\b`, 'i');
+};
+
+const buildTokenMatchClause = (token, { primaryOnly = false } = {}) => {
+  const regex = buildWordBoundaryRegex(token);
+  const fields =
+    primaryOnly || isJewelryTypeToken(token) ? PRIMARY_SEARCH_FIELDS : SEARCHABLE_FIELDS;
+
+  return {
+    $or: fields.map((field) => ({ [field]: { $regex: regex } })),
+  };
+};
+
+const buildSearchClause = (search) => {
+  const tokens = tokenizeSearch(search);
+  if (!tokens.length) return null;
+
+  const singleKeywordSearch = tokens.length === 1;
+
+  return {
+    $and: tokens.map((token) =>
+      buildTokenMatchClause(token, {
+        primaryOnly: singleKeywordSearch || isJewelryTypeToken(token),
+      }),
+    ),
+  };
+};
+
 const normalizeProductPayload = (body) => ({
   ...body,
   color: String(body?.color || '').trim(),
@@ -80,17 +147,13 @@ const buildProductListQuery = ({ category, subcategory, search }) => {
   }
 
   if (search) {
-    const searchClause = {
-      $or: [
-        { name: { $regex: search, $options: 'i' } },
-        { category: { $regex: search, $options: 'i' } },
-        { subcategory: { $regex: search, $options: 'i' } },
-      ],
-    };
-    if (query.$or) {
-      return { $and: [query, searchClause] };
+    const searchClause = buildSearchClause(search);
+    if (searchClause) {
+      if (query.$or) {
+        return { $and: [query, searchClause] };
+      }
+      Object.assign(query, searchClause);
     }
-    Object.assign(query, searchClause);
   }
 
   return query;

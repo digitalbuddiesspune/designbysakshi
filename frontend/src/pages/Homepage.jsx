@@ -15,20 +15,42 @@ const Homepage = () => {
       <Hero />
       <div className="space-y-4 sm:space-y-6 lg:space-y-8">
         <ShopByCategory />
-        <div className="mt-3 sm:-mt-6 lg:-mt-8">
+
+        <div className="-mt-2 sm:-mt-4 lg:-mt-6">
+          <TopProducts />
+        </div>
+
+        <section className="-mt-2 sm:-mt-4 lg:-mt-6 cursor-pointer">
+          <Link to="/bestseller" className="block w-full">
+            <img
+              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778229683/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1920_x_550_px_1_ngr69h.png"
+              alt="DesignBySakshi bestseller banner"
+              className="hidden sm:block w-full h-auto object-cover"
+            />
+            <img
+              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778230160/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1080_x_500_px_luxba6.png"
+              alt="DesignBySakshi bestseller banner"
+              className="block sm:hidden w-full h-auto object-cover"
+            />
+          </Link>
+        </section>
+
+        <div className="-mt-4 sm:-mt-6 lg:-mt-8">
+          <HighlightGrid />
+        </div>
+
+        <div className="-mt-6 sm:-mt-10 lg:-mt-12">
           <ShopByCollection />
         </div>
 
-        {/* Full-width banner above Top Products */}
-        <section className="mt-10 sm:mt-10 cursor-pointer">
+        {/* Full-width banner */}
+        <section className="mt-6 sm:mt-8 cursor-pointer">
           <Link to="" className="block w-full">
-            {/* Desktop banner */}
             <img
               src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778841072/Untitled_1920_x_200_px_ipqjw9.png"
               alt="DesignBySakshi seasonal collection banner"
               className="hidden sm:block w-full h-auto object-cover"
             />
-            {/* Mobile banner */}
             <img
               src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778842095/Untitled_1920_x_200_px_1080_x_500_px_1_h6z9uc.png"
               alt="DesignBySakshi seasonal collection banner"
@@ -36,45 +58,16 @@ const Homepage = () => {
             />
           </Link>
         </section>
+
         <div className="-mt-4 sm:-mt-6 lg:-mt-8">
           <NewCollection />
         </div>
 
-        {/* Banner after Perfect Gifts */}
-        <section className="cursor-pointer mt-6 sm:-mt-6 lg:-mt-6">
-          <Link to="/bestseller" className="block w-full">
-            {/* Desktop banner */}
-            <img
-              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778229683/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1920_x_550_px_1_ngr69h.png"
-              alt="DesignBySakshi collection banner"
-              className="hidden sm:block w-full h-auto object-cover"
-            />
-            {/* Mobile banner */}
-            <img
-              src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778230160/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1080_x_500_px_luxba6.png"
-              alt="DesignBySakshi collection banner"
-              className="block sm:hidden w-full h-auto object-cover"
-            />
-          </Link>
-        </section>
-
-        {/* Highlight prod
-        ucts image grid (now serves as Bestsellers) */}
-
-<div className="-mt-10 sm:-mt-6 lg:-mt-15">
-        <HighlightGrid />
-        </div>
-
-        <div className="-mt-10 sm:-mt-4 lg:-mt-12">
-          <TopProducts />
-        </div>
-        <div className="-mt-4 sm:-mt-8 lg:-mt-14">
+        <div className="-mt-4 sm:-mt-6 lg:-mt-8">
           <WhyChooseUs />
         </div>
 
-        
- 
-        <section className="-mt-12 sm:-mt-6 lg:-mt-0 ">
+        <section className="mt-6 sm:mt-8">
           <img
             src="https://res.cloudinary.com/dbfooaz44/image/upload/v1774522729/Untitled_1920_x_500_px_1_rmkrkg.png"
             alt="DesignBySakshi featured banner"
@@ -86,13 +79,12 @@ const Homepage = () => {
             className="block sm:hidden w-full h-auto object-cover"
           />
         </section>
-        <div className="-mt-12 sm:-mt-8 lg:-mt-6">
+
+        <div className="-mt-4 sm:-mt-6 lg:-mt-8">
           <TestimonialSection />
         </div>
 
-        {/* CTA strip */}
-
-        <div className="-mt-4 sm:-mt-8 lg:-mt-6">
+        <div className="-mt-4 sm:-mt-6 lg:-mt-8">
         <section className="bg-transparent px-4 pb-10 pt-6 text-center sm:pb-16 sm:pt-5">
           <div className="mx-auto mb-5 flex max-w-xs items-center gap-3 sm:mb-7 sm:max-w-sm">
             <span className="h-px flex-1" style={{ background: "var(--brand-lavender-soft)" }} />

@@ -38,9 +38,9 @@ const ShopByCollection = () => {
   const visibleCount = visibleItems.length;
 
   return (
-    <section className="">
+    <section className="-mt-2">
       <div className="w-full">
-         <div className="mb-6">
+         <div className="mb-3 sm:mb-4">
          <h1 
             className="text-3xl lg:text-4xl font-semibold text-center" 
             style={{ 

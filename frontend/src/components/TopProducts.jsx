@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import HomeProductCard from "./HomeProductCard.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const HOMEPAGE_NEW_ARRIVAL_LIMIT = 16;
+const HOMEPAGE_NEW_ARRIVAL_LIMIT = 8;
 
 const TopProducts = () => {
   const [products, setProducts] = useState([]);
@@ -63,23 +63,23 @@ const TopProducts = () => {
   if (!products.length) return null;
 
   return (
-    <section className="py-0 sm:pt-0 sm:pb-16">
-      <section className="bg-white sm:mt-0 lg:mt-2">
+    <section className="pb-6 sm:pb-8">
+      <section className="bg-white">
         <Link to="/new-arrival" className="block w-full">
           <img
             src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773742412/3_xx5pf1.png"
-            alt="DesignBySakshi collection banner"
-            className="hidden sm:block w-full h-auto object-cover sm:mt-4 lg:mt-4"
+            alt="DesignBySakshi new arrival banner"
+            className="hidden sm:block w-full h-auto object-cover"
           />
           <img
             src="https://res.cloudinary.com/dbfooaz44/image/upload/v1773769835/3_lvbj7z.png"
-            alt="DesignBySakshi collection banner"
-            className="block sm:hidden w-full h-auto object-cover mt-10"
+            alt="DesignBySakshi new arrival banner"
+            className="block sm:hidden w-full h-auto object-cover"
           />
         </Link>
       </section>
 
-      <div className="mx-auto max-w-7xl px-4 pt-3 sm:px-6 sm:pt-6 lg:mt-0 lg:px-8 lg:pt-8">
+      <div className="mx-auto max-w-7xl px-4 pt-2 sm:px-6 sm:pt-4 lg:px-8 lg:pt-5">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {products.map((product, index) => (
             <HomeProductCard

@@ -62,7 +62,7 @@ const HighlightGrid = () => {
   if (!products.length) return null;
 
   return (
-    <section className="py-8 sm:py-10 lg:py-12">
+    <section className="pt-2 pb-4 sm:pt-3 sm:pb-6 lg:pt-4 lg:pb-8">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
           {products.map((product, index) => (

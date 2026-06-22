@@ -33,7 +33,7 @@ const ShopByCategory = () => {
   }, []);
 
   return (
-    <section className="bg-[var(--brand-pastel)] px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+    <section className="bg-[var(--brand-pastel)] px-4 pt-6 pb-3 sm:px-6 sm:pt-8 sm:pb-4 lg:px-8 lg:pt-10 lg:pb-5">
       <div className="mx-auto max-w-7xl">
         <div className="mb-4 sm:mb-5 lg:mb-6">
           <h1 

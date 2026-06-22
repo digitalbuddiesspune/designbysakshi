@@ -769,6 +769,17 @@ const Header = () => {
                       </button>
                       {isExpanded && (
                         <div className="pl-3 pb-2 space-y-1">
+                          <Link
+                            to={mainHref(cat.slug)}
+                            onClick={() => {
+                              setShowCatalogPopup(false);
+                              setExpandedMobileCategory(null);
+                            }}
+                            className="block px-2 py-1 text-sm font-semibold no-underline"
+                            style={{ color: "var(--brand-dark)" }}
+                          >
+                            All
+                          </Link>
                           {cat.sub.map((sub) => (
                             <Link
                               key={sub.slug}
@@ -999,6 +1010,14 @@ const Header = () => {
                           </button>
                           {isExpanded && (
                             <div className="pl-4 pb-2">
+                              <Link
+                                to={mainHref(cat.slug)}
+                                onClick={() => setShowMobileMenu(false)}
+                                className="block py-2 text-sm font-semibold"
+                                style={{ color: "var(--brand-dark)" }}
+                              >
+                                All
+                              </Link>
                               {cat.sub.map((sub) => (
                                 <Link
                                   key={sub.slug}
@@ -1175,6 +1194,14 @@ const Header = () => {
             }}
             onClick={(e) => e.stopPropagation()}
           >
+            <Link
+              to={mainHref(selectedDesktopCategory.slug)}
+              className="block px-4 py-2 text-sm font-semibold no-underline transition hover:opacity-90 hover:bg-gray-50"
+              style={{ color: "var(--brand-dark)" }}
+              onClick={() => setClickedCategory(null)}
+            >
+              All
+            </Link>
             {selectedDesktopCategory.sub.map((sub) => (
               <Link
                 key={sub.slug}
