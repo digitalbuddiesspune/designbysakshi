@@ -86,7 +86,7 @@ const App = () => {
         <Outlet />
       </main>
       {!isAdminRoute && (
-        <div className={isAuthPage ? "mt-6 sm:mt-8 lg:mt-10" : "mt-10 sm:mt-12 lg:mt-14"}>
+        <div className={isAuthPage ? "mt-6 sm:mt-8 lg:mt-10" : "mt-4 sm:mt-6 lg:mt-8"}>
           <Footer />
         </div>
       )}
