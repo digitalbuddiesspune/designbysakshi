@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import HomeProductCard from "./HomeProductCard.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const HOMEPAGE_BESTSELLER_LIMIT = 8;
+const HOMEPAGE_BESTSELLER_LIMIT = 5;
 
 const HighlightGrid = () => {
   const [products, setProducts] = useState([]);
@@ -63,8 +63,8 @@ const HighlightGrid = () => {
 
   return (
     <section className="pt-2 pb-4 sm:pt-3 sm:pb-6 lg:pt-4 lg:pb-8">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+      <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-10">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-4">
           {products.map((product, index) => (
             <HomeProductCard
               key={product._id || index}

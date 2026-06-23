@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import HomeProductCard from "./HomeProductCard.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const HOMEPAGE_NEW_ARRIVAL_LIMIT = 8;
+const HOMEPAGE_NEW_ARRIVAL_LIMIT = 5;
 
 const TopProducts = () => {
   const [products, setProducts] = useState([]);
@@ -79,8 +79,8 @@ const TopProducts = () => {
         </Link>
       </section>
 
-      <div className="mx-auto max-w-7xl px-4 pt-2 sm:px-6 sm:pt-4 lg:px-8 lg:pt-5">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+      <div className="mx-auto w-full max-w-[1600px] px-6 pt-2 sm:px-8 sm:pt-4 lg:px-10 lg:pt-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-4">
           {products.map((product, index) => (
             <HomeProductCard
               key={product._id || index}
