@@ -30,12 +30,18 @@
   --text-3xl: 28px;
 }
 
-body {
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  line-height: 1.5;
-  color: var(--brand-dark);
-  background: var(--brand-pastel);
+@keyframes cartBump {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+}
+
+.cart-bump {
+  animation: cartBump 0.35s ease;
 }
 
 /* Force same font everywhere across the website */

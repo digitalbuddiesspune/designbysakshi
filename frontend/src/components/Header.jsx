@@ -125,9 +125,22 @@ const Header = () => {
     window.addEventListener("cart-updated", handleCartUpdated);
     window.addEventListener("wishlist-updated", handleWishlistUpdated);
 
+    const handleCartBump = () => {
+      const desktop = document.getElementById("header-cart-icon");
+      const mobile = document.getElementById("mobile-cart-icon");
+      [desktop, mobile].forEach((el) => {
+        if (!el) return;
+        el.classList.remove("cart-bump");
+        void el.offsetWidth;
+        el.classList.add("cart-bump");
+      });
+    };
+    window.addEventListener("cart-bump", handleCartBump);
+
     return () => {
       window.removeEventListener("cart-updated", handleCartUpdated);
       window.removeEventListener("wishlist-updated", handleWishlistUpdated);
+      window.removeEventListener("cart-bump", handleCartBump);
     };
   }, []);
 
@@ -468,6 +481,7 @@ const Header = () => {
 
           {/* Cart Bag Icon */}
           <Link
+            id="header-cart-icon"
             to="/cart"
             className="relative rounded p-2 no-underline transition hover:opacity-80"
             aria-label="Cart"
@@ -654,6 +668,7 @@ const Header = () => {
 
             {/* Cart */}
             <button
+              id="mobile-cart-icon"
               type="button"
               onClick={() => {
                 setShowCatalogPopup(false);

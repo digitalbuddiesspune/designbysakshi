@@ -214,10 +214,10 @@ const Orders = () => {
                         <button
                           type="button"
                           onClick={(e) => handleOpenReviewModal(reviewProductId, e)}
-                          className="bg-transparent px-0 py-1.5 text-xs font-semibold transition hover:opacity-80"
+                          className="bg-transparent px-0 py-1.5 text-sm font-semibold transition hover:opacity-80 sm:text-base"
                           style={{ color: "#3D294D" }}
                         >
-                          Rate Order
+                          Add Review
                         </button>
                       </div>
                     ) : null}
@@ -233,7 +233,7 @@ const Orders = () => {
         <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
             <div className="mb-3 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900">Rate Order</h3>
+              <h3 className="text-xl font-semibold text-gray-900">Add Review</h3>
               <button
                 type="button"
                 onClick={() => {
@@ -271,7 +271,7 @@ const Orders = () => {
                 disabled={reviewSubmitting}
                 className="rounded-full bg-[#3D294D] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
               >
-                {reviewSubmitting ? "Submitting..." : "Submit Rating"}
+                {reviewSubmitting ? "Submitting..." : "Submit Review"}
               </button>
             </form>
           </div>

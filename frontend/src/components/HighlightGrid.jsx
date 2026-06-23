@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import HomeProductCard from "./HomeProductCard.jsx";
+import { useCartQuantities } from "../hooks/useCartQuantities.js";
+import { getGuestId } from "../utils/guestId.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const HOMEPAGE_BESTSELLER_LIMIT = 5;
+const HOMEPAGE_BESTSELLER_LIMIT = 10;
 
 const HighlightGrid = () => {
   const [products, setProducts] = useState([]);
+  const { cartQuantities, cartBusyId, addToCart, setCartQuantity } = useCartQuantities();
 
   useEffect(() => {
     fetchBestsellers();
@@ -18,30 +21,6 @@ const HighlightGrid = () => {
       setProducts(Array.isArray(data) ? data.slice(0, HOMEPAGE_BESTSELLER_LIMIT) : []);
     } catch (error) {
       console.error("Error fetching bestseller products:", error);
-    }
-  };
-
-  const getGuestId = () => {
-    if (typeof window === "undefined") return null;
-    let id = localStorage.getItem("guestId");
-    if (!id) {
-      id = `guest_${Math.random().toString(36).slice(2)}_${Date.now()}`;
-      localStorage.setItem("guestId", id);
-    }
-    return id;
-  };
-
-  const handleAddToCart = async (productId) => {
-    try {
-      const guestId = getGuestId();
-      await fetch(`${API_URL}/cart/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: 1, guestId }),
-      });
-      window.dispatchEvent(new Event("cart-updated"));
-    } catch (error) {
-      console.error("Error adding to cart:", error);
     }
   };
 
@@ -74,7 +53,10 @@ const HighlightGrid = () => {
               badgeStyle={{
                 background: "linear-gradient(135deg, #d4a574 0%, #b8860b 100%)",
               }}
-              onAddToCart={handleAddToCart}
+              onAddToCart={addToCart}
+              onSetCartQuantity={setCartQuantity}
+              cartQuantity={cartQuantities[String(product._id)] || 0}
+              cartBusy={cartBusyId === product._id}
               onAddToWishlist={handleAddToWishlist}
             />
           ))}

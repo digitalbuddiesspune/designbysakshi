@@ -1,18 +1,12 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import StarRatingPicker from "../components/StarRatingPicker";
+import ProductCartAction from "../components/ProductCartAction.jsx";
+import { flyToCart, getVisibleProductImage } from "../utils/flyToCart.js";
+import { useCartQuantities } from "../hooks/useCartQuantities.js";
+import { getGuestId } from "../utils/guestId.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
-
-const getGuestId = () => {
-  if (typeof window === "undefined") return null;
-  let id = localStorage.getItem("guestId");
-  if (!id) {
-    id = `guest_${Math.random().toString(36).slice(2)}_${Date.now()}`;
-    localStorage.setItem("guestId", id);
-  }
-  return id;
-};
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -36,6 +30,7 @@ const ProductDetail = () => {
   const [showMoreDetails, setShowMoreDetails] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
+  const { cartQuantities, cartBusyId, addToCart, setCartQuantity } = useCartQuantities();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -57,6 +52,7 @@ const ProductDetail = () => {
     };
     if (id) fetchProduct();
     setShowMoreDetails(false);
+    setQuantity(1);
   }, [id]);
 
   useEffect(() => {
@@ -187,8 +183,11 @@ const ProductDetail = () => {
   }, [relatedProducts, guestId]);
 
   const handleAddToCart = async () => {
+    if ((cartQuantities[String(product._id)] || 0) > 0) return;
     try {
       setCartBusy(true);
+      const mainImg = document.getElementById("product-main-image");
+      if (mainImg) flyToCart(mainImg);
       await fetch(`${API_URL}/cart/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -223,29 +222,17 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = async () => {
+    const inCart = cartQuantities[String(product._id)] || 0;
+    const buyQty = inCart > 0 ? inCart : quantity;
     navigate("/checkout", {
       state: {
         buyNowItem: {
           product: { _id: product._id, name: product.name, image: product.image },
-          quantity,
+          quantity: buyQty,
           priceAtAddTime: product.price,
         },
       },
     });
-  };
-
-  const handleAddRelatedToCart = async (productId) => {
-    if (!productId) return;
-    try {
-      await fetch(`${API_URL}/cart/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: 1, guestId }),
-      });
-      window.dispatchEvent(new Event("cart-updated"));
-    } catch (e) {
-      console.error("Add related product to cart failed:", e);
-    }
   };
 
   const handleAddRelatedToWishlist = async (productId) => {
@@ -339,6 +326,27 @@ const ProductDetail = () => {
   const hasDescription = !!product.description?.trim();
   const remainingStock = typeof product.stock === "number" ? product.stock : 0;
   const inStock = product.inStock && remainingStock > 0;
+  const inCartQty = cartQuantities[String(product._id)] || 0;
+  const displayQty = inCartQty > 0 ? inCartQty : quantity;
+  const isMainCartBusy = cartBusyId === product._id;
+
+  const handleDecreaseQty = () => {
+    if (!inStock) return;
+    if (inCartQty > 0) {
+      setCartQuantity(product._id, inCartQty - 1);
+      return;
+    }
+    setQuantity((q) => Math.max(1, q - 1));
+  };
+
+  const handleIncreaseQty = () => {
+    if (!inStock) return;
+    if (inCartQty > 0) {
+      setCartQuantity(product._id, Math.min(remainingStock, inCartQty + 1));
+      return;
+    }
+    setQuantity((q) => Math.min(remainingStock, q + 1));
+  };
   const galleryImages = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image].filter(Boolean);
   const activeImage = galleryImages[activeImageIndex] || galleryImages[0] || product.image;
   const features = Array.isArray(product.features) ? product.features : [];
@@ -400,6 +408,7 @@ const ProductDetail = () => {
             {/* Main image */}
             <div className="w-full max-w-xl aspect-square overflow-hidden shadow-md">
               <img
+                id="product-main-image"
                 src={activeImage}
                 alt={product.name}
                 className="h-full w-full object-contain object-center"
@@ -587,20 +596,20 @@ const ProductDetail = () => {
               <div className="flex items-center overflow-hidden rounded-lg bg-[#3D294D]/10">
                 <button
                   type="button"
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
-                  disabled={quantity <= 1 || !inStock}
+                  onClick={handleDecreaseQty}
+                  className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
+                  disabled={(inCartQty === 0 && quantity <= 1) || !inStock || isMainCartBusy}
                 >
                   −
                 </button>
                 <div className="h-9 w-10 text-center text-sm font-semibold leading-9 text-gray-900">
-                  {quantity}
+                  {displayQty}
                 </div>
                 <button
                   type="button"
-                  onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-                className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
-                  disabled={quantity >= product.stock || !inStock}
+                  onClick={handleIncreaseQty}
+                  className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
+                  disabled={displayQty >= remainingStock || !inStock || isMainCartBusy}
                 >
                   +
                 </button>
@@ -612,18 +621,18 @@ const ProductDetail = () => {
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={cartBusy || !inStock}
+                disabled={cartBusy || !inStock || inCartQty > 0 || isMainCartBusy}
                 className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: "#3D294D",
                 }}
               >
-                {cartBusy ? "Adding..." : "Add to Cart"}
+                {inCartQty > 0 ? "In Cart" : cartBusy ? "Adding..." : "Add to Cart"}
               </button>
               <button
                 type="button"
                 onClick={handleBuyNow}
-                disabled={cartBusy || !inStock}
+                disabled={cartBusy || !inStock || isMainCartBusy}
                 className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-semibold text-center transition hover:bg-[#3D294D] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   borderColor: "#3D294D",
@@ -770,6 +779,7 @@ const ProductDetail = () => {
                     >
                       <div className="relative aspect-[6/5] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                         <img
+                          data-related-product-image={item._id}
                           src={item.image}
                           alt={item.name}
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -807,17 +817,15 @@ const ProductDetail = () => {
                           <span className="text-sm font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
                         </div>
                         <div className="mt-2">
-                          <button
-                            type="button"
-                            className="w-full rounded-lg px-2 py-1 text-[10px] font-semibold text-white transition hover:opacity-95"
-                            style={{ background: "#3D294D" }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddRelatedToCart(item._id);
-                            }}
-                          >
-                            Add to Cart
-                          </button>
+                          <ProductCartAction
+                            productId={item._id}
+                            cartQuantity={cartQuantities[String(item._id)] || 0}
+                            cartBusy={cartBusyId === item._id}
+                            getImageEl={() => getVisibleProductImage(`[data-related-product-image="${item._id}"]`)}
+                            onAdd={addToCart}
+                            onSetQuantity={setCartQuantity}
+                            buttonClassName="flex min-h-9 w-full items-center justify-center rounded-lg px-2 py-1.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-10 sm:text-base"
+                          />
                         </div>
                       </div>
                     </div>
@@ -833,6 +841,7 @@ const ProductDetail = () => {
                     >
                       <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                         <img
+                          data-related-product-image={item._id}
                           src={item.image}
                           alt={item.name}
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -870,17 +879,15 @@ const ProductDetail = () => {
                           <span className="text-lg font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
                         </div>
                         <div className="mt-3">
-                          <button
-                            type="button"
-                            className="w-full rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
-                            style={{ background: "#3D294D" }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddRelatedToCart(item._id);
-                            }}
-                          >
-                            Add to Cart
-                          </button>
+                          <ProductCartAction
+                            productId={item._id}
+                            cartQuantity={cartQuantities[String(item._id)] || 0}
+                            cartBusy={cartBusyId === item._id}
+                            getImageEl={() => getVisibleProductImage(`[data-related-product-image="${item._id}"]`)}
+                            onAdd={addToCart}
+                            onSetQuantity={setCartQuantity}
+                            buttonClassName="flex min-h-9 w-full items-center justify-center rounded-lg px-2 py-1.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-10 sm:text-base"
+                          />
                         </div>
                       </div>
                     </div>
@@ -898,6 +905,7 @@ const ProductDetail = () => {
                   >
                     <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                       <img
+                        data-related-product-image={item._id}
                         src={item.image}
                         alt={item.name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -940,17 +948,15 @@ const ProductDetail = () => {
                         </span>
                       </div>
                       <div className="mt-2 lg:mt-1.5">
-                        <button
-                          type="button"
-                          className="flex min-h-8 w-full items-center justify-center rounded-lg px-1.5 py-1 text-[9px] font-semibold text-white whitespace-nowrap transition hover:opacity-95 sm:min-h-9 sm:text-[10px] lg:min-h-8 lg:px-2 lg:py-1 lg:text-[9px]"
-                          style={{ background: "#3D294D" }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddRelatedToCart(item._id);
-                          }}
-                        >
-                          Add to Cart
-                        </button>
+                        <ProductCartAction
+                          productId={item._id}
+                          cartQuantity={cartQuantities[String(item._id)] || 0}
+                          cartBusy={cartBusyId === item._id}
+                          getImageEl={() => getVisibleProductImage(`[data-related-product-image="${item._id}"]`)}
+                          onAdd={addToCart}
+                          onSetQuantity={setCartQuantity}
+                          buttonClassName="flex min-h-9 w-full items-center justify-center rounded-lg px-2 py-1.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-10 sm:text-base"
+                        />
                       </div>
                     </div>
                   </div>

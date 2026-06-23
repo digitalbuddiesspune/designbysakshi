@@ -49,33 +49,151 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
     .join("");
 
   const html = `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>${esc(title)}</title>
   <style>
-    body{font-family:Arial,sans-serif;background:#f3f4f6;margin:0;padding:20px;color:#111827}
-    .wrap{max-width:900px;margin:0 auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden}
-    .head{background:#1f2d46;color:#fff;padding:18px 20px;text-align:center}
-    .head-logo{display:block;width:78px;height:78px;object-fit:contain;margin:0 auto 8px}
-    .head h1{margin:0;font-size:28px}
-    .head p{margin:6px 0 0;font-size:13px;opacity:.95}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:18px}
-    .box{border:1px solid #e5e7eb;border-radius:10px;padding:12px}
-    .box h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;color:#374151}
-    .row{display:flex;justify-content:space-between;gap:12px;font-size:13px;margin:6px 0}
-    table{width:calc(100% - 36px);margin:0 18px 14px;border-collapse:collapse;font-size:13px}
-    th,td{border:1px solid #e5e7eb;padding:8px;text-align:left}
-    th{background:#f9fafb}
-    .sum{margin:0 18px 20px auto;max-width:320px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
-    .sum .row{padding:8px 12px;margin:0}
-    .sum .total{background:#1f2d46;color:#fff;font-weight:700}
-    .totals-row{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:0 18px 18px}
-    .invoice-actions{display:flex;justify-content:flex-start}
-    .invoice-actions button{border:none;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:600;cursor:pointer}
-    .download-btn{background:#1f2d46;color:#fff}
-    .sum{margin:0;max-width:320px;border:1px solid #e5e7eb;border-radius:10px;overflow:hidden}
-    @media print{body{background:#fff;padding:0}.wrap{border:none;border-radius:0}.invoice-actions{display:none}.totals-row{padding:0 18px 18px}}
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 16px;
+      color: #111827;
+      -webkit-text-size-adjust: 100%;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .head {
+      background: #1f2d46;
+      color: #fff;
+      padding: 20px 16px;
+      text-align: center;
+    }
+    .head-logo {
+      display: block;
+      width: 72px;
+      height: 72px;
+      object-fit: contain;
+      margin: 0 auto 10px;
+    }
+    .head h1 { margin: 0; font-size: 24px; line-height: 1.2; }
+    .head p { margin: 8px 0 0; font-size: 13px; line-height: 1.5; opacity: 0.95; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 18px;
+    }
+    .box {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px;
+      min-width: 0;
+    }
+    .box h3 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: #374151;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 13px;
+      line-height: 1.45;
+      margin: 6px 0;
+      word-break: break-word;
+    }
+    .row strong { text-align: right; font-weight: 600; }
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 0 18px 14px;
+    }
+    table {
+      width: 100%;
+      min-width: 520px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f9fafb; white-space: nowrap; }
+    .totals-row {
+      display: flex;
+      flex-direction: column-reverse;
+      align-items: stretch;
+      gap: 16px;
+      padding: 0 18px 18px;
+    }
+    .sum {
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .sum .row { padding: 10px 12px; margin: 0; }
+    .sum .total { background: #1f2d46; color: #fff; font-weight: 700; }
+    .invoice-actions { display: flex; justify-content: stretch; }
+    .invoice-actions button {
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .download-btn { background: #1f2d46; color: #fff; }
+
+    @media (min-width: 640px) {
+      body { padding: 20px; }
+      .head { padding: 18px 20px; }
+      .head h1 { font-size: 28px; }
+      .totals-row {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
+      .sum { max-width: 320px; margin-left: auto; }
+      .invoice-actions { justify-content: flex-start; }
+      .invoice-actions button { width: auto; font-size: 13px; padding: 10px 14px; }
+    }
+
+    @media (max-width: 639px) {
+      body { padding: 0; background: #fff; }
+      .wrap { border: none; border-radius: 0; min-height: 100vh; }
+      .grid { grid-template-columns: 1fr; padding: 14px; gap: 12px; }
+      .table-wrap { padding: 0 14px 14px; }
+      .totals-row { padding: 0 14px 16px; }
+      .row { font-size: 14px; }
+      .head h1 { font-size: 22px; }
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .wrap { border: none; border-radius: 0; min-height: auto; }
+      .invoice-actions { display: none; }
+      .totals-row { padding: 0 18px 18px; flex-direction: row; }
+      .sum { max-width: 320px; margin-left: auto; }
+    }
   </style>
 </head>
 <body>
@@ -87,7 +205,7 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
         alt="Design By Sakshi"
       />
       <h1>DesignsByShakshi</h1>
-              <p className="text-sm text-gray-300">Jewellery Invoice | designsbyshakshi@gmail.com | 9130383655</p>
+      <p>Jewellery Invoice | designsbyshakshi@gmail.com | 9130383655</p>
     </div>
     <div class="grid">
       <div class="box">
@@ -105,16 +223,18 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
         <div class="row"><span>Name</span><strong>${esc(order.name || "-")}</strong></div>
         <div class="row"><span>Email</span><strong>${esc(order.email || "-")}</strong></div>
         <div class="row"><span>Phone</span><strong>${esc(order.phone || order.address?.phone || "-")}</strong></div>
-        <div class="row"><span>Address</span><strong style="text-align:right">${esc(address)}</strong></div>
+        <div class="row"><span>Address</span><strong>${esc(address)}</strong></div>
       </div>
     </div>
-    <table>
-      <thead><tr><th>Sr No.</th><th>Item Name</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="5">No items</td></tr>'}</tbody>
-    </table>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sr No.</th><th>Item Name</th><th>Qty</th><th>Rate</th><th>Amount</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="5">No items</td></tr>'}</tbody>
+      </table>
+    </div>
     <div class="totals-row">
       <div class="invoice-actions">
-        <button class="download-btn" onclick="downloadInvoice()">Download Invoice</button>
+        <button class="download-btn" type="button" onclick="downloadInvoice()">Download Invoice</button>
       </div>
       <div class="sum">
         <div class="row"><span>Subtotal</span><strong>${formatCurrency(subtotal)}</strong></div>
@@ -139,18 +259,21 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
 </body>
 </html>`;
 
-  const win = window.open("about:blank", "_blank");
-  if (!win) {
-    window.alert("Please allow popups for this site to view invoice.");
-    return;
-  }
   try {
-    win.document.open();
-    win.document.write(html);
-    win.document.close();
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, "_blank");
+    if (!win) {
+      URL.revokeObjectURL(url);
+      window.alert("Please allow popups for this site to view invoice.");
+      return;
+    }
+    win.addEventListener("load", () => {
+      URL.revokeObjectURL(url);
+    });
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
   } catch (error) {
     console.error("Invoice window render failed:", error);
     window.alert("Unable to open invoice. Please allow popups and try again.");
   }
 };
-
