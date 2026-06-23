@@ -105,7 +105,7 @@ const HomeProductCard = ({
           getImageEl={() => imageRef.current}
           onAdd={onAddToCart}
           onSetQuantity={onSetCartQuantity}
-          buttonClassName="w-full rounded-lg px-3 py-2 text-sm font-semibold text-white transition-all duration-300 active:scale-95 disabled:opacity-60 sm:text-base sm:py-2.5"
+          buttonClassName="w-full rounded-lg px-3 py-1.5 text-sm font-semibold text-white transition-all duration-300 active:scale-95 disabled:opacity-60 sm:text-base"
         />
       </div>
     </div>

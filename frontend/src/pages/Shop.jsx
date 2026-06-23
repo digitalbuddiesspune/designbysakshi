@@ -161,7 +161,7 @@ const Shop = () => {
                     <div className="mt-3">
                       <button
                         type="button"
-                        className="flex min-h-8 w-full items-center justify-center rounded-lg px-1.5 py-1 text-[9px] font-semibold text-white whitespace-nowrap transition hover:opacity-95 sm:min-h-10 sm:px-3 sm:py-1.5 sm:text-xs"
+                        className="flex min-h-8 w-full items-center justify-center rounded-lg px-1.5 py-1 text-sm font-semibold text-white whitespace-nowrap transition hover:opacity-95 sm:min-h-9 sm:px-3 sm:py-1.5 sm:text-base"
                         style={{ background: "#3D294D" }}
                         onClick={(e) => {
                           e.preventDefault();

@@ -239,7 +239,7 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
                     <button
                       type="button"
                       onClick={() => handleAddToCart(product._id)}
-                      className="w-full rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
+                      className="w-full rounded-lg px-3 py-1 text-xs font-semibold text-white transition hover:opacity-95 sm:py-1.5 sm:text-sm"
                       style={{ background: "#3D294D" }}
                     >
                       Add to Cart

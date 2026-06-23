@@ -8,7 +8,7 @@ const ProductCartAction = ({
   getImageEl,
   onAdd,
   onSetQuantity,
-  buttonClassName = "flex min-h-10 w-full items-center justify-center rounded-lg px-2 py-2 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-11 sm:text-base",
+  buttonClassName = "flex min-h-8 w-full items-center justify-center rounded-lg px-2 py-1.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-9 sm:text-base",
 }) => {
   if (cartQuantity > 0) {
     return (

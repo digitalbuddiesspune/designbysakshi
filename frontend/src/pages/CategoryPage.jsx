@@ -362,7 +362,7 @@ const CategoryPage = () => {
                     ) : (
                       <button
                         type="button"
-                        className="flex min-h-10 w-full items-center justify-center rounded-lg px-2 py-2 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-11 sm:text-base"
+                        className="flex min-h-8 w-full items-center justify-center rounded-lg px-2 py-1.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-9 sm:text-base"
                         style={{ background: "#3D294D" }}
                         disabled={isBusy}
                         onClick={() => {

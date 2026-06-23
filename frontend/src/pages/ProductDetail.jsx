@@ -824,7 +824,7 @@ const ProductDetail = () => {
                             getImageEl={() => getVisibleProductImage(`[data-related-product-image="${item._id}"]`)}
                             onAdd={addToCart}
                             onSetQuantity={setCartQuantity}
-                            buttonClassName="flex min-h-9 w-full items-center justify-center rounded-lg px-2 py-1.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-10 sm:text-base"
+                            buttonClassName="flex min-h-8 w-full items-center justify-center rounded-lg px-2 py-1 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-9 sm:text-base"
                           />
                         </div>
                       </div>
@@ -886,7 +886,7 @@ const ProductDetail = () => {
                             getImageEl={() => getVisibleProductImage(`[data-related-product-image="${item._id}"]`)}
                             onAdd={addToCart}
                             onSetQuantity={setCartQuantity}
-                            buttonClassName="flex min-h-9 w-full items-center justify-center rounded-lg px-2 py-1.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-10 sm:text-base"
+                            buttonClassName="flex min-h-8 w-full items-center justify-center rounded-lg px-2 py-1 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-9 sm:text-base"
                           />
                         </div>
                       </div>
@@ -955,7 +955,7 @@ const ProductDetail = () => {
                           getImageEl={() => getVisibleProductImage(`[data-related-product-image="${item._id}"]`)}
                           onAdd={addToCart}
                           onSetQuantity={setCartQuantity}
-                          buttonClassName="flex min-h-9 w-full items-center justify-center rounded-lg px-2 py-1.5 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-10 sm:text-base"
+                          buttonClassName="flex min-h-8 w-full items-center justify-center rounded-lg px-2 py-1 text-sm font-semibold text-white transition hover:opacity-95 disabled:opacity-60 sm:min-h-9 sm:text-base"
                         />
                       </div>
                     </div>
