@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useLocation, useSearchParams, Link } from "react-router-dom";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const CategoryPage = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const subcategoryParam = searchParams.get("subcategory");
 
@@ -18,10 +17,6 @@ const CategoryPage = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState(subcategoryParam || "");
   const [categories, setCategories] = useState([]);
   const [wishlistedIds, setWishlistedIds] = useState(new Set());
-
-  const [priceMin, setPriceMin] = useState(null);
-  const [priceMax, setPriceMax] = useState(null);
-  const [minMaxInitialized, setMinMaxInitialized] = useState(false);
 
   const normalizeSlug = (value) =>
     String(value || "")
@@ -101,13 +96,6 @@ const CategoryPage = () => {
   );
   const visibleSubcategories = currentCategory?.subcategories || [];
 
-  useEffect(() => {
-    if (categories.length > 0) {
-      console.log("All categories:", categories.map(c => ({ name: c.name, slug: c.slug })));
-      console.log("Found category:", currentCategory);
-    }
-  }, [categories, categorySlug, pathSlug, currentCategory]);
-
   const getGuestId = () => {
     if (typeof window === "undefined") return null;
     let id = localStorage.getItem("guestId");
@@ -124,24 +112,6 @@ const CategoryPage = () => {
       currency: "INR",
       maximumFractionDigits: 0,
     }).format(price);
-
-  const computeMinMax = (arr) => {
-    if (!Array.isArray(arr) || arr.length === 0) return { min: 0, max: 0 };
-    const prices = arr
-      .map((p) => (typeof p.price === "number" ? p.price : Number(p.price)))
-      .filter((n) => Number.isFinite(n));
-    if (prices.length === 0) return { min: 0, max: 0 };
-    return { min: Math.min(...prices), max: Math.max(...prices) };
-  };
-
-  useEffect(() => {
-    if (!loading) {
-      const { min, max } = computeMinMax(products);
-      setPriceMin(min);
-      setPriceMax(max);
-      setMinMaxInitialized(true);
-    }
-  }, [products, loading]);
 
   const handleSubcategoryChange = (subSlug) => {
     const newSubcategory = subSlug === selectedSubcategory ? "" : subSlug;
@@ -186,28 +156,6 @@ const CategoryPage = () => {
     }
   };
 
-  const categoryImages = {
-    "necklace-sets": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773733305/High-End_Bridal_Necklace_Set__Bridal_Jewelry__Wedding_Dress_Accessory__Light_Gold_Silver_Gold-Color-removebg-preview_n4px8z.png",
-    "earrings": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773733200/High_jewelry_futuristic_earrings_made_of_silver__elements__lines__flower-removebg-preview_epryye.png",
-    "rings": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773732024/41yKk1H7s2L-removebg-preview_pakeea.png",
-    "bangles-bracelets": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773730539/bangals-removebg-preview_bv3mwx.png",
-    "pendants": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773731748/download__14_-removebg-preview_m5de9b.png",
-    "bridal-jewellery": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773731628/download__15_-removebg-preview_2_spcetj.png",
-    "anklets": "https://res.cloudinary.com/dbfooaz44/image/upload/v1773730347/If_you_prefer_silver_anklets__we_got_you____In_order_of_appearance__Bar_charm_anklet_Twist_anklet_Millipede_anklet_Chain_link_anklet_Flower_charm_anklet__Price__N1500-2000_All_non_tarnish____To_shop___iekjrt.png"
-  };
-
-  const filteredProducts = products.filter((p) => {
-    const price = typeof p.price === "number" ? p.price : Number(p.price);
-    if (!Number.isFinite(price)) return false;
-    if (priceMin !== null && price < priceMin) return false;
-    if (priceMax !== null && price > priceMax) return false;
-    return true;
-  });
-
-  const { min: absoluteMin, max: absoluteMax } = computeMinMax(products);
-  const sliderMin = Number.isFinite(absoluteMin) ? absoluteMin : 0;
-  const sliderMax = Number.isFinite(absoluteMax) ? absoluteMax : 0;
-
   return (
     // ✅ No horizontal padding here — banner must go full width
     <div className="bg-white pb-8 sm:pb-10">
@@ -228,125 +176,47 @@ const CategoryPage = () => {
         </div>
       )}
 
-      {/* ─── ALL CONTENT BELOW BANNER — padded ─── */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-
-        {/* Sticky subcategory + filter row */}
-        {currentCategory && (
-          <div
-            className="sticky top-16 md:top-[112px] lg:top-[144px] z-30 border-b bg-white"
-            style={{ borderColor: "rgba(91, 71, 109, 0.16)" }}
-          >
-            <div className="py-1 px-1 sm:px-2 space-y-1">
-
-              {/* Row 1: Subcategory chips */}
-              <div className="flex items-center gap-2">
-                <div className="flex-1 min-w-0 flex items-center gap-2">
-                  {categoryImages[categorySlug] && (
-                    <img
-                      src={categoryImages[categorySlug]}
-                      alt={currentCategory?.name || categorySlug}
-                      className="hidden sm:block h-10 w-10 sm:h-12 sm:w-12 object-contain flex-shrink-0"
-                    />
-                  )}
-                  {visibleSubcategories.length > 0 && (
-                    <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap">
-                      <button
-                        onClick={() => handleSubcategoryChange("")}
-                        className={`rounded-full px-3 py-2 text-xs font-medium transition flex-shrink-0 ${
-                          selectedSubcategory === "" ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                        style={{ background: selectedSubcategory === "" ? "#3D294D" : undefined }}
-                      >
-                        All
-                      </button>
-                      {visibleSubcategories.map((sub) => (
-                        <button
-                          key={sub.slug}
-                          onClick={() => handleSubcategoryChange(sub.slug)}
-                          className={`rounded-full px-3 py-2 text-xs font-medium transition flex-shrink-0 ${
-                            normalizeSlug(selectedSubcategory) === normalizeSlug(sub.slug)
-                              ? "text-white"
-                              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                          }`}
-                          style={{
-                            background:
-                              normalizeSlug(selectedSubcategory) === normalizeSlug(sub.slug)
-                                ? "#3D294D"
-                                : undefined,
-                          }}
-                        >
-                          {sub.name}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Row 2: Price filter — desktop */}
-              <div className={`hidden sm:flex justify-start ${categoryImages[categorySlug] ? "ml-12 sm:ml-14" : ""}`}>
-                <div className="flex items-center gap-2">
-                  <span className="text-[11px] font-semibold" style={{ color: "var(--brand-dark)" }}>
-                    filter
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-1">
-                      <span className="text-[10px]" style={{ color: "var(--brand-muted)" }}>min</span>
-                      <input
-                        type="number"
-                        value={priceMin ?? ""}
-                        onChange={(e) => setPriceMin(e.target.value === "" ? null : Number(e.target.value))}
-                        className="w-20 rounded-lg border px-2 py-1.5 text-[12px] focus:outline-none focus:ring-2"
-                        style={{ borderColor: "var(--brand-lavender-soft)" }}
-                      />
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-[10px]" style={{ color: "var(--brand-muted)" }}>max</span>
-                      <input
-                        type="number"
-                        value={priceMax ?? ""}
-                        onChange={(e) => setPriceMax(e.target.value === "" ? null : Number(e.target.value))}
-                        className="w-20 rounded-lg border px-2 py-1.5 text-[12px] focus:outline-none focus:ring-2"
-                        style={{ borderColor: "var(--brand-lavender-soft)" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2: Price filter — mobile range slider */}
-              <div className="sm:hidden">
-                <div
-                  className="mt-2 rounded-lg border p-2"
-                  style={{ borderColor: "var(--brand-lavender-soft)", background: "#fff" }}
-                >
-                  <div className="mb-1 flex items-center justify-between text-[11px]">
-                    <span className="font-semibold" style={{ color: "var(--brand-dark)" }}>Filter</span>
-                    <span style={{ color: "var(--brand-muted)" }}>
-                      ₹{Number(sliderMin).toLocaleString("en-IN")} – ₹{Number(priceMax ?? sliderMax).toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={sliderMin}
-                    max={sliderMax}
-                    value={priceMax ?? sliderMax}
-                    onChange={(e) => {
-                      const val = Number(e.target.value);
-                      setPriceMin(sliderMin);
-                      setPriceMax(Math.max(val, sliderMin));
-                    }}
-                    className="w-full"
-                    style={{ accentColor: "#3D294D" }}
-                  />
-                </div>
-              </div>
-            </div>
+      {/* Full-width subcategory bar */}
+      {currentCategory && visibleSubcategories.length > 0 && (
+        <div
+          className="sticky top-16 z-30 w-full border-b bg-white md:top-[112px] lg:top-[144px]"
+          style={{ borderColor: "rgba(91, 71, 109, 0.16)" }}
+        >
+          <div className="flex w-full items-center gap-1.5 overflow-x-auto px-6 py-1 no-scrollbar sm:px-8 lg:px-10">
+            <button
+              onClick={() => handleSubcategoryChange("")}
+              className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition flex-shrink-0 sm:px-3 sm:text-xs ${
+                selectedSubcategory === "" ? "text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              style={{ background: selectedSubcategory === "" ? "#3D294D" : undefined }}
+            >
+              All
+            </button>
+            {visibleSubcategories.map((sub) => (
+              <button
+                key={sub.slug}
+                onClick={() => handleSubcategoryChange(sub.slug)}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition flex-shrink-0 sm:px-3 sm:text-xs ${
+                  normalizeSlug(selectedSubcategory) === normalizeSlug(sub.slug)
+                    ? "text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                style={{
+                  background:
+                    normalizeSlug(selectedSubcategory) === normalizeSlug(sub.slug)
+                      ? "#3D294D"
+                      : undefined,
+                }}
+              >
+                {sub.name}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Products Grid */}
+      {/* Products */}
+      <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-10">
         <div className="mt-4">
           {loading ? (
             <div className="text-center py-12">
@@ -356,13 +226,9 @@ const CategoryPage = () => {
             <div className="text-center py-12">
               <p style={{ color: "var(--brand-dark)" }}>No products found in this category.</p>
             </div>
-          ) : filteredProducts.length === 0 ? (
-            <div className="text-center py-12">
-              <p style={{ color: "var(--brand-dark)" }}>No products match your price range.</p>
-            </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-              {filteredProducts.map((product) => (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 lg:gap-4">
+              {products.map((product) => (
                 <Link
                   to={`/product/${product._id}`}
                   key={product._id}
@@ -400,22 +266,22 @@ const CategoryPage = () => {
                       </svg>
                     </button>
                   </div>
-                  <div className="p-4">
+                  <div className="p-3 lg:p-2">
                     <h3
-                      className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-2"
+                      className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm lg:text-xs"
                       style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
                     >
                       {product.name}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-gray-900">
+                      <span className="text-sm font-bold text-gray-900 sm:text-base lg:text-sm">
                         {formatPrice(product.price)}
                       </span>
                     </div>
-                    <div className="mt-3">
+                    <div className="mt-2 lg:mt-1.5">
                       <button
                         type="button"
-                        className="flex min-h-8 w-full items-center justify-center rounded-full px-1.5 py-1 text-[9px] font-semibold text-white whitespace-nowrap transition hover:opacity-95 sm:min-h-10 sm:px-3 sm:py-1.5 sm:text-xs"
+                        className="flex min-h-8 w-full items-center justify-center rounded-lg px-1.5 py-1 text-[9px] font-semibold text-white whitespace-nowrap transition hover:opacity-95 sm:min-h-9 sm:text-[10px] lg:min-h-8 lg:px-2 lg:py-1 lg:text-[9px]"
                         style={{ background: "#3D294D" }}
                         onClick={(e) => {
                           e.preventDefault();

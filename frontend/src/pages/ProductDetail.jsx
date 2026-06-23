@@ -147,7 +147,7 @@ const ProductDetail = () => {
               String(p._id) !== String(product._id) &&
               String(p.category || "").toLowerCase().trim() === String(product.category || "").toLowerCase().trim(),
           )
-          .slice(0, 4);
+          .slice(0, 5);
         setRelatedProducts(sameCategory);
       } catch (e) {
         console.error("Load related products failed:", e);
@@ -613,7 +613,7 @@ const ProductDetail = () => {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={cartBusy || !inStock}
-                className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   background: "#3D294D",
                 }}
@@ -624,7 +624,7 @@ const ProductDetail = () => {
                 type="button"
                 onClick={handleBuyNow}
                 disabled={cartBusy || !inStock}
-                className="flex-1 rounded-full border px-4 py-2.5 text-sm font-semibold text-center transition hover:bg-[#3D294D] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-semibold text-center transition hover:bg-[#3D294D] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
                   borderColor: "#3D294D",
                   background: "#3D294D",
@@ -745,9 +745,10 @@ const ProductDetail = () => {
         )}
 
         {/* You May Also Like */}
-        <div className="mt-14">
+        <div className="relative left-1/2 mt-14 w-screen max-w-[100vw] -translate-x-1/2">
+          <div className="mx-auto w-full max-w-[1600px] px-6 sm:px-8 lg:px-10">
           <h2
-            className="text-2xl sm:text-3xl font-semibold text-center mb-6"
+            className="mb-4 text-xl font-semibold text-center sm:mb-5 sm:text-2xl"
             style={{ color: "var(--brand-dark)", fontFamily: "Cormorant Garamond, Georgia, serif" }}
           >
             You May Also Like
@@ -808,7 +809,7 @@ const ProductDetail = () => {
                         <div className="mt-2">
                           <button
                             type="button"
-                            className="w-full rounded-full px-2 py-1 text-[10px] font-semibold text-white transition hover:opacity-95"
+                            className="w-full rounded-lg px-2 py-1 text-[10px] font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -871,7 +872,7 @@ const ProductDetail = () => {
                         <div className="mt-3">
                           <button
                             type="button"
-                            className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
+                            className="w-full rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
                             style={{ background: "#3D294D" }}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -887,136 +888,77 @@ const ProductDetail = () => {
                 </div>
               )}
 
-              {/* Desktop: horizontal scroll only when more than 4 items */}
-              {relatedProducts.length > 4 ? (
-                <div className="hidden md:flex gap-6 overflow-x-auto pb-2">
-                  {relatedProducts.map((item) => (
-                    <div
-                      key={`${item._id}-desktop-scroll`}
-                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg min-w-[23%] cursor-pointer"
-                      onClick={() => handleRelatedProductClick(item._id)}
-                    >
-                      <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
+              {/* Desktop: 5 products in one row */}
+              <div className="hidden md:grid grid-cols-3 lg:grid-cols-5 gap-4">
+                {relatedProducts.map((item) => (
+                  <div
+                    key={`${item._id}-desktop-grid`}
+                    className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg cursor-pointer"
+                    onClick={() => handleRelatedProductClick(item._id)}
+                  >
+                    <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
+                        aria-label="Add to wishlist"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddRelatedToWishlist(item._id);
+                        }}
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill={relatedWishlistedIds.has(String(item._id)) ? "currentColor" : "none"}
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          style={{ color: relatedWishlistedIds.has(String(item._id)) ? "var(--brand-purple)" : "#4b5563" }}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                    <div className="p-3 lg:p-2">
+                      <h3
+                        className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm lg:text-xs"
+                        style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
+                      >
+                        {item.name}
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-gray-900 sm:text-base lg:text-sm">
+                          ₹{Number(item.price || 0).toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                      <div className="mt-2 lg:mt-1.5">
                         <button
                           type="button"
-                          className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
-                          aria-label="Add to wishlist"
+                          className="flex min-h-8 w-full items-center justify-center rounded-lg px-1.5 py-1 text-[9px] font-semibold text-white whitespace-nowrap transition hover:opacity-95 sm:min-h-9 sm:text-[10px] lg:min-h-8 lg:px-2 lg:py-1 lg:text-[9px]"
+                          style={{ background: "#3D294D" }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleAddRelatedToWishlist(item._id);
+                            handleAddRelatedToCart(item._id);
                           }}
                         >
-                          <svg
-                            className="h-4 w-4"
-                            fill={relatedWishlistedIds.has(String(item._id)) ? "currentColor" : "none"}
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            style={{ color: relatedWishlistedIds.has(String(item._id)) ? "var(--brand-purple)" : "#4b5563" }}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                            />
-                          </svg>
+                          Add to Cart
                         </button>
                       </div>
-                      <div className="p-4">
-                        <h3 className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-2" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>
-                          {item.name}
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
-                        </div>
-                        <div className="mt-3">
-                          <button
-                            type="button"
-                            className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
-                            style={{ background: "#3D294D" }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddRelatedToCart(item._id);
-                            }}
-                          >
-                            Add to Cart
-                          </button>
-                        </div>
-                      </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-6">
-                  {relatedProducts.map((item) => (
-                    <div
-                      key={`${item._id}-desktop-grid`}
-                      className="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-lg cursor-pointer"
-                      onClick={() => handleRelatedProductClick(item._id)}
-                    >
-                      <div className="relative aspect-[5/4] w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <button
-                          type="button"
-                          className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white shadow-md transition-all duration-300 hover:bg-[var(--brand-lavender-soft)]"
-                          aria-label="Add to wishlist"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddRelatedToWishlist(item._id);
-                          }}
-                        >
-                          <svg
-                            className="h-4 w-4"
-                            fill={relatedWishlistedIds.has(String(item._id)) ? "currentColor" : "none"}
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                            style={{ color: relatedWishlistedIds.has(String(item._id)) ? "var(--brand-purple)" : "#4b5563" }}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-2" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>
-                          {item.name}
-                        </h3>
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
-                        </div>
-                        <div className="mt-3">
-                          <button
-                            type="button"
-                            className="w-full rounded-full px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-95"
-                            style={{ background: "#3D294D" }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleAddRelatedToCart(item._id);
-                            }}
-                          >
-                            Add to Cart
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                  </div>
+                ))}
+              </div>
             </>
           )}
+          </div>
         </div>
       </div>
     </div>

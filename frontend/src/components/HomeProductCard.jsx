@@ -92,7 +92,7 @@ const HomeProductCard = ({
 
       <button
         type="button"
-        className="w-full px-3 py-1.5 text-xs font-semibold text-white transition-all duration-300 active:scale-95 sm:text-sm sm:py-2"
+        className="w-full rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-all duration-300 active:scale-95 sm:text-sm sm:py-2"
         style={{
           background: "#3D294D",
           boxShadow: "0 4px 6px -1px rgba(93, 75, 107, 0.3)",
