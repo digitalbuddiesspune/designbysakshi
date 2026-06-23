@@ -80,13 +80,13 @@ const App = () => {
         className={
           isAdminRoute
             ? "overflow-hidden"
-            : "pt-16 md:pt-[112px] lg:pt-[144px] pb-20 md:pb-0"
+            : "pt-16 md:pt-[112px] lg:pt-[144px] pb-12 md:pb-0"
         }
       >
         <Outlet />
       </main>
       {!isAdminRoute && (
-        <div className={isAuthPage ? "mt-6 sm:mt-8 lg:mt-10" : "mt-4 sm:mt-6 lg:mt-8"}>
+        <div className={isAuthPage ? "mt-4 sm:mt-8 lg:mt-10" : "-mt-2 sm:mt-6 lg:mt-8"}>
           <Footer />
         </div>
       )}

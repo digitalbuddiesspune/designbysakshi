@@ -5,7 +5,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="mt-auto w-full bg-[#001e38] px-4 py-14 pb-24 sm:pb-14 sm:px-6 lg:px-10 xl:px-14 2xl:px-16">
+    <footer className="mt-auto w-full bg-[#001e38] px-4 pt-8 pb-24 sm:px-6 sm:py-14 sm:pb-14 lg:px-10 xl:px-14 2xl:px-16">
       <div className="mx-auto w-full max-w-[1920px]">
         {/* Brand + quick links + policies + contact — flex on large screens keeps edges pinned */}
         <div className="flex flex-col gap-8 text-center sm:text-left lg:flex-row lg:items-start lg:justify-between lg:gap-8 lg:text-left xl:gap-12">
