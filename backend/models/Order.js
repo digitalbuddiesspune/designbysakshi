@@ -17,6 +17,26 @@ const orderItemSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    variantId: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    variantColor: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    variantSize: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    variantImage: {
+      type: String,
+      trim: true,
+      default: '',
+    },
   },
   { _id: false }
 );
@@ -69,6 +89,14 @@ const orderSchema = new mongoose.Schema(
     statusHistory: {
       type: [statusHistorySchema],
       default: [],
+    },
+    deliveredAt: {
+      type: Date,
+      default: null,
+    },
+    returnRequestedAt: {
+      type: Date,
+      default: null,
     },
     paymentStatus: {
       type: String,

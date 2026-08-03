@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useSearchParams, Link } from "react-router-dom";
 import CartQuantityControls from "../components/CartQuantityControls.jsx";
+import ProductPrice from "../components/ProductPrice.jsx";
 import { flyToCart, getVisibleProductImage } from "../utils/flyToCart.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -339,15 +340,18 @@ const CategoryPage = () => {
                   </div>
                   <div className="p-3 lg:p-2">
                     <h3
-                      className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm lg:text-xs"
+                      className="mb-1 line-clamp-1 text-xs font-semibold text-gray-900 sm:text-sm lg:text-xs"
                       style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
                     >
                       {product.name}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-gray-900 sm:text-base lg:text-sm">
-                        {formatPrice(product.price)}
-                      </span>
+                      <ProductPrice
+                        price={product.price}
+                        discountType={product.discountType}
+                        size="sm"
+                        priceClassName="font-bold text-gray-900 sm:text-base lg:text-sm"
+                      />
                     </div>
                   </div>
                   </Link>

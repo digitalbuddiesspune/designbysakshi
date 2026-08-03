@@ -292,6 +292,10 @@ const Checkout = () => {
         product: item.product?._id || item.product,
         quantity: item.quantity || 1,
         price: item.priceAtAddTime || 0,
+        variantId: item.variantId || "",
+        variantColor: item.variantColor || "",
+        variantSize: item.variantSize || "",
+        variantImage: item.variantImage || "",
       })),
       shippingAddress: selectedAddress,
       paymentMethod: mode,
@@ -751,24 +755,34 @@ const Checkout = () => {
                     </Link>
                   </div>
                 ) : (
-                  items.map((item) => (
-                    <div key={item.product?._id || item.product} className="flex items-center gap-4">
+                  items.map((item) => {
+                    const lineKey = `${item.product?._id || item.product}:${item.variantId || ""}`;
+                    const imageSrc = item.variantImage || item.product?.image;
+                    const variantLabel = [item.variantColor, item.variantSize]
+                      .filter(Boolean)
+                      .join(" / ");
+                    return (
+                    <div key={lineKey} className="flex items-center gap-4">
                       <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-xl bg-gray-100 border border-gray-200">
-                        {item.product?.image ? (
-                          <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
+                        {imageSrc ? (
+                          <img src={imageSrc} alt={item.product?.name} className="h-full w-full object-cover" />
                         ) : null}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-base font-bold text-gray-900">
                           {item.product?.name || "Product"}
                         </div>
+                        {variantLabel ? (
+                          <div className="mt-0.5 text-xs text-gray-500">{variantLabel}</div>
+                        ) : null}
                         <div className="mt-1 text-sm text-gray-500">Qty: {item.quantity || 1}</div>
                       </div>
                       <div className="text-base font-bold text-gray-900">
                         ₹{((item.priceAtAddTime || 0) * (item.quantity || 1)).toLocaleString("en-IN")}
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
 

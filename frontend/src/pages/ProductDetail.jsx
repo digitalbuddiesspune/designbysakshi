@@ -2,9 +2,11 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import StarRatingPicker from "../components/StarRatingPicker";
 import ProductCartAction from "../components/ProductCartAction.jsx";
+import ProductPrice from "../components/ProductPrice.jsx";
 import { flyToCart, getVisibleProductImage } from "../utils/flyToCart.js";
 import { useCartQuantities } from "../hooks/useCartQuantities.js";
 import { getGuestId } from "../utils/guestId.js";
+import { getDiscountedPrice } from "../utils/pricing.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -28,6 +30,8 @@ const ProductDetail = () => {
   const [routeReviewOpen, setRouteReviewOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
   const [showMoreDetails, setShowMoreDetails] = useState(false);
+  const [selectedVariantId, setSelectedVariantId] = useState("");
+  const [careOpen, setCareOpen] = useState(false);
 
   const guestId = useMemo(() => getGuestId(), []);
   const { cartQuantities, cartBusyId, addToCart, setCartQuantity } = useCartQuantities();
@@ -44,6 +48,9 @@ const ProductDetail = () => {
         const data = await res.json();
         setProduct(data);
         setActiveImageIndex(0);
+        // Keep main product selected by default; user picks a variant when needed
+        setSelectedVariantId("");
+        setCareOpen(false);
       } catch (err) {
         setError(err.message || "Something went wrong");
       } finally {
@@ -183,7 +190,8 @@ const ProductDetail = () => {
   }, [relatedProducts, guestId]);
 
   const handleAddToCart = async () => {
-    if ((cartQuantities[String(product._id)] || 0) > 0) return;
+    const cartKey = selectedVariantId ? `${product._id}:${selectedVariantId}` : String(product._id);
+    if ((cartQuantities[cartKey] || 0) > 0) return;
     try {
       setCartBusy(true);
       const mainImg = document.getElementById("product-main-image");
@@ -191,7 +199,12 @@ const ProductDetail = () => {
       await fetch(`${API_URL}/cart/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: product._id, quantity, guestId }),
+        body: JSON.stringify({
+          productId: product._id,
+          quantity,
+          guestId,
+          variantId: selectedVariantId || "",
+        }),
       });
       window.dispatchEvent(new Event("cart-updated"));
     } catch (e) {
@@ -222,14 +235,24 @@ const ProductDetail = () => {
   };
 
   const handleBuyNow = async () => {
-    const inCart = cartQuantities[String(product._id)] || 0;
+    const variants = Array.isArray(product?.variants) ? product.variants : [];
+    const selectedVariant = variants.find((v) => String(v._id) === String(selectedVariantId));
+    const cartKey = selectedVariantId ? `${product._id}:${selectedVariantId}` : String(product._id);
+    const inCart = cartQuantities[cartKey] || 0;
     const buyQty = inCart > 0 ? inCart : quantity;
+    const displayImage =
+      (Array.isArray(selectedVariant?.images) && selectedVariant.images[0]) || product.image;
+    const basePrice = selectedVariant ? Number(selectedVariant.price) : product.price;
     navigate("/checkout", {
       state: {
         buyNowItem: {
-          product: { _id: product._id, name: product.name, image: product.image },
+          product: { _id: product._id, name: product.name, image: displayImage },
           quantity: buyQty,
-          priceAtAddTime: product.price,
+          priceAtAddTime: getDiscountedPrice(basePrice, product.discountType),
+          variantId: selectedVariantId || "",
+          variantColor: selectedVariant?.color || "",
+          variantSize: selectedVariant?.size || "",
+          variantImage: displayImage || "",
         },
       },
     });
@@ -326,14 +349,20 @@ const ProductDetail = () => {
   const hasDescription = !!product.description?.trim();
   const remainingStock = typeof product.stock === "number" ? product.stock : 0;
   const inStock = product.inStock && remainingStock > 0;
-  const inCartQty = cartQuantities[String(product._id)] || 0;
+  const productVariants = Array.isArray(product.variants) ? product.variants : [];
+  const hasVariants = productVariants.length > 0;
+  const selectedVariant =
+    productVariants.find((v) => String(v._id) === String(selectedVariantId)) || null;
+  const cartKey = selectedVariantId ? `${product._id}:${selectedVariantId}` : String(product._id);
+  const inCartQty = cartQuantities[cartKey] || 0;
   const displayQty = inCartQty > 0 ? inCartQty : quantity;
-  const isMainCartBusy = cartBusyId === product._id;
+  const isMainCartBusy = cartBusyId === product._id || cartBusyId === cartKey;
+  const displayPrice = selectedVariant ? Number(selectedVariant.price) : Number(product.price);
 
   const handleDecreaseQty = () => {
     if (!inStock) return;
     if (inCartQty > 0) {
-      setCartQuantity(product._id, inCartQty - 1);
+      setCartQuantity(product._id, inCartQty - 1, selectedVariantId || "");
       return;
     }
     setQuantity((q) => Math.max(1, q - 1));
@@ -342,15 +371,35 @@ const ProductDetail = () => {
   const handleIncreaseQty = () => {
     if (!inStock) return;
     if (inCartQty > 0) {
-      setCartQuantity(product._id, Math.min(remainingStock, inCartQty + 1));
+      setCartQuantity(product._id, Math.min(remainingStock, inCartQty + 1), selectedVariantId || "");
       return;
     }
     setQuantity((q) => Math.min(remainingStock, q + 1));
   };
-  const galleryImages = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.image].filter(Boolean);
+  const baseGallery =
+    Array.isArray(product.images) && product.images.length > 0
+      ? product.images
+      : [product.image].filter(Boolean);
+  const variantGallery =
+    selectedVariant && Array.isArray(selectedVariant.images)
+      ? selectedVariant.images.filter(Boolean)
+      : [];
+  // Always keep main product images; append selected variant images (deduped)
+  const galleryImages = (() => {
+    const seen = new Set();
+    const merged = [];
+    [...baseGallery, ...variantGallery].forEach((src) => {
+      const key = String(src || "").trim();
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      merged.push(key);
+    });
+    return merged.length ? merged : [product.image].filter(Boolean);
+  })();
   const activeImage = galleryImages[activeImageIndex] || galleryImages[0] || product.image;
   const features = Array.isArray(product.features) ? product.features : [];
   const stylingTips = Array.isArray(product.stylingTips) ? product.stylingTips : [];
+  const careInstructions = Array.isArray(product.careInstructions) ? product.careInstructions : [];
   const userReviews = Array.isArray(product.userReviews) ? product.userReviews : [];
   const currentUserId = (() => {
     try {
@@ -374,7 +423,12 @@ const ProductDetail = () => {
   const previewFeatures = features.slice(0, 3);
   const hasMoreFeatures = features.length > 3;
   const hasHiddenDetails =
-    hasMoreFeatures || stylingTips.length > 0 || Boolean(product.color) || showReviewsSection;
+    hasMoreFeatures ||
+    stylingTips.length > 0 ||
+    Boolean(product.color) ||
+    Boolean(product.hsnCode) ||
+    careInstructions.length > 0 ||
+    showReviewsSection;
 
   return (
     <div className="min-h-screen bg-white py-6">
@@ -449,9 +503,89 @@ const ProductDetail = () => {
             </h1>
 
             {/* Price */}
-            <p className="text-xl font-bold text-gray-900">
-              ₹{product.price?.toLocaleString("en-IN")}
-            </p>
+            <ProductPrice
+              price={displayPrice}
+              discountType={product.discountType}
+              size="lg"
+            />
+
+            {product.hsnCode ? (
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold text-gray-800">HSN:</span> {product.hsnCode}
+              </p>
+            ) : null}
+
+            {hasVariants && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-800">Choose Variant</h3>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedVariantId("");
+                      setActiveImageIndex(0);
+                    }}
+                    className={`rounded-lg border px-3 py-2 text-left text-sm transition ${
+                      !selectedVariantId
+                        ? "border-[#3D294D] bg-[#3D294D]/10"
+                        : "border-gray-200 hover:border-[#3D294D]/40"
+                    }`}
+                  >
+                    <div className="font-semibold text-gray-900">
+                      {product.color?.trim() || "Default"}
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      <ProductPrice
+                        price={product.price}
+                        discountType={product.discountType}
+                        size="sm"
+                        showBadge={false}
+                      />
+                    </div>
+                  </button>
+                  {productVariants.map((variant) => {
+                    const isActive = String(variant._id) === String(selectedVariantId);
+                    const label = [variant.color, variant.size].filter(Boolean).join(" / ") || "Variant";
+                    return (
+                      <button
+                        key={variant._id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedVariantId(String(variant._id));
+                          const variantImgs = (variant.images || []).filter(Boolean);
+                          const firstExtra = variantImgs.find((src) => !baseGallery.includes(src));
+                          if (!firstExtra) {
+                            setActiveImageIndex(0);
+                            return;
+                          }
+                          const merged = [];
+                          const seen = new Set();
+                          [...baseGallery, ...variantImgs].forEach((src) => {
+                            if (!src || seen.has(src)) return;
+                            seen.add(src);
+                            merged.push(src);
+                          });
+                          setActiveImageIndex(Math.max(0, merged.indexOf(firstExtra)));
+                        }}
+                        className={`rounded-lg border px-3 py-2 text-left text-sm transition ${
+                          isActive ? "border-[#3D294D] bg-[#3D294D]/10" : "border-gray-200 hover:border-[#3D294D]/40"
+                        }`}
+                      >
+                        <div className="font-semibold text-gray-900">{label}</div>
+                        <div className="text-xs text-gray-600">
+                          <ProductPrice
+                            price={variant.price}
+                            discountType={product.discountType}
+                            size="sm"
+                            showBadge={false}
+                          />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Stock */}
             {remainingStock <= 0 ? (
@@ -464,6 +598,60 @@ const ProductDetail = () => {
             {hasDescription && (
               <p className="text-sm leading-relaxed text-gray-600">{product.description}</p>
             )}
+
+            {/* ── Quantity selector ── */}
+            <div className="flex items-center gap-3 pt-1">
+              <span className="text-sm font-semibold text-gray-700">Qty:</span>
+              <div className="flex items-center overflow-hidden rounded-lg bg-[#3D294D]/10">
+                <button
+                  type="button"
+                  onClick={handleDecreaseQty}
+                  className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
+                  disabled={(inCartQty === 0 && quantity <= 1) || !inStock || isMainCartBusy}
+                >
+                  −
+                </button>
+                <div className="h-9 w-10 text-center text-sm font-semibold leading-9 text-gray-900">
+                  {displayQty}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleIncreaseQty}
+                  className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
+                  disabled={displayQty >= remainingStock || !inStock || isMainCartBusy}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* ── Action buttons ── */}
+            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                disabled={cartBusy || !inStock || inCartQty > 0 || isMainCartBusy}
+                className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  background: "#3D294D",
+                }}
+              >
+                {inCartQty > 0 ? "In Cart" : cartBusy ? "Adding..." : "Add to Cart"}
+              </button>
+              <button
+                type="button"
+                onClick={handleBuyNow}
+                disabled={cartBusy || !inStock || isMainCartBusy}
+                className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-semibold text-center transition hover:bg-[#3D294D] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  borderColor: "#3D294D",
+                  background: "#3D294D",
+                  color: "white",
+                }}
+              >
+                Buy Now
+              </button>
+            </div>
 
             {features.length > 0 && (
               <div>
@@ -495,6 +683,19 @@ const ProductDetail = () => {
               </button>
             )}
 
+            {!showMoreDetails && careInstructions.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowMoreDetails(true);
+                  setCareOpen(true);
+                }}
+                className="text-left text-sm font-semibold text-gray-700 underline-offset-2 hover:underline"
+              >
+                View Jewellery Care
+              </button>
+            )}
+
             {showMoreDetails && (
               <>
                 {stylingTips.length > 0 && (
@@ -508,10 +709,42 @@ const ProductDetail = () => {
                   </div>
                 )}
 
-                {product.color && (
+                {product.color && !hasVariants && (
                   <p className="text-sm text-gray-700">
                     <span className="font-semibold">Color:</span> {product.color}
                   </p>
+                )}
+
+                {careInstructions.length > 0 && (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setCareOpen((open) => !open)}
+                      className="flex w-full items-center justify-between text-left"
+                    >
+                      <h3 className="text-sm font-semibold text-gray-800">
+                        {product.careTitle || "Jewellery Care"}
+                      </h3>
+                      <span className="text-xs font-semibold text-green-600">
+                        {careOpen ? "Hide" : "Show"}
+                      </span>
+                    </button>
+                    {careOpen && (
+                      <div className="mt-2 space-y-3">
+                        {product.careDescription ? (
+                          <p className="text-sm text-gray-600">{product.careDescription}</p>
+                        ) : null}
+                        <ul className="space-y-2">
+                          {careInstructions.map((item) => (
+                            <li key={item.id || item.title} className="text-sm text-gray-600">
+                              <span className="font-semibold text-gray-800">{item.title}: </span>
+                              {item.description}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 )}
 
                 {showReviewsSection && (
@@ -589,60 +822,6 @@ const ProductDetail = () => {
                 </button>
               </>
             )}
-
-            {/* ── Quantity selector ── */}
-            <div className="flex items-center gap-3 pt-1">
-              <span className="text-sm font-semibold text-gray-700">Qty:</span>
-              <div className="flex items-center overflow-hidden rounded-lg bg-[#3D294D]/10">
-                <button
-                  type="button"
-                  onClick={handleDecreaseQty}
-                  className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
-                  disabled={(inCartQty === 0 && quantity <= 1) || !inStock || isMainCartBusy}
-                >
-                  −
-                </button>
-                <div className="h-9 w-10 text-center text-sm font-semibold leading-9 text-gray-900">
-                  {displayQty}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleIncreaseQty}
-                  className="h-9 w-10 text-base font-bold text-white bg-[#3D294D] hover:bg-[#3D294D] transition disabled:opacity-40"
-                  disabled={displayQty >= remainingStock || !inStock || isMainCartBusy}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-
-            {/* ── Action buttons ── */}
-            <div className="flex flex-col gap-3 pt-2 sm:flex-row">
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                disabled={cartBusy || !inStock || inCartQty > 0 || isMainCartBusy}
-                className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  background: "#3D294D",
-                }}
-              >
-                {inCartQty > 0 ? "In Cart" : cartBusy ? "Adding..." : "Add to Cart"}
-              </button>
-              <button
-                type="button"
-                onClick={handleBuyNow}
-                disabled={cartBusy || !inStock || isMainCartBusy}
-                className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-semibold text-center transition hover:bg-[#3D294D] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                style={{
-                  borderColor: "#3D294D",
-                  background: "#3D294D",
-                  color: "white",
-                }}
-              >
-                Buy Now
-              </button>
-            </div>
           </div>
 
         </div>
@@ -810,11 +989,11 @@ const ProductDetail = () => {
                         </button>
                       </div>
                       <div className="p-3">
-                        <h3 className="mb-1 text-xs font-semibold text-gray-900 line-clamp-2" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>
+                        <h3 className="mb-1 text-xs font-semibold text-gray-900 line-clamp-1" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>
                           {item.name}
                         </h3>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
+                          <ProductPrice price={item.price} discountType={item.discountType} size="sm" />
                         </div>
                         <div className="mt-2">
                           <ProductCartAction
@@ -872,11 +1051,11 @@ const ProductDetail = () => {
                         </button>
                       </div>
                       <div className="p-4">
-                        <h3 className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-2" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>
+                        <h3 className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-1" style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}>
                           {item.name}
                         </h3>
                         <div className="flex items-center gap-2">
-                          <span className="text-lg font-bold text-gray-900">₹{Number(item.price || 0).toLocaleString("en-IN")}</span>
+                          <ProductPrice price={item.price} discountType={item.discountType} size="lg" />
                         </div>
                         <div className="mt-3">
                           <ProductCartAction
@@ -937,14 +1116,14 @@ const ProductDetail = () => {
                     </div>
                     <div className="p-3 lg:p-2">
                       <h3
-                        className="mb-1 line-clamp-2 text-xs font-semibold text-gray-900 sm:text-sm lg:text-xs"
+                        className="mb-1 line-clamp-1 text-xs font-semibold text-gray-900 sm:text-sm lg:text-xs"
                         style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
                       >
                         {item.name}
                       </h3>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-gray-900 sm:text-base lg:text-sm">
-                          ₹{Number(item.price || 0).toLocaleString("en-IN")}
+                          <ProductPrice price={item.price} discountType={item.discountType} size="sm" />
                         </span>
                       </div>
                       <div className="mt-2 lg:mt-1.5">

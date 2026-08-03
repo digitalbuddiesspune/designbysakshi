@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import ProductPrice from "../components/ProductPrice.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -105,16 +106,14 @@ const Wishlist = () => {
                 </div>
                 <div className="p-4">
                   <h3
-                    className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-2"
+                    className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-1"
                     style={{
                       fontFamily: "Cormorant Garamond, Georgia, serif",
                     }}
                   >
                     {product.name}
                   </h3>
-                  <p className="text-sm font-bold text-gray-900">
-                    ₹{product.price?.toLocaleString("en-IN")}
-                  </p>
+                  <ProductPrice price={product.price} discountType={product.discountType} size="sm" />
                   <div className="mt-3">
                     <span
                       className="block rounded-full border px-3 py-1.5 text-xs font-medium text-center no-underline transition hover:bg-gray-100"

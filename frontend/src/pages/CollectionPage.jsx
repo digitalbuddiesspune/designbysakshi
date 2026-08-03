@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import ProductPrice from "../components/ProductPrice.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -227,13 +228,13 @@ const CollectionPage = ({ heroImage, mobileHeroImage, subcategoryName, title }) 
                 </div>
                 <div className="p-4">
                   <h3
-                    className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-2"
+                    className="mb-2 text-sm font-semibold text-gray-900 sm:text-base line-clamp-1"
                     style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
                   >
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg font-bold text-gray-900">{formatPrice(product.price)}</span>
+                    <ProductPrice price={product.price} discountType={product.discountType} size="lg" />
                   </div>
                   <div className="flex gap-2">
                     <button

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import HomeProductCard from "./HomeProductCard.jsx";
 import { useCartQuantities } from "../hooks/useCartQuantities.js";
 import { getGuestId } from "../utils/guestId.js";
@@ -60,6 +61,15 @@ const HighlightGrid = () => {
               onAddToWishlist={handleAddToWishlist}
             />
           ))}
+        </div>
+        <div className="mt-6 flex justify-center sm:mt-8">
+          <Link
+            to="/bestseller"
+            className="inline-flex items-center rounded-lg border px-5 py-2.5 text-sm font-semibold transition hover:bg-[#3D294D] hover:text-white"
+            style={{ borderColor: "#3D294D", color: "#3D294D" }}
+          >
+            View All Bestsellers
+          </Link>
         </div>
       </div>
     </section>

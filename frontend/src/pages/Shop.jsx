@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import ProductPrice from "../components/ProductPrice.jsx";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -148,15 +149,13 @@ const Shop = () => {
                   </div>
                   <div className="p-4">
                     <h3
-                      className="mb-2 line-clamp-2 text-sm font-semibold text-gray-900 sm:text-base"
+                      className="mb-2 line-clamp-1 text-sm font-semibold text-gray-900 sm:text-base"
                       style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
                     >
                       {product.name}
                     </h3>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-gray-900">
-                        {formatPrice(product.price)}
-                      </span>
+                      <ProductPrice price={product.price} discountType={product.discountType} size="lg" />
                     </div>
                     <div className="mt-3">
                       <button

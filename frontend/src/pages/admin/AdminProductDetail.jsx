@@ -132,36 +132,41 @@ const AdminProductDetail = () => {
               <DetailField label="Price">
                 <span className="font-semibold text-gray-900">{formatPrice(product.price)}</span>
               </DetailField>
-              <DetailField label="Discount">{product.discountType || "-"}</DetailField>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <DetailField label="Main Category">{product.category || "-"}</DetailField>
-              <DetailField label="Subcategory">{product.subcategory || "-"}</DetailField>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <DetailField label="Stock">{product.stock ?? 0}</DetailField>
-              <DetailField label="In Stock">{product.inStock ? "Yes" : "No"}</DetailField>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <DetailField label="Bestseller">{product.isBestseller ? "Yes" : "No"}</DetailField>
-              <DetailField label="New Arrival">{product.isNewArrival ? "Yes" : "No"}</DetailField>
-            </div>
-
-            {product.latestCollectionSubcategory ? (
-              <DetailField label="Latest Collection Subcategory">
-                {product.latestCollectionSubcategory}
+              <DetailField label="Discount">
+                {product.discountType ? `${product.discountType}%` : "-"}
               </DetailField>
-            ) : null}
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <DetailField label="HSN Code">{product.hsnCode || "-"}</DetailField>
+              <DetailField label="Main Category">{product.category || "-"}</DetailField>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <DetailField label="Subcategory">{product.subcategory || "-"}</DetailField>
+              <DetailField label="Stock">{product.stock ?? 0}</DetailField>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <DetailField label="In Stock">{product.inStock ? "Yes" : "No"}</DetailField>
+              <DetailField label="Bestseller">{product.isBestseller ? "Yes" : "No"}</DetailField>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <DetailField label="New Arrival">{product.isNewArrival ? "Yes" : "No"}</DetailField>
+              {product.latestCollectionSubcategory ? (
+                <DetailField label="Latest Collection Subcategory">
+                  {product.latestCollectionSubcategory}
+                </DetailField>
+              ) : (
+                <div />
+              )}
+            </div>
 
             {product.description && (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <DetailField label="Description" className="sm:col-span-2">
-                  <p className="leading-relaxed">{product.description}</p>
-                </DetailField>
-              </div>
+              <DetailField label="Description">
+                <p className="leading-relaxed">{product.description}</p>
+              </DetailField>
             )}
 
             {(Array.isArray(product.features) && product.features.length > 0) ||
@@ -191,6 +196,58 @@ const AdminProductDetail = () => {
                 </DetailField>
               </div>
             ) : null}
+
+            <DetailField label="Variants">
+              {Array.isArray(product.variants) && product.variants.length > 0 ? (
+                <div className="space-y-3">
+                  {product.variants.map((variant, idx) => {
+                    const images = Array.isArray(variant.images)
+                      ? variant.images.filter(Boolean)
+                      : [];
+                    return (
+                      <div
+                        key={variant._id || `variant-${idx}`}
+                        className="rounded-lg border border-gray-200 p-3"
+                      >
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                          <p>
+                            <span className="font-semibold text-gray-800">Color:</span>{" "}
+                            {variant.color || "-"}
+                          </p>
+                          <p>
+                            <span className="font-semibold text-gray-800">Size:</span>{" "}
+                            {variant.size || "-"}
+                          </p>
+                          <p>
+                            <span className="font-semibold text-gray-800">Price:</span>{" "}
+                            {formatPrice(variant.price)}
+                          </p>
+                        </div>
+                        {images.length > 0 ? (
+                          <div className="mt-3 flex gap-2 overflow-x-auto">
+                            {images.map((src, imgIdx) => (
+                              <img
+                                key={`${src}-${imgIdx}`}
+                                src={src}
+                                alt={`Variant ${idx + 1} image ${imgIdx + 1}`}
+                                className="h-16 w-16 shrink-0 rounded-md object-cover"
+                                onError={(e) => {
+                                  e.target.src = "https://via.placeholder.com/64";
+                                }}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="mt-2 text-xs text-gray-500">No variant images</p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p>No variants</p>
+              )}
+            </DetailField>
 
             <DetailField label="User Reviews">
               {Array.isArray(product.userReviews) && product.userReviews.length > 0 ? (

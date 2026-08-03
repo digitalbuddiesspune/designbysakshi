@@ -1,15 +1,7 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
 import ProductCartAction from "./ProductCartAction.jsx";
-
-const formatPrice = (price) => {
-  if (!price) return "";
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(price);
-};
+import ProductPrice from "./ProductPrice.jsx";
 
 const HomeProductCard = ({
   product,
@@ -91,11 +83,8 @@ const HomeProductCard = ({
           {product.name}
         </h3>
 
-        <div className="mb-2 flex items-center gap-2">
-          <span className="text-base font-bold text-gray-900">{formatPrice(product.price)}</span>
-          <span className="text-xs text-gray-500 line-through">
-            {formatPrice(product.originalPrice || product.price * 1.2)}
-          </span>
+        <div className="mb-2">
+          <ProductPrice price={product.price} discountType={product.discountType} />
         </div>
 
         <ProductCartAction

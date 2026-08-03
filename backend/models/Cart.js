@@ -7,6 +7,26 @@ const cartItemSchema = new mongoose.Schema(
       ref: 'Product',
       required: true,
     },
+    variantId: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    variantColor: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    variantSize: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    variantImage: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     quantity: {
       type: Number,
       required: true,
@@ -43,4 +63,3 @@ const cartSchema = new mongoose.Schema(
 const Cart = mongoose.model('Cart', cartSchema);
 
 export default Cart;
-

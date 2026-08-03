@@ -1,5 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  Bars3Icon,
+  BookOpenIcon,
+  ChatBubbleLeftRightIcon,
+  ChevronDownIcon,
+  ClipboardDocumentListIcon,
+  CreditCardIcon,
+  CubeIcon,
+  BanknotesIcon,
+  HomeIcon,
+  PhotoIcon,
+  ArrowRightOnRectangleIcon,
+  TagIcon,
+  TicketIcon,
+  UserCircleIcon,
+  UsersIcon,
+  XMarkIcon,
+} from "@heroicons/react/24/outline";
 
 const AdminLayout = () => {
   const location = useLocation();
@@ -27,6 +45,7 @@ const AdminLayout = () => {
     if (p === "/admin/orders") return "My Orders";
     if (p.startsWith("/admin/order-details/")) return "Order Details";
     if (p === "/admin/payments") return "Payments";
+    if (p === "/admin/revenue") return "Revenue";
     if (p === "/admin/coupons") return "Coupons";
     if (p === "/admin/add-coupon") return "Create Coupon";
     if (p === "/admin/users") return "Users";
@@ -186,14 +205,11 @@ const AdminLayout = () => {
             }`}
             aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-              />
-            </svg>
+            {isSidebarOpen ? (
+              <XMarkIcon className="h-4 w-4" />
+            ) : (
+              <Bars3Icon className="h-4 w-4" />
+            )}
           </button>
         </div>
 
@@ -210,14 +226,7 @@ const AdminLayout = () => {
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  />
-                </svg>
+                <HomeIcon className="h-5 w-5" />
                 {isSidebarOpen && <span>Dashboard</span>}
               </Link>
             </li>
@@ -234,32 +243,15 @@ const AdminLayout = () => {
                       : "text-gray-300 hover:bg-gray-800"
                   }`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                    />
-                  </svg>
+                  <CubeIcon className="h-5 w-5" />
                   {isSidebarOpen && (
                     <>
                       <span className="flex-1 text-left">Products</span>
-                      <svg
-                        className={`w-4 h-4 transition-transform ${
+                      <ChevronDownIcon
+                        className={`h-4 w-4 transition-transform ${
                           openDropdown === "products" ? "rotate-180" : ""
                         }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      />
                     </>
                   )}
                 </button>
@@ -308,32 +300,15 @@ const AdminLayout = () => {
                       : "text-gray-300 hover:bg-gray-800"
                   }`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                    />
-                  </svg>
+                  <TagIcon className="h-5 w-5" />
                   {isSidebarOpen && (
                     <>
                       <span className="flex-1 text-left">Categories</span>
-                      <svg
-                        className={`w-4 h-4 transition-transform ${
+                      <ChevronDownIcon
+                        className={`h-4 w-4 transition-transform ${
                           openDropdown === "categories" ? "rotate-180" : ""
                         }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
+                      />
                     </>
                   )}
                 </button>
@@ -380,14 +355,7 @@ const AdminLayout = () => {
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 8h10M7 12h10M7 16h10M5 4h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"
-                  />
-                </svg>
+                <ClipboardDocumentListIcon className="h-5 w-5" />
                 {isSidebarOpen && <span>Orders</span>}
               </Link>
             </li>
@@ -401,15 +369,22 @@ const AdminLayout = () => {
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M3 10h18M7 15h.01M11 15h2m-8 4h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                  />
-                </svg>
+                <CreditCardIcon className="h-5 w-5" />
                 {isSidebarOpen && <span>Payments</span>}
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/admin/revenue"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                  isActive("/admin/revenue")
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+              >
+                <BanknotesIcon className="h-5 w-5" />
+                {isSidebarOpen && <span>Revenue</span>}
               </Link>
             </li>
 
@@ -422,9 +397,7 @@ const AdminLayout = () => {
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3-1.12-3-2.5S10.343 3 12 3s3 1.12 3 2.5S13.657 8 12 8zM5 14a2 2 0 002-2V9a2 2 0 012-2h6a2 2 0 012 2v3a2 2 0 002 2h1v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5h1z" />
-                </svg>
+                <TicketIcon className="h-5 w-5" />
                 {isSidebarOpen && <span>Coupons</span>}
               </Link>
             </li>
@@ -441,22 +414,15 @@ const AdminLayout = () => {
                       : "text-gray-300 hover:bg-gray-800"
                   }`}
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3" />
-                  </svg>
+                  <PhotoIcon className="h-5 w-5" />
                   {isSidebarOpen && (
                     <>
                       <span className="flex-1 text-left">Homepage</span>
-                      <svg
-                        className={`w-4 h-4 transition-transform ${
+                      <ChevronDownIcon
+                        className={`h-4 w-4 transition-transform ${
                           openDropdown === "homepage" ? "rotate-180" : ""
                         }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
+                      />
                     </>
                   )}
                 </button>
@@ -502,14 +468,7 @@ const AdminLayout = () => {
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 20h5V9a2 2 0 00-2-2h-3m0 13v-3a2 2 0 00-2-2H9a2 2 0 00-2 2v3m10 0H7m10 0a2 2 0 002-2v-3.5M7 20a2 2 0 01-2-2v-3.5M7 7a4 4 0 118 0 4 4 0 01-8 0zM3 7h2m0 0a3 3 0 013 3v.5M5 7a3 3 0 00-3 3v.5"
-                  />
-                </svg>
+                <UsersIcon className="h-5 w-5" />
                 {isSidebarOpen && <span>Users</span>}
               </Link>
             </li>
@@ -523,9 +482,7 @@ const AdminLayout = () => {
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
+                <ChatBubbleLeftRightIcon className="h-5 w-5" />
                 {isSidebarOpen && <span>Testimonials</span>}
               </Link>
             </li>
@@ -540,15 +497,7 @@ const AdminLayout = () => {
                     : "text-gray-300 hover:bg-gray-800"
                 }`}
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 19.5A2.5 2.5 0 006.5 22H20V4H6.5A2.5 2.5 0 004 6.5v13Z"
-                  />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9h8M8 13h8" />
-                </svg>
+                <BookOpenIcon className="h-5 w-5" />
                 {isSidebarOpen && <span>Blog</span>}
               </Link>
             </li>
@@ -562,9 +511,7 @@ const AdminLayout = () => {
             onClick={handleAdminLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-300 hover:bg-red-900/30 transition"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
-            </svg>
+            <ArrowRightOnRectangleIcon className="h-5 w-5" />
             {isSidebarOpen && <span>Logout</span>}
           </button>
         </div>
@@ -598,9 +545,7 @@ const AdminLayout = () => {
                 }`}
                 style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
               >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+                <UserCircleIcon className="h-4 w-4" />
                 Admin
               </Link>
             </div>

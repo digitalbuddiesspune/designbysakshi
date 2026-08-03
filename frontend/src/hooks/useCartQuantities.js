@@ -4,6 +4,9 @@ import { getGuestId } from "../utils/guestId.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+const cartLineKey = (productId, variantId = "") =>
+  variantId ? `${productId}:${variantId}` : String(productId);
+
 export function useCartQuantities() {
   const [cartQuantities, setCartQuantities] = useState({});
   const [cartBusyId, setCartBusyId] = useState(null);
@@ -16,7 +19,11 @@ export function useCartQuantities() {
       const qtyMap = {};
       (data?.items || []).forEach((item) => {
         const id = String(item?.product?._id || item?.product || "");
-        if (id) qtyMap[id] = Number(item.quantity || 0);
+        if (!id) return;
+        const key = cartLineKey(id, item?.variantId || "");
+        qtyMap[key] = Number(item.quantity || 0);
+        // Keep product-level total for simple cards without variants
+        qtyMap[id] = (qtyMap[id] || 0) + Number(item.quantity || 0);
       });
       setCartQuantities(qtyMap);
     } catch (error) {
@@ -31,18 +38,20 @@ export function useCartQuantities() {
     return () => window.removeEventListener("cart-updated", onCartUpdated);
   }, [loadCartQuantities]);
 
-  const addToCart = useCallback(async (productId, imageEl) => {
+  const addToCart = useCallback(async (productId, imageEl, variantId = "") => {
     try {
-      setCartBusyId(productId);
+      const key = cartLineKey(productId, variantId);
+      setCartBusyId(key);
       if (imageEl) flyToCart(imageEl);
       const guestId = getGuestId();
       await fetch(`${API_URL}/cart/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: 1, guestId }),
+        body: JSON.stringify({ productId, quantity: 1, guestId, variantId: variantId || "" }),
       });
       setCartQuantities((prev) => ({
         ...prev,
+        [key]: (prev[key] || 0) + 1,
         [String(productId)]: (prev[String(productId)] || 0) + 1,
       }));
       window.dispatchEvent(new Event("cart-updated"));
@@ -54,21 +63,27 @@ export function useCartQuantities() {
     }
   }, []);
 
-  const setCartQuantity = useCallback(async (productId, nextQty) => {
+  const setCartQuantity = useCallback(async (productId, nextQty, variantId = "") => {
     try {
-      setCartBusyId(productId);
+      const key = cartLineKey(productId, variantId);
+      setCartBusyId(key);
       const guestId = getGuestId();
       await fetch(`${API_URL}/cart/set-quantity`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: nextQty, guestId }),
+        body: JSON.stringify({
+          productId,
+          quantity: nextQty,
+          guestId,
+          variantId: variantId || "",
+        }),
       });
       setCartQuantities((prev) => {
         const updated = { ...prev };
         if (nextQty <= 0) {
-          delete updated[String(productId)];
+          delete updated[key];
         } else {
-          updated[String(productId)] = nextQty;
+          updated[key] = nextQty;
         }
         return updated;
       });

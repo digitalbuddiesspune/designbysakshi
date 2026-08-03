@@ -53,11 +53,13 @@ const Cart = () => {
 
   const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
 
-  const changeQty = async (productId, delta) => {
+  const changeQty = async (productId, delta, variantId = "") => {
     try {
-      setBusyProductId(productId);
+      setBusyProductId(`${productId}:${variantId || ""}`);
       const currentItem = items.find(
-        (it) => String(it.product?._id || it.product) === String(productId)
+        (it) =>
+          String(it.product?._id || it.product) === String(productId) &&
+          String(it.variantId || "") === String(variantId || ""),
       );
       const currentQty = Number(currentItem?.quantity || 0);
       const nextQty = currentQty + delta;
@@ -65,7 +67,7 @@ const Cart = () => {
       await fetch(`${API_URL}/cart/set-quantity`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: nextQty, guestId }),
+        body: JSON.stringify({ productId, quantity: nextQty, guestId, variantId: variantId || "" }),
       });
       window.dispatchEvent(new Event("cart-updated"));
       await fetchCart();
@@ -76,13 +78,13 @@ const Cart = () => {
     }
   };
 
-  const removeItem = async (productId) => {
+  const removeItem = async (productId, variantId = "") => {
     try {
-      setBusyProductId(productId);
+      setBusyProductId(`${productId}:${variantId || ""}`);
       await fetch(`${API_URL}/cart/set-quantity`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: 0, guestId }),
+        body: JSON.stringify({ productId, quantity: 0, guestId, variantId: variantId || "" }),
       });
       window.dispatchEvent(new Event("cart-updated"));
       await fetchCart();
@@ -170,16 +172,24 @@ const Cart = () => {
                 <p className="text-sm text-gray-600">Loading cart...</p>
               ) : (
                 <div className="space-y-4">
-                  {items.map((item) => (
+                  {items.map((item) => {
+                    const productId = item.product?._id || item.product;
+                    const variantId = item.variantId || "";
+                    const lineKey = `${productId}:${variantId}`;
+                    const imageSrc = item.variantImage || item.product?.image;
+                    const variantLabel = [item.variantColor, item.variantSize]
+                      .filter(Boolean)
+                      .join(" / ");
+                    return (
                     <div
-                      key={item.product?._id || item.product}
+                      key={lineKey}
                       className="flex items-center gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
                     >
                       <div className="h-20 w-20 overflow-hidden rounded-xl bg-gray-100">
-                        {item.product?.image && (
+                        {imageSrc && (
                           <img
-                            src={item.product.image}
-                            alt={item.product.name}
+                            src={imageSrc}
+                            alt={item.product?.name}
                             className="h-full w-full object-cover"
                           />
                         )}
@@ -190,13 +200,16 @@ const Cart = () => {
                             <h2 className="truncate text-sm font-semibold text-gray-900">
                               {item.product?.name || "Product"}
                             </h2>
+                            {variantLabel ? (
+                              <p className="mt-0.5 text-xs text-gray-500">{variantLabel}</p>
+                            ) : null}
                           </div>
                           <button
                             type="button"
-                            onClick={() => removeItem(item.product?._id || item.product)}
+                            onClick={() => removeItem(productId, variantId)}
                             className="rounded p-2 text-gray-400 hover:bg-gray-50 hover:text-gray-600"
                             aria-label="Remove"
-                            disabled={busyProductId === (item.product?._id || item.product)}
+                            disabled={busyProductId === lineKey}
                           >
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                               <path strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" d="M3 6h18" />
@@ -210,9 +223,9 @@ const Cart = () => {
                             <div className="flex items-center overflow-hidden rounded-lg bg-gray-100">
                               <button
                                 type="button"
-                                onClick={() => changeQty(item.product?._id || item.product, -1)}
+                                onClick={() => changeQty(productId, -1, variantId)}
                                 className="h-8 w-9 text-sm font-bold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
-                                disabled={busyProductId === (item.product?._id || item.product)}
+                                disabled={busyProductId === lineKey}
                               >
                                 −
                               </button>
@@ -221,9 +234,9 @@ const Cart = () => {
                               </div>
                               <button
                                 type="button"
-                                onClick={() => changeQty(item.product?._id || item.product, 1)}
+                                onClick={() => changeQty(productId, 1, variantId)}
                                 className="h-8 w-9 text-sm font-bold text-gray-700 hover:bg-gray-200 disabled:opacity-50"
-                                disabled={busyProductId === (item.product?._id || item.product)}
+                                disabled={busyProductId === lineKey}
                               >
                                 +
                               </button>
@@ -235,7 +248,8 @@ const Cart = () => {
                         </div>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

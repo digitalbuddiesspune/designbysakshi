@@ -9,11 +9,19 @@ const AdminAddProduct = () => {
   const { id: editId } = useParams();
   const isEditMode = Boolean(editId);
   const [categories, setCategories] = useState([]);
+  const emptyVariant = () => ({
+    color: "",
+    size: "",
+    price: "",
+    images: [""],
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     image: "",
     price: "",
     discountType: "",
+    hsnCode: "",
     color: "",
     category: "",
     subcategory: "",
@@ -26,6 +34,7 @@ const AdminAddProduct = () => {
   });
   const [features, setFeatures] = useState([""]);
   const [stylingTips, setStylingTips] = useState([""]);
+  const [variants, setVariants] = useState([]);
   // Additional image URLs (dynamically add up to 4)
   const [additionalImageUrls, setAdditionalImageUrls] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -61,6 +70,7 @@ const AdminAddProduct = () => {
           image: mainImage,
           price: product.price ?? "",
           discountType: product.discountType || "",
+          hsnCode: product.hsnCode || "",
           color: product.color || "",
           category: product.category || "",
           subcategory: product.subcategory || "",
@@ -73,6 +83,17 @@ const AdminAddProduct = () => {
         });
         setFeatures(product.features?.length ? product.features : [""]);
         setStylingTips(product.stylingTips?.length ? product.stylingTips : [""]);
+        setVariants(
+          Array.isArray(product.variants) && product.variants.length
+            ? product.variants.map((v) => ({
+                _id: v._id,
+                color: v.color || "",
+                size: v.size || "",
+                price: v.price ?? "",
+                images: Array.isArray(v.images) && v.images.length ? v.images : [""],
+              }))
+            : [],
+        );
         setAdditionalImageUrls(extra.length ? extra : []);
       } catch (error) {
         setMessage(`Error: ${error.message}`);
@@ -114,6 +135,44 @@ const AdminAddProduct = () => {
     setter((prev) => (prev.length <= 1 ? [""] : prev.filter((_, i) => i !== index)));
   };
 
+  const updateVariant = (index, field, value) => {
+    setVariants((prev) =>
+      prev.map((variant, i) => (i === index ? { ...variant, [field]: value } : variant)),
+    );
+  };
+
+  const updateVariantImage = (variantIndex, imageIndex, url) => {
+    setVariants((prev) =>
+      prev.map((variant, i) => {
+        if (i !== variantIndex) return variant;
+        const images = [...(variant.images || [])];
+        images[imageIndex] = url;
+        return { ...variant, images };
+      }),
+    );
+  };
+
+  const addVariantImage = (variantIndex) => {
+    setVariants((prev) =>
+      prev.map((variant, i) => {
+        if (i !== variantIndex) return variant;
+        const images = [...(variant.images || [])];
+        if (images.length >= 4) return variant;
+        return { ...variant, images: [...images, ""] };
+      }),
+    );
+  };
+
+  const removeVariantImage = (variantIndex, imageIndex) => {
+    setVariants((prev) =>
+      prev.map((variant, i) => {
+        if (i !== variantIndex) return variant;
+        const images = (variant.images || []).filter((_, idx) => idx !== imageIndex);
+        return { ...variant, images: images.length ? images : [""] };
+      }),
+    );
+  };
+
   const inputClass =
     "mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-2";
   const inputStyle = {
@@ -133,8 +192,25 @@ const AdminAddProduct = () => {
         ...formData,
         price: parseFloat(formData.price),
         stock: parseInt(formData.stock) || 0,
+        hsnCode: String(formData.hsnCode || "").trim(),
         features: features.map((item) => item.trim()).filter(Boolean),
         stylingTips: stylingTips.map((item) => item.trim()).filter(Boolean),
+        variants: variants
+          .map((variant) => {
+            const images = (variant.images || []).map((s) => (s || "").trim()).filter(Boolean);
+            const price = parseFloat(variant.price);
+            if (!Number.isFinite(price) || price < 0) return null;
+            const payload = {
+              color: String(variant.color || "").trim(),
+              size: String(variant.size || "").trim(),
+              price,
+              images,
+            };
+            if (variant._id) payload._id = variant._id;
+            if (!payload.color && !payload.size && images.length === 0) return null;
+            return payload;
+          })
+          .filter(Boolean),
       };
 
       // Remove subcategory if it's empty (categories like Bestseller/New Arrival have none)
@@ -166,6 +242,7 @@ const AdminAddProduct = () => {
             image: "",
             price: "",
             discountType: "",
+            hsnCode: "",
             color: "",
             category: "",
             subcategory: "",
@@ -178,6 +255,7 @@ const AdminAddProduct = () => {
           });
           setFeatures([""]);
           setStylingTips([""]);
+          setVariants([]);
           setAdditionalImageUrls([]);
         }
       } else {
@@ -209,8 +287,8 @@ const AdminAddProduct = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl">
+    <div className="min-h-screen w-full bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="w-full">
         {message && (
           <div
             className={`mb-6 rounded-md p-4 ${
@@ -262,8 +340,8 @@ const AdminAddProduct = () => {
               </div>
             </div>
 
-            {/* Row 2: Price + Discount Type */}
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* Row 2: Price + Discount Type + HSN */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>
                 <label htmlFor="price" className={labelClass} style={labelStyle}>
                   Price (₹) *
@@ -283,16 +361,35 @@ const AdminAddProduct = () => {
               </div>
               <div>
                 <label htmlFor="discountType" className={labelClass} style={labelStyle}>
-                  Discount Type (e.g. 10% OFF)
+                  Discount (%)
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   id="discountType"
                   name="discountType"
+                  min="0"
+                  max="100"
+                  step="1"
                   value={formData.discountType}
                   onChange={handleChange}
                   className={inputClass}
                   style={inputStyle}
+                  placeholder="e.g. 10"
+                />
+              </div>
+              <div>
+                <label htmlFor="hsnCode" className={labelClass} style={labelStyle}>
+                  HSN Code
+                </label>
+                <input
+                  type="text"
+                  id="hsnCode"
+                  name="hsnCode"
+                  value={formData.hsnCode}
+                  onChange={handleChange}
+                  className={inputClass}
+                  style={inputStyle}
+                  placeholder="e.g. 7117"
                 />
               </div>
             </div>
@@ -577,6 +674,132 @@ const AdminAddProduct = () => {
                 className={inputClass}
                 style={inputStyle}
               />
+            </div>
+
+            {/* Variants */}
+            <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold" style={labelStyle}>
+                    Product Variants
+                  </p>
+                  <p className="text-xs" style={{ color: "var(--brand-muted)" }}>
+                    Optional. Set color, size, price, and images for each variant.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setVariants((prev) => [...prev, emptyVariant()])}
+                  className="rounded-md px-3 py-2 text-xs font-semibold text-white"
+                  style={{ background: "#3D294D" }}
+                >
+                  + Add Variant
+                </button>
+              </div>
+
+              {variants.length === 0 ? (
+                <p className="text-sm" style={{ color: "var(--brand-muted)" }}>
+                  No variants yet. Product will use the main price and images.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {variants.map((variant, vIdx) => (
+                    <div
+                      key={variant._id || `variant-${vIdx}`}
+                      className="rounded-lg border border-gray-200 bg-white p-4"
+                    >
+                      <div className="mb-3 flex items-center justify-between">
+                        <p className="text-sm font-semibold" style={labelStyle}>
+                          Variant {vIdx + 1}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setVariants((prev) => prev.filter((_, i) => i !== vIdx))}
+                          className="text-xs font-semibold text-red-600"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                        <div>
+                          <label className={labelClass} style={labelStyle}>
+                            Color
+                          </label>
+                          <input
+                            type="text"
+                            value={variant.color}
+                            onChange={(e) => updateVariant(vIdx, "color", e.target.value)}
+                            className={inputClass}
+                            style={inputStyle}
+                            placeholder="e.g. Gold"
+                          />
+                        </div>
+                        <div>
+                          <label className={labelClass} style={labelStyle}>
+                            Size
+                          </label>
+                          <input
+                            type="text"
+                            value={variant.size}
+                            onChange={(e) => updateVariant(vIdx, "size", e.target.value)}
+                            className={inputClass}
+                            style={inputStyle}
+                            placeholder="e.g. Free Size"
+                          />
+                        </div>
+                        <div>
+                          <label className={labelClass} style={labelStyle}>
+                            Price (₹) *
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            required
+                            value={variant.price}
+                            onChange={(e) => updateVariant(vIdx, "price", e.target.value)}
+                            className={inputClass}
+                            style={inputStyle}
+                          />
+                        </div>
+                      </div>
+                      <div className="mt-3 space-y-3">
+                        {(variant.images || []).map((img, imgIdx) => (
+                          <div key={`variant-${vIdx}-img-${imgIdx}`} className="space-y-2">
+                            <ImageUploader
+                              label={`Variant Image ${imgIdx + 1}`}
+                              value={img}
+                              onChange={(url) => updateVariantImage(vIdx, imgIdx, url)}
+                              folder="designbysakshi/products/variants"
+                              compact
+                            />
+                            {(variant.images || []).length > 1 && (
+                              <div className="flex justify-end">
+                                <button
+                                  type="button"
+                                  onClick={() => removeVariantImage(vIdx, imgIdx)}
+                                  className="text-xs font-semibold text-red-600"
+                                >
+                                  Remove image
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        <button
+                          type="button"
+                          onClick={() => addVariantImage(vIdx)}
+                          disabled={(variant.images || []).length >= 4}
+                          className="text-xs font-semibold hover:opacity-80 disabled:opacity-40"
+                          style={{ color: "#3D294D" }}
+                        >
+                          + Add Variant Image
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

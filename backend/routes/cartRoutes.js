@@ -1,6 +1,7 @@
 import express from 'express';
 import Cart from '../models/Cart.js';
 import Product from '../models/Product.js';
+import { getDiscountedPrice } from '../utils/pricing.js';
 
 const router = express.Router();
 
@@ -11,6 +12,15 @@ const buildOwnerFilter = (userId, guestId) => {
   }
   return { guestId };
 };
+
+const resolveVariant = (product, variantId) => {
+  if (!variantId || !Array.isArray(product?.variants)) return null;
+  return product.variants.find((v) => String(v._id) === String(variantId)) || null;
+};
+
+const sameCartLine = (item, productId, variantId = '') =>
+  item.product.toString() === String(productId) &&
+  String(item.variantId || '') === String(variantId || '');
 
 // Get cart for user or guest
 router.get('/', async (req, res) => {
@@ -32,7 +42,7 @@ router.get('/', async (req, res) => {
 // Add item to cart
 router.post('/add', async (req, res) => {
   try {
-    const { productId, quantity = 1, userId, guestId } = req.body;
+    const { productId, quantity = 1, userId, guestId, variantId = '' } = req.body;
     if (!productId) {
       return res.status(400).json({ error: 'productId is required' });
     }
@@ -45,6 +55,12 @@ router.post('/add', async (req, res) => {
       return res.status(404).json({ error: 'Product not found' });
     }
 
+    const normalizedVariantId = String(variantId || '').trim();
+    const variant = resolveVariant(product, normalizedVariantId);
+    if (normalizedVariantId && !variant) {
+      return res.status(400).json({ error: 'Selected variant not found' });
+    }
+
     const filter = buildOwnerFilter(userId, guestId);
     let cart = await Cart.findOne(filter);
     if (!cart) {
@@ -54,20 +70,27 @@ router.post('/add', async (req, res) => {
       });
     }
 
-    const existingItem = cart.items.find(
-      (item) => item.product.toString() === productId
+    const existingItem = cart.items.find((item) =>
+      sameCartLine(item, productId, normalizedVariantId),
     );
 
     const addQty = Number(quantity);
     const delta = Number.isFinite(addQty) && addQty > 0 ? addQty : 1;
+    const basePrice = variant ? Number(variant.price) : Number(product.price);
+    const unitPrice = getDiscountedPrice(basePrice, product.discountType);
 
     if (existingItem) {
       existingItem.quantity += delta;
+      existingItem.priceAtAddTime = unitPrice;
     } else if (delta > 0) {
       cart.items.push({
         product: productId,
         quantity: delta,
-        priceAtAddTime: product.price,
+        priceAtAddTime: unitPrice,
+        variantId: normalizedVariantId,
+        variantColor: variant?.color || '',
+        variantSize: variant?.size || '',
+        variantImage: Array.isArray(variant?.images) && variant.images[0] ? variant.images[0] : '',
       });
     }
 
@@ -83,7 +106,7 @@ router.post('/add', async (req, res) => {
 // Set item quantity (absolute)
 router.post('/set-quantity', async (req, res) => {
   try {
-    const { productId, quantity, userId, guestId } = req.body;
+    const { productId, quantity, userId, guestId, variantId = '' } = req.body;
     if (!productId) {
       return res.status(400).json({ error: 'productId is required' });
     }
@@ -105,14 +128,16 @@ router.post('/set-quantity', async (req, res) => {
       return res.status(400).json({ error: 'quantity must be a number' });
     }
 
+    const normalizedVariantId = String(variantId || '').trim();
+
     // Remove item if qty <= 0
     if (qty <= 0) {
       cart.items = cart.items.filter(
-        (item) => item.product.toString() !== productId
+        (item) => !sameCartLine(item, productId, normalizedVariantId),
       );
     } else {
-      const existingItem = cart.items.find(
-        (item) => item.product.toString() === productId
+      const existingItem = cart.items.find((item) =>
+        sameCartLine(item, productId, normalizedVariantId),
       );
       if (existingItem) {
         existingItem.quantity = qty;
@@ -122,10 +147,21 @@ router.post('/set-quantity', async (req, res) => {
         if (!product) {
           return res.status(404).json({ error: 'Product not found' });
         }
+        const variant = resolveVariant(product, normalizedVariantId);
+        if (normalizedVariantId && !variant) {
+          return res.status(400).json({ error: 'Selected variant not found' });
+        }
         cart.items.push({
           product: productId,
           quantity: qty,
-          priceAtAddTime: product.price,
+          priceAtAddTime: getDiscountedPrice(
+            variant ? Number(variant.price) : Number(product.price),
+            product.discountType,
+          ),
+          variantId: normalizedVariantId,
+          variantColor: variant?.color || '',
+          variantSize: variant?.size || '',
+          variantImage: Array.isArray(variant?.images) && variant.images[0] ? variant.images[0] : '',
         });
       }
     }
@@ -163,4 +199,3 @@ router.post('/clear', async (req, res) => {
 });
 
 export default router;
-

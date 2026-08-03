@@ -75,6 +75,15 @@ const TopProducts = () => {
             />
           ))}
         </div>
+        <div className="mt-6 flex justify-center sm:mt-8">
+          <Link
+            to="/new-arrival"
+            className="inline-flex items-center rounded-lg border px-5 py-2.5 text-sm font-semibold transition hover:bg-[#3D294D] hover:text-white"
+            style={{ borderColor: "#3D294D", color: "#3D294D" }}
+          >
+            View All New Arrivals
+          </Link>
+        </div>
       </div>
     </section>
   );

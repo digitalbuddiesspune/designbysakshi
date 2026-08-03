@@ -20,7 +20,7 @@ const Homepage = () => {
           <TopProducts />
         </div>
 
-        <section className="-mt-2 sm:-mt-4 lg:-mt-6 cursor-pointer">
+        <section className="mt-6 sm:mt-8 lg:mt-10 cursor-pointer">
           <Link to="/bestseller" className="block w-full">
             <img
               src="https://res.cloudinary.com/dbfooaz44/image/upload/v1778229683/Untitled_1000_x_500_px_1920_x_550_px_1080_x_700_px_1080_x_400_px_1920_x_550_px_1_ngr69h.png"
@@ -35,11 +35,11 @@ const Homepage = () => {
           </Link>
         </section>
 
-        <div className="-mt-4 sm:-mt-6 lg:-mt-8">
+        <div className="mt-2 sm:mt-3 lg:mt-4">
           <HighlightGrid />
         </div>
 
-        <div className="-mt-6 sm:-mt-10 lg:-mt-12">
+        <div className="mt-6 sm:mt-8 lg:mt-10">
           <ShopByCollection />
         </div>
 

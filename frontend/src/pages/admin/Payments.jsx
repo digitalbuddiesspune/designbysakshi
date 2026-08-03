@@ -9,7 +9,7 @@ const Payments = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [paymentStatus, setPaymentStatus] = useState("all");
-  const [paymentMethod, setPaymentMethod] = useState("all");
+  const paymentMethod = "online";
   const [currentPage, setCurrentPage] = useState(1);
 
   const query = useMemo(() => {
@@ -77,7 +77,7 @@ const Payments = () => {
   return (
     <div className="p-6 sm:p-8">
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           <div className="flex flex-col">
             <label className="text-xs font-semibold mb-2" style={{ color: "var(--brand-muted)" }}>START DATE</label>
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }} />
@@ -93,14 +93,6 @@ const Payments = () => {
               <option value="paid">Paid</option>
               <option value="unpaid">Unpaid</option>
               <option value="failed">Failed</option>
-            </select>
-          </div>
-          <div className="flex flex-col">
-            <label className="text-xs font-semibold mb-2" style={{ color: "var(--brand-muted)" }}>PAYMENT METHOD</label>
-            <select value={paymentMethod} onChange={(e) => setPaymentMethod(e.target.value)} className="rounded-lg border px-3 py-2 text-sm" style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}>
-              <option value="all">All</option>
-              <option value="online">Online</option>
-              <option value="cash">COD</option>
             </select>
           </div>
         </div>

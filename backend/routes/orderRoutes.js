@@ -197,6 +197,10 @@ router.post('/', async (req, res) => {
         product: i.product,
         quantity: i.quantity,
         priceAtOrderTime: i.price,
+        variantId: i.variantId || '',
+        variantColor: i.variantColor || '',
+        variantSize: i.variantSize || '',
+        variantImage: i.variantImage || '',
       })),
       paymentMode: paymentMethod,
       paymentStatus: paymentMethod === 'online' ? 'paid' : 'unpaid',
@@ -292,6 +296,95 @@ router.get('/admin', async (req, res) => {
     return res.json(orders);
   } catch (error) {
     console.error('Get admin orders error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @desc    Get monthly revenue summary (admin)
+// @route   GET /api/orders/admin/revenue
+// @access  Public (admin UI only)
+router.get('/admin/revenue', async (req, res) => {
+  try {
+    const now = new Date();
+    const year = Number(req.query.year) || now.getFullYear();
+    const month = Number(req.query.month);
+    const monthIndex = Number.isFinite(month) && month >= 1 && month <= 12 ? month - 1 : now.getMonth();
+
+    const start = new Date(year, monthIndex, 1, 0, 0, 0, 0);
+    const end = new Date(year, monthIndex + 1, 0, 23, 59, 59, 999);
+
+    const orders = await Order.find({
+      createdAt: { $gte: start, $lte: end },
+      status: { $nin: ['cancelled'] },
+    })
+      .populate('items.product', 'name image')
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 });
+
+    let totalRevenue = 0;
+    let paidRevenue = 0;
+    let unpaidRevenue = 0;
+    let refundableRevenue = 0;
+    let onlineRevenue = 0;
+    let cashRevenue = 0;
+
+    const dailyMap = {};
+
+    for (const order of orders) {
+      const amount = Number(order.totalAmount || 0);
+      totalRevenue += amount;
+
+      const paymentStatus = String(order.paymentStatus || 'unpaid');
+      if (paymentStatus === 'paid') paidRevenue += amount;
+      else if (paymentStatus === 'refundable') refundableRevenue += amount;
+      else unpaidRevenue += amount;
+
+      if (order.paymentMode === 'online') onlineRevenue += amount;
+      else cashRevenue += amount;
+
+      const dayKey = new Date(order.createdAt).getDate();
+      if (!dailyMap[dayKey]) dailyMap[dayKey] = { day: dayKey, revenue: 0, orders: 0 };
+      dailyMap[dayKey].revenue += amount;
+      dailyMap[dayKey].orders += 1;
+    }
+
+    const daysInMonth = end.getDate();
+    const daily = Array.from({ length: daysInMonth }, (_, i) => {
+      const day = i + 1;
+      return dailyMap[day] || { day, revenue: 0, orders: 0 };
+    });
+
+    return res.json({
+      year,
+      month: monthIndex + 1,
+      startDate: start,
+      endDate: end,
+      summary: {
+        totalRevenue: Math.round(totalRevenue),
+        paidRevenue: Math.round(paidRevenue),
+        unpaidRevenue: Math.round(unpaidRevenue),
+        refundableRevenue: Math.round(refundableRevenue),
+        onlineRevenue: Math.round(onlineRevenue),
+        cashRevenue: Math.round(cashRevenue),
+        orderCount: orders.length,
+        averageOrderValue: orders.length ? Math.round(totalRevenue / orders.length) : 0,
+      },
+      daily,
+      orders: orders.map((o) => ({
+        _id: o._id,
+        orderNumber: o.orderNumber,
+        createdAt: o.createdAt,
+        totalAmount: o.totalAmount,
+        status: o.status,
+        paymentStatus: o.paymentStatus,
+        paymentMode: o.paymentMode,
+        customerName: o.name || o.user?.name || '',
+        customerEmail: o.email || o.user?.email || '',
+        itemCount: Array.isArray(o.items) ? o.items.length : 0,
+      })),
+    });
+  } catch (error) {
+    console.error('Get admin revenue error:', error);
     return res.status(500).json({ message: 'Server error' });
   }
 });
@@ -425,7 +518,11 @@ router.put('/admin/:id/status', async (req, res) => {
 
     order.status = nextStatus;
     if (prevStatus !== nextStatus) {
-      order.statusHistory = [...(order.statusHistory || []), { status: nextStatus, changedAt: new Date() }];
+      const changedAt = new Date();
+      order.statusHistory = [...(order.statusHistory || []), { status: nextStatus, changedAt }];
+      if (nextStatus === 'delivered' && !order.deliveredAt) {
+        order.deliveredAt = changedAt;
+      }
     }
     if (nextStatus === 'cancelled' && order.paymentStatus === 'paid') {
       // keep as-is for now; you can change if you have refund logic later
@@ -497,12 +594,45 @@ router.get('/:id', async (req, res) => {
       .sort({ createdAt: -1 });
 
     if (!order) return res.status(404).json({ message: 'Order not found' });
-    return res.json(order);
+    const eligibility = getReturnEligibility(order);
+    const payload = order.toObject();
+    payload.canReturn = eligibility.canReturn;
+    payload.returnExpiresAt = eligibility.expiresAt;
+    payload.returnMessage = eligibility.reason;
+    return res.json(payload);
   } catch (error) {
     console.error('Get order details error:', error);
     return res.status(500).json({ message: 'Server error' });
   }
 });
+
+const RETURN_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+const getDeliveredAt = (order) => {
+  if (order?.deliveredAt) return new Date(order.deliveredAt);
+  const hist = Array.isArray(order?.statusHistory) ? order.statusHistory : [];
+  const deliveredEntry = [...hist].reverse().find((h) => normalizeStatus(h?.status) === 'delivered');
+  return deliveredEntry?.changedAt ? new Date(deliveredEntry.changedAt) : null;
+};
+
+const getReturnEligibility = (order) => {
+  const status = normalizeStatus(order?.status);
+  if (status === 'refundable') {
+    return { canReturn: false, reason: 'Return already requested', expiresAt: null };
+  }
+  if (status !== 'delivered') {
+    return { canReturn: false, reason: 'Order is not delivered yet', expiresAt: null };
+  }
+  const deliveredAt = getDeliveredAt(order);
+  if (!deliveredAt) {
+    return { canReturn: false, reason: 'Delivery time not available', expiresAt: null };
+  }
+  const expiresAt = new Date(deliveredAt.getTime() + RETURN_WINDOW_MS);
+  if (Date.now() > expiresAt.getTime()) {
+    return { canReturn: false, reason: 'Return window of 24 hours has expired', expiresAt };
+  }
+  return { canReturn: true, reason: '', expiresAt };
+};
 
 // @desc    Cancel an order
 // @route   POST /api/orders/:id/cancel
@@ -526,6 +656,50 @@ router.post('/:id/cancel', async (req, res) => {
   } catch (error) {
     console.error('Cancel order error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @desc    Request return within 24 hours of delivery
+// @route   POST /api/orders/:id/return
+// @access  Private
+router.post('/:id/return', async (req, res) => {
+  try {
+    const userId = verifyToken(req, res);
+    if (!userId) return;
+
+    const order = await Order.findOne({ _id: req.params.id, user: userId });
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const eligibility = getReturnEligibility(order);
+    if (!eligibility.canReturn) {
+      return res.status(400).json({
+        message: eligibility.reason || 'Return not allowed',
+        canReturn: false,
+        returnExpiresAt: eligibility.expiresAt,
+      });
+    }
+
+    const now = new Date();
+    order.status = 'refundable';
+    order.returnRequestedAt = now;
+    if (!order.deliveredAt) {
+      order.deliveredAt = getDeliveredAt(order);
+    }
+    order.statusHistory = [...(order.statusHistory || []), { status: 'refundable', changedAt: now }];
+    if (order.paymentStatus === 'paid') {
+      order.paymentStatus = 'refundable';
+    }
+    await order.save();
+
+    return res.json({
+      message: 'Return requested successfully',
+      order,
+      canReturn: false,
+      returnExpiresAt: eligibility.expiresAt,
+    });
+  } catch (error) {
+    console.error('Return order error:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
 });
 

@@ -1,6 +1,8 @@
 import express from 'express'
 import dotenv from 'dotenv'
 import connectDB from './config/db.js'
+import Product from './models/Product.js'
+import { JEWELLERY_CARE } from './constants/jewelleryCare.js'
 import productRoutes from './routes/productRoutes.js'
 import categoryRoutes from './routes/categoryRoutes.js'
 import authRoutes from './routes/authRoutes.js'
@@ -14,6 +16,33 @@ import bannerRoutes from './routes/bannerRoutes.js'
 import collectionShowcaseRoutes from './routes/collectionShowcaseRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
 import couponRoutes from './routes/couponRoutes.js'
+
+const backfillJewelleryCare = async () => {
+  try {
+    const result = await Product.updateMany(
+      {
+        $or: [
+          { careInstructions: { $exists: false } },
+          { careInstructions: { $size: 0 } },
+          { careTitle: { $exists: false } },
+          { careTitle: '' },
+        ],
+      },
+      {
+        $set: {
+          careTitle: JEWELLERY_CARE.title,
+          careDescription: JEWELLERY_CARE.description,
+          careInstructions: JEWELLERY_CARE.careInstructions,
+        },
+      },
+    );
+    if (result.modifiedCount > 0) {
+      console.log(`Jewellery care applied to ${result.modifiedCount} existing products`);
+    }
+  } catch (error) {
+    console.error('Failed to backfill jewellery care:', error.message);
+  }
+};
 
 dotenv.config()
 const app = express();
@@ -55,6 +84,7 @@ app.use('/api/coupons', couponRoutes);
 const startServer = async () => {
     try {
         await connectDB();
+        await backfillJewelleryCare();
         app.listen(PORT, () => {
             console.log(`Server is running on port ${PORT} `);
             console.log("Mongodb is connected")

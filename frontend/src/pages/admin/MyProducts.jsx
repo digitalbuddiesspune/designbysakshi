@@ -64,11 +64,13 @@ const MyProducts = () => {
 
     // Filter by search
     if (searchQuery) {
+      const q = searchQuery.toLowerCase();
       filtered = filtered.filter(
         (p) =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.subcategory?.toLowerCase().includes(searchQuery.toLowerCase())
+          p.name.toLowerCase().includes(q) ||
+          p.category?.toLowerCase().includes(q) ||
+          p.subcategory?.toLowerCase().includes(q) ||
+          String(p.hsnCode || "").toLowerCase().includes(q),
       );
     }
 
@@ -214,7 +216,7 @@ const MyProducts = () => {
         <div className="flex-1">
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search by name, category, or HSN..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2"

@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
+import { JEWELLERY_CARE } from '../constants/jewelleryCare.js';
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ const normalizeSlug = (value) =>
 
 const escapeRegex = (value) => String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-const PRIMARY_SEARCH_FIELDS = ['name', 'category', 'subcategory'];
+const PRIMARY_SEARCH_FIELDS = ['name', 'category', 'subcategory', 'hsnCode'];
 const SECONDARY_SEARCH_FIELDS = ['description', 'color', 'features', 'stylingTips'];
 
 const SEARCHABLE_FIELDS = [...PRIMARY_SEARCH_FIELDS, ...SECONDARY_SEARCH_FIELDS];
@@ -81,21 +82,42 @@ const buildWordBoundaryRegex = (token) => {
   return new RegExp(`\\b${stem}${pluralSuffix}\\b`, 'i');
 };
 
+const isLikelyHsnToken = (token) => /^[0-9]{4,8}$/.test(String(token || ''));
+
 const buildTokenMatchClause = (token, { primaryOnly = false } = {}) => {
-  const regex = buildWordBoundaryRegex(token);
+  const regex = isLikelyHsnToken(token)
+    ? new RegExp(escapeRegex(token), 'i')
+    : buildWordBoundaryRegex(token);
   const fields =
     primaryOnly || isJewelryTypeToken(token) ? PRIMARY_SEARCH_FIELDS : SEARCHABLE_FIELDS;
 
-  return {
-    $or: fields.map((field) => ({ [field]: { $regex: regex } })),
-  };
+  const clauses = fields.map((field) => ({ [field]: { $regex: regex } }));
+
+  // Also match HSN / color / size stored on variants
+  if (!primaryOnly || isLikelyHsnToken(token)) {
+    clauses.push(
+      { 'variants.color': { $regex: regex } },
+      { 'variants.size': { $regex: regex } },
+    );
+  }
+
+  return { $or: clauses };
 };
 
 const buildSearchClause = (search) => {
+  const raw = String(search || '').trim();
   const tokens = tokenizeSearch(search);
+  // Allow short HSN-style numeric searches that tokenizeSearch would otherwise drop
+  if (!tokens.length && raw && isLikelyHsnToken(raw)) {
+    return {
+      $or: [
+        { hsnCode: { $regex: new RegExp(escapeRegex(raw), 'i') } },
+      ],
+    };
+  }
   if (!tokens.length) return null;
 
-  const singleKeywordSearch = tokens.length === 1;
+  const singleKeywordSearch = tokens.length === 1 && !isLikelyHsnToken(tokens[0]);
 
   return {
     $and: tokens.map((token) =>
@@ -106,15 +128,42 @@ const buildSearchClause = (search) => {
   };
 };
 
-const normalizeProductPayload = (body) => ({
-  ...body,
-  color: String(body?.color || '').trim(),
-  features: sanitizeStringArray(body?.features),
-  stylingTips: sanitizeStringArray(body?.stylingTips),
-  isBestseller: Boolean(body?.isBestseller),
-  isNewArrival: Boolean(body?.isNewArrival),
-  latestCollectionSubcategory: String(body?.latestCollectionSubcategory || '').trim(),
+const sanitizeVariants = (value) => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((variant) => {
+      const color = String(variant?.color || '').trim();
+      const size = String(variant?.size || '').trim();
+      const price = Number(variant?.price);
+      const images = sanitizeStringArray(variant?.images);
+      if (!Number.isFinite(price) || price < 0) return null;
+      if (!color && !size && images.length === 0) return null;
+      const normalized = { color, size, price, images };
+      if (variant?._id) normalized._id = variant._id;
+      return normalized;
+    })
+    .filter(Boolean);
+};
+
+const withCareDefaults = (payload) => ({
+  ...payload,
+  careTitle: JEWELLERY_CARE.title,
+  careDescription: JEWELLERY_CARE.description,
+  careInstructions: JEWELLERY_CARE.careInstructions,
 });
+
+const normalizeProductPayload = (body) =>
+  withCareDefaults({
+    ...body,
+    hsnCode: String(body?.hsnCode || '').trim(),
+    color: String(body?.color || '').trim(),
+    features: sanitizeStringArray(body?.features),
+    stylingTips: sanitizeStringArray(body?.stylingTips),
+    variants: sanitizeVariants(body?.variants),
+    isBestseller: Boolean(body?.isBestseller),
+    isNewArrival: Boolean(body?.isNewArrival),
+    latestCollectionSubcategory: String(body?.latestCollectionSubcategory || '').trim(),
+  });
 
 const buildProductListQuery = ({ category, subcategory, search }) => {
   const query = {};

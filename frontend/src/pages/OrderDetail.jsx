@@ -75,6 +75,25 @@ const OrderDetail = () => {
     }
   };
 
+  const requestReturn = async () => {
+    if (!order?._id) return;
+    if (!order.canReturn) return;
+    if (!window.confirm("Request a return for this order? You can only return within 24 hours of delivery.")) {
+      return;
+    }
+    const res = await fetch(`${API_URL}/orders/${order._id}/return`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert(data?.message || "Unable to request return");
+      await fetchOrder();
+      return;
+    }
+    await fetchOrder();
+  };
+
   const timelineIndex = useMemo(() => {
     const s = normalizeStatus(order?.status);
     if (!s) return 0;
@@ -88,6 +107,15 @@ const OrderDetail = () => {
   }, [order]);
 
   const canCancel = ["confirm", "pending"].includes(order?.status);
+  const statusNormalized = normalizeStatus(order?.status);
+  const showReturnAction = statusNormalized === "delivered" || statusNormalized === "refundable";
+  const canReturn = Boolean(order?.canReturn);
+  const returnExpired =
+    showReturnAction &&
+    !canReturn &&
+    statusNormalized === "delivered" &&
+    String(order?.returnMessage || "").toLowerCase().includes("expired");
+  const returnAlreadyRequested = statusNormalized === "refundable";
   const itemsSubtotal = useMemo(
     () =>
       (order?.items || []).reduce(
@@ -160,17 +188,46 @@ const OrderDetail = () => {
                     {normalizeStatus(order.status)}
                   </span>
                 </div>
-                {canCancel && (
-                  <button
-                    type="button"
-                    onClick={cancelOrder}
-                    className="shrink-0 bg-transparent px-0 text-sm font-semibold transition hover:opacity-80"
-                    style={{ color: "#3D294D" }}
-                  >
-                    Cancel Order
-                  </button>
-                )}
+                <div className="flex shrink-0 flex-wrap items-center justify-end gap-3">
+                  {canCancel && (
+                    <button
+                      type="button"
+                      onClick={cancelOrder}
+                      className="bg-transparent px-0 text-sm font-semibold transition hover:opacity-80"
+                      style={{ color: "#3D294D" }}
+                    >
+                      Cancel Order
+                    </button>
+                  )}
+                  {showReturnAction && (
+                    <button
+                      type="button"
+                      onClick={requestReturn}
+                      disabled={!canReturn}
+                      className="rounded-lg border px-3 py-1.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45"
+                      style={{ borderColor: "#3D294D", color: "#3D294D" }}
+                      title={
+                        canReturn
+                          ? "Return within 24 hours of delivery"
+                          : order?.returnMessage || "Return not available"
+                      }
+                    >
+                      {returnAlreadyRequested
+                        ? "Return Requested"
+                        : returnExpired
+                          ? "Return Expired"
+                          : "Return Item"}
+                    </button>
+                  )}
+                </div>
               </div>
+              {showReturnAction && (
+                <p className="mt-3 text-xs" style={{ color: "var(--brand-muted)" }}>
+                  {canReturn
+                    ? `Return available until ${formatDateTime(order.returnExpiresAt)}`
+                    : order.returnMessage || "Return is not available for this order."}
+                </p>
+              )}
             </div>
 
             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
@@ -371,22 +428,33 @@ const OrderDetail = () => {
                     {order.items.map((it, idx) => {
                       const unit = it.priceAtOrderTime || 0;
                       const total = (it.quantity || 0) * unit;
+                      const imageSrc = it.variantImage || it.product?.image;
+                      const variantLabel = [it.variantColor, it.variantSize]
+                        .filter(Boolean)
+                        .join(" / ");
                       return (
                         <tr key={idx} className="border-t">
                           <td className="px-2 py-2 md:px-5 md:py-4">
                             <div className="flex items-center gap-1.5 md:gap-3">
                               <div className="h-8 w-8 flex-shrink-0 overflow-hidden rounded-md bg-gray-100 md:h-12 md:w-12 md:rounded-lg">
                                 <img
-                                  src={it.product?.image}
+                                  src={imageSrc}
                                   alt={it.product?.name}
                                   className="h-full w-full object-cover"
                                 />
                               </div>
-                              <div
-                                className="line-clamp-2 min-w-0 font-semibold leading-tight md:line-clamp-none md:text-base"
-                                style={{ color: "var(--brand-dark)" }}
-                              >
-                                {it.product?.name || "Product"}
+                              <div className="min-w-0">
+                                <div
+                                  className="line-clamp-2 font-semibold leading-tight md:line-clamp-none md:text-base"
+                                  style={{ color: "var(--brand-dark)" }}
+                                >
+                                  {it.product?.name || "Product"}
+                                </div>
+                                {variantLabel ? (
+                                  <div className="mt-0.5 text-[10px] md:text-xs" style={{ color: "var(--brand-muted)" }}>
+                                    {variantLabel}
+                                  </div>
+                                ) : null}
                               </div>
                             </div>
                           </td>
