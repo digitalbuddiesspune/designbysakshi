@@ -159,7 +159,7 @@ const AdminLayout = () => {
   }
 
   return (
-    <div className="admin-theme flex h-full min-h-0 overflow-hidden bg-gray-50">
+    <div className="admin-theme flex h-full min-h-0 overflow-hidden bg-gray-50 text-sm">
       {/* Sidebar */}
       <aside
         className={`${
@@ -522,7 +522,7 @@ const AdminLayout = () => {
         {pageTitle && (
           <div className="sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 border-b bg-white px-4 py-3 sm:px-6">
             <h1
-              className="text-xl font-medium sm:text-2xl"
+              className="text-sm font-medium"
               style={{
                 color: "var(--brand-dark)",
                 fontFamily: "Cormorant Garamond, Georgia, serif",

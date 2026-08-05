@@ -290,6 +290,11 @@ body {
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
 /* Admin panel – hide scrollbars (scroll still works) */
+.admin-theme {
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.25rem;
+}
+
 .admin-theme aside,
 .admin-theme > main {
   -ms-overflow-style: none;
@@ -299,6 +304,23 @@ body {
 .admin-theme aside::-webkit-scrollbar,
 .admin-theme > main::-webkit-scrollbar {
   display: none;
+}
+
+/* Force text-sm across admin UI (override page-level text-* utilities) */
+.admin-theme :is(
+  .text-\[10px\],
+  .text-\[11px\],
+  .text-xs,
+  .text-sm,
+  .text-base,
+  .text-lg,
+  .text-xl,
+  .text-2xl,
+  .text-3xl,
+  .text-4xl
+) {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
 }
 
 /* Admin theme override: only table headers purple */
