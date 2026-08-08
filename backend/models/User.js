@@ -8,6 +8,9 @@ const userSchema = new mongoose.Schema({
     trim: true,
     validate: {
       validator: function(v) {
+        if (this.authProvider === 'google') {
+          return Boolean(v && String(v).trim().length >= 1);
+        }
         const words = v.trim().split(/\s+/);
         return words.length === 2 && words.every(word => word.length >= 3);
       },
@@ -29,14 +32,28 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: function() {
+      return this.authProvider !== 'google';
+    },
     minlength: 6,
     validate: {
       validator: function(v) {
+        if (this.authProvider === 'google' && !v) return true;
         return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(v);
       },
       message: 'Password must contain at least one uppercase letter, one lowercase letter, and one number'
     }
+  },
+  googleId: {
+    type: String,
+    trim: true,
+    sparse: true,
+    unique: true,
+  },
+  authProvider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local',
   },
   phone: {
     type: String,
@@ -61,7 +78,7 @@ const userSchema = new mongoose.Schema({
 
 // Hash password before saving
 userSchema.pre('save', async function() {
-  if (!this.isModified('password')) {
+  if (!this.isModified('password') || !this.password) {
     return;
   }
   this.password = await bcrypt.hash(this.password, 10);
@@ -69,6 +86,7 @@ userSchema.pre('save', async function() {
 
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {
+  if (!this.password) return false;
   return bcrypt.compare(candidatePassword, this.password);
 };
 

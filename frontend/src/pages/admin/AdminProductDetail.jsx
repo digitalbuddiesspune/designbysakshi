@@ -144,16 +144,25 @@ const AdminProductDetail = () => {
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <DetailField label="Subcategory">{product.subcategory || "-"}</DetailField>
-              <DetailField label="Stock">{product.stock ?? 0}</DetailField>
+              <DetailField label="Main Stock">{product.stock ?? 0}</DetailField>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <DetailField label="Total Stock">
+                {(Number(product.stock || 0) +
+                  (Array.isArray(product.variants)
+                    ? product.variants.reduce((sum, v) => sum + Number(v.stock || 0), 0)
+                    : 0))}
+              </DetailField>
               <DetailField label="In Stock">{product.inStock ? "Yes" : "No"}</DetailField>
-              <DetailField label="Bestseller">{product.isBestseller ? "Yes" : "No"}</DetailField>
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <DetailField label="Bestseller">{product.isBestseller ? "Yes" : "No"}</DetailField>
               <DetailField label="New Arrival">{product.isNewArrival ? "Yes" : "No"}</DetailField>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {product.latestCollectionSubcategory ? (
                 <DetailField label="Latest Collection Subcategory">
                   {product.latestCollectionSubcategory}
@@ -209,7 +218,7 @@ const AdminProductDetail = () => {
                         key={variant._id || `variant-${idx}`}
                         className="rounded-lg border border-gray-200 p-3"
                       >
-                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-4">
                           <p>
                             <span className="font-semibold text-gray-800">Color:</span>{" "}
                             {variant.color || "-"}
@@ -221,6 +230,10 @@ const AdminProductDetail = () => {
                           <p>
                             <span className="font-semibold text-gray-800">Price:</span>{" "}
                             {formatPrice(variant.price)}
+                          </p>
+                          <p>
+                            <span className="font-semibold text-gray-800">Qty:</span>{" "}
+                            {Number(variant.stock || 0)}
                           </p>
                         </div>
                         {images.length > 0 ? (

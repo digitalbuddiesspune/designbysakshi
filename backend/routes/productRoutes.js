@@ -135,10 +135,11 @@ const sanitizeVariants = (value) => {
       const color = String(variant?.color || '').trim();
       const size = String(variant?.size || '').trim();
       const price = Number(variant?.price);
+      const stock = Math.max(0, Math.floor(Number(variant?.stock) || 0));
       const images = sanitizeStringArray(variant?.images);
       if (!Number.isFinite(price) || price < 0) return null;
       if (!color && !size && images.length === 0) return null;
-      const normalized = { color, size, price, images };
+      const normalized = { color, size, price, stock, images };
       if (variant?._id) normalized._id = variant._id;
       return normalized;
     })
@@ -152,18 +153,43 @@ const withCareDefaults = (payload) => ({
   careInstructions: JEWELLERY_CARE.careInstructions,
 });
 
+const getTotalAvailableStock = (payload) => {
+  const mainStock = Math.max(0, Math.floor(Number(payload?.stock) || 0));
+  const variants = Array.isArray(payload?.variants) ? payload.variants : [];
+  const variantStock = variants.reduce(
+    (sum, v) => sum + Math.max(0, Number(v?.stock) || 0),
+    0,
+  );
+  return mainStock + variantStock;
+};
+
+const normalizeProductStock = (payload) => {
+  const stock = Math.max(0, Math.floor(Number(payload.stock) || 0));
+  const totalStock = getTotalAvailableStock({ ...payload, stock });
+  return {
+    ...payload,
+    stock,
+    inStock:
+      payload.inStock !== undefined
+        ? Boolean(payload.inStock) && totalStock > 0
+        : totalStock > 0,
+  };
+};
+
 const normalizeProductPayload = (body) =>
-  withCareDefaults({
-    ...body,
-    hsnCode: String(body?.hsnCode || '').trim(),
-    color: String(body?.color || '').trim(),
-    features: sanitizeStringArray(body?.features),
-    stylingTips: sanitizeStringArray(body?.stylingTips),
-    variants: sanitizeVariants(body?.variants),
-    isBestseller: Boolean(body?.isBestseller),
-    isNewArrival: Boolean(body?.isNewArrival),
-    latestCollectionSubcategory: String(body?.latestCollectionSubcategory || '').trim(),
-  });
+  normalizeProductStock(
+    withCareDefaults({
+      ...body,
+      hsnCode: String(body?.hsnCode || '').trim(),
+      color: String(body?.color || '').trim(),
+      features: sanitizeStringArray(body?.features),
+      stylingTips: sanitizeStringArray(body?.stylingTips),
+      variants: sanitizeVariants(body?.variants),
+      isBestseller: Boolean(body?.isBestseller),
+      isNewArrival: Boolean(body?.isNewArrival),
+      latestCollectionSubcategory: String(body?.latestCollectionSubcategory || '').trim(),
+    }),
+  );
 
 const buildProductListQuery = ({ category, subcategory, search }) => {
   const query = {};

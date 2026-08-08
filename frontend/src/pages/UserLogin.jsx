@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "../components/PasswordInput";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const UserLogin = () => {
   const [isLogin, setIsLogin] = useState(false); // Start with signup form
@@ -232,6 +234,33 @@ const UserLogin = () => {
               {message}
             </div>
           )}
+
+          {isLogin && GOOGLE_CLIENT_ID ? (
+            <>
+              <div className="mb-4">
+                <GoogleSignInButton
+                  disabled={loading}
+                  onSuccess={(data) => {
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                    if (data.token) localStorage.setItem("token", data.token);
+                    setMessage("Login successful!");
+                    setTimeout(() => {
+                      window.dispatchEvent(new Event("auth-changed"));
+                      navigate("/");
+                      window.location.reload();
+                    }, 500);
+                  }}
+                  onError={(err) => setMessage(err)}
+                />
+              </div>
+
+              <div className="mb-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs text-gray-500">or</span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+            </>
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (

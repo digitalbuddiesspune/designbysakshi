@@ -18,6 +18,11 @@ const resolveVariant = (product, variantId) => {
   return product.variants.find((v) => String(v._id) === String(variantId)) || null;
 };
 
+const availableStockFor = (product, variant) => {
+  if (variant) return Math.max(0, Number(variant.stock || 0));
+  return Math.max(0, Number(product?.stock || 0));
+};
+
 const sameCartLine = (item, productId, variantId = '') =>
   item.product.toString() === String(productId) &&
   String(item.variantId || '') === String(variantId || '');
@@ -76,11 +81,19 @@ router.post('/add', async (req, res) => {
 
     const addQty = Number(quantity);
     const delta = Number.isFinite(addQty) && addQty > 0 ? addQty : 1;
+    const nextQty = (existingItem ? Number(existingItem.quantity || 0) : 0) + delta;
+    const available = availableStockFor(product, variant);
+    if (nextQty > available) {
+      return res.status(400).json({
+        error: available <= 0 ? 'Out of stock' : `Only ${available} left in stock`,
+      });
+    }
+
     const basePrice = variant ? Number(variant.price) : Number(product.price);
     const unitPrice = getDiscountedPrice(basePrice, product.discountType);
 
     if (existingItem) {
-      existingItem.quantity += delta;
+      existingItem.quantity = nextQty;
       existingItem.priceAtAddTime = unitPrice;
     } else if (delta > 0) {
       cart.items.push({
@@ -136,21 +149,27 @@ router.post('/set-quantity', async (req, res) => {
         (item) => !sameCartLine(item, productId, normalizedVariantId),
       );
     } else {
+      const product = await Product.findById(productId);
+      if (!product) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
+      const variant = resolveVariant(product, normalizedVariantId);
+      if (normalizedVariantId && !variant) {
+        return res.status(400).json({ error: 'Selected variant not found' });
+      }
+      const available = availableStockFor(product, variant);
+      if (qty > available) {
+        return res.status(400).json({
+          error: available <= 0 ? 'Out of stock' : `Only ${available} left in stock`,
+        });
+      }
+
       const existingItem = cart.items.find((item) =>
         sameCartLine(item, productId, normalizedVariantId),
       );
       if (existingItem) {
         existingItem.quantity = qty;
       } else {
-        // Need product to set priceAtAddTime
-        const product = await Product.findById(productId);
-        if (!product) {
-          return res.status(404).json({ error: 'Product not found' });
-        }
-        const variant = resolveVariant(product, normalizedVariantId);
-        if (normalizedVariantId && !variant) {
-          return res.status(400).json({ error: 'Selected variant not found' });
-        }
         cart.items.push({
           product: productId,
           quantity: qty,

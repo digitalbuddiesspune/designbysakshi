@@ -5,6 +5,14 @@ import AdminPagination, { ADMIN_PAGE_SIZE } from "../../components/admin/AdminPa
 const API_URL = import.meta.env.VITE_API_URL;
 const REVIEW_FILTER_KEY = "__with_reviews__";
 
+const getProductTotalStock = (product) => {
+  const mainStock = Number(product?.stock || 0);
+  const variantStock = Array.isArray(product?.variants)
+    ? product.variants.reduce((sum, v) => sum + Number(v?.stock || 0), 0)
+    : 0;
+  return mainStock + variantStock;
+};
+
 const MyProducts = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -318,9 +326,17 @@ const MyProducts = () => {
                       <div className="text-sm font-semibold">{formatPrice(product.price)}</div>
                     </td>
                   <td className="px-4 py-3">
-                    <div className="text-sm" style={{ color: product.stock > 0 ? "var(--brand-dark)" : "#ef4444" }}>
-                      {Number.isFinite(product.stock) ? product.stock : 0}
-                    </div>
+                    {(() => {
+                      const totalStock = getProductTotalStock(product);
+                      return (
+                        <div
+                          className="text-sm"
+                          style={{ color: totalStock > 0 ? "var(--brand-dark)" : "#ef4444" }}
+                        >
+                          {totalStock}
+                        </div>
+                      );
+                    })()}
                   </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-3 items-center">

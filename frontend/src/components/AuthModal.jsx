@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import PasswordInput from "./PasswordInput";
+import GoogleSignInButton from "./GoogleSignInButton";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const AuthModal = ({ isOpen, onClose, onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -260,6 +262,40 @@ const AuthModal = ({ isOpen, onClose, onLogin }) => {
               {message}
             </div>
           )}
+
+          {isLogin && GOOGLE_CLIENT_ID ? (
+            <>
+              <div className="mb-4">
+                <GoogleSignInButton
+                  disabled={loading}
+                  onSuccess={(data) => {
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                    if (data.token) localStorage.setItem("token", data.token);
+                    setMessage("Login successful!");
+                    setTimeout(() => {
+                      onLogin(data.user);
+                      onClose();
+                      setFormData({
+                        name: "",
+                        email: "",
+                        password: "",
+                        confirmPassword: "",
+                        phone: "",
+                        role: "user",
+                      });
+                    }, 500);
+                  }}
+                  onError={(err) => setMessage(err)}
+                />
+              </div>
+
+              <div className="mb-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs text-gray-500">or</span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+            </>
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (

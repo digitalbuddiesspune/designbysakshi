@@ -66,6 +66,7 @@ const AdminLayout = () => {
     if (p === "/admin/collections-showcase") return "Shop By Collection";
     if (p === "/admin/add-collection") return "Add Collection";
     if (p.startsWith("/admin/edit-collection/")) return "Edit Collection";
+    if (p === "/admin/homepage-sections") return "Homepage Section Images";
     return "";
   };
 
@@ -77,6 +78,7 @@ const AdminLayout = () => {
     path === "/admin/collections-showcase" ||
     path.startsWith("/admin/add-collection") ||
     path.startsWith("/admin/edit-collection");
+  const isHomepageSections = path === "/admin/homepage-sections";
 
   // Auto-open dropdown if on a page within that section
   useEffect(() => {
@@ -99,7 +101,8 @@ const AdminLayout = () => {
       currentPath.startsWith("/admin/edit-banner") ||
       currentPath.startsWith("/admin/collections-showcase") ||
       currentPath.startsWith("/admin/add-collection") ||
-      currentPath.startsWith("/admin/edit-collection")
+      currentPath.startsWith("/admin/edit-collection") ||
+      currentPath.startsWith("/admin/homepage-sections")
     ) {
       setOpenDropdown("homepage");
     }
@@ -409,7 +412,7 @@ const AdminLayout = () => {
                   type="button"
                   onClick={() => setOpenDropdown(openDropdown === "homepage" ? null : "homepage")}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                    isBannerSection || isCollectionSection
+                    isBannerSection || isCollectionSection || isHomepageSections
                       ? "bg-purple-600 text-white"
                       : "text-gray-300 hover:bg-gray-800"
                   }`}
@@ -428,6 +431,19 @@ const AdminLayout = () => {
                 </button>
                 {isSidebarOpen && openDropdown === "homepage" && (
                   <ul className="mt-2 ml-8 space-y-1">
+                    <li>
+                      <Link
+                        to="/admin/homepage-sections"
+                        className={`block px-4 py-2 rounded-lg transition ${
+                          isHomepageSections
+                            ? "bg-purple-700 text-white"
+                            : "text-gray-400 hover:bg-gray-800"
+                        }`}
+                        onClick={() => setOpenDropdown(null)}
+                      >
+                        Section Images
+                      </Link>
+                    </li>
                     <li>
                       <Link
                         to="/admin/banners"

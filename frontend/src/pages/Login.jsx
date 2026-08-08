@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "../components/PasswordInput";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 
 const API_URL = import.meta.env.VITE_API_URL;
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const Login = ({ isModal = false, onClose, onSwitchSignup }) => {
   const [formData, setFormData] = useState({
@@ -97,6 +99,21 @@ const Login = ({ isModal = false, onClose, onSwitchSignup }) => {
     }
   };
 
+  const handleGoogleSuccess = (data) => {
+    localStorage.setItem("user", JSON.stringify(data.user));
+    if (data.token) localStorage.setItem("token", data.token);
+    setMessage("Login successful!");
+    setTimeout(() => {
+      window.dispatchEvent(new Event("auth-changed"));
+      if (isModal) {
+        onClose?.();
+      } else {
+        navigate("/");
+        window.location.reload();
+      }
+    }, 500);
+  };
+
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/35 backdrop-blur-sm px-4">
       <div className="max-w-md w-full">
@@ -138,6 +155,24 @@ const Login = ({ isModal = false, onClose, onSwitchSignup }) => {
               {message}
             </div>
           )}
+
+          {GOOGLE_CLIENT_ID ? (
+            <>
+              <div className="mb-4">
+                <GoogleSignInButton
+                  disabled={loading}
+                  onSuccess={handleGoogleSuccess}
+                  onError={(err) => setMessage(err)}
+                />
+              </div>
+
+              <div className="mb-4 flex items-center gap-3">
+                <div className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs text-gray-500">or</span>
+                <div className="h-px flex-1 bg-gray-200" />
+              </div>
+            </>
+          ) : null}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

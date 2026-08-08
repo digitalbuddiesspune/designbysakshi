@@ -47,6 +47,7 @@ import AdminBanners from "../pages/admin/AdminBanners.jsx";
 import BannerForm from "../pages/admin/BannerForm.jsx";
 import AdminCollections from "../pages/admin/AdminCollections.jsx";
 import CollectionShowcaseForm from "../pages/admin/CollectionShowcaseForm.jsx";
+import AdminHomepageSections from "../pages/admin/AdminHomepageSections.jsx";
 import AdminPayments from "../pages/admin/Payments.jsx";
 import AdminCoupons from "../pages/admin/Coupons.jsx";
 import AddCoupon from "../pages/admin/AddCoupon.jsx";
@@ -96,6 +97,7 @@ const router = createBrowserRouter(
         <Route path="collections-showcase" element={<AdminCollections />} />
         <Route path="add-collection" element={<CollectionShowcaseForm />} />
         <Route path="edit-collection/:id" element={<CollectionShowcaseForm />} />
+        <Route path="homepage-sections" element={<AdminHomepageSections />} />
       </Route>
       <Route path="necklace-sets" element={<CategoryPage />} />
       <Route path="earrings" element={<CategoryPage />} />

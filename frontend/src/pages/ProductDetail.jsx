@@ -347,12 +347,20 @@ const ProductDetail = () => {
   }
 
   const hasDescription = !!product.description?.trim();
-  const remainingStock = typeof product.stock === "number" ? product.stock : 0;
-  const inStock = product.inStock && remainingStock > 0;
   const productVariants = Array.isArray(product.variants) ? product.variants : [];
   const hasVariants = productVariants.length > 0;
   const selectedVariant =
     productVariants.find((v) => String(v._id) === String(selectedVariantId)) || null;
+  const mainStock = typeof product.stock === "number" ? product.stock : 0;
+  const variantStockTotal = productVariants.reduce(
+    (sum, v) => sum + Number(v.stock || 0),
+    0,
+  );
+  const totalStock = mainStock + variantStockTotal;
+  const remainingStock = selectedVariant
+    ? Number(selectedVariant.stock || 0)
+    : mainStock;
+  const inStock = product.inStock && remainingStock > 0;
   const cartKey = selectedVariantId ? `${product._id}:${selectedVariantId}` : String(product._id);
   const inCartQty = cartQuantities[cartKey] || 0;
   const displayQty = inCartQty > 0 ? inCartQty : quantity;
@@ -542,6 +550,9 @@ const ProductDetail = () => {
                         showBadge={false}
                       />
                     </div>
+                    <div className="text-[11px] text-gray-500">
+                      Qty: {mainStock}
+                    </div>
                   </button>
                   {productVariants.map((variant) => {
                     const isActive = String(variant._id) === String(selectedVariantId);
@@ -580,6 +591,9 @@ const ProductDetail = () => {
                             showBadge={false}
                           />
                         </div>
+                        <div className="text-[11px] text-gray-500">
+                          Qty: {Number(variant.stock || 0)}
+                        </div>
                       </button>
                     );
                   })}
@@ -592,6 +606,11 @@ const ProductDetail = () => {
               <p className="text-sm font-medium text-red-500">Out of stock</p>
             ) : remainingStock <= 3 ? (
               <p className="text-sm font-medium text-green-600">Only {remainingStock} left</p>
+            ) : hasVariants ? (
+              <p className="text-sm font-medium text-gray-600">
+                {remainingStock} in stock
+                {!selectedVariantId ? ` · ${totalStock} total` : ""}
+              </p>
             ) : null}
 
             {/* Description — only if present */}

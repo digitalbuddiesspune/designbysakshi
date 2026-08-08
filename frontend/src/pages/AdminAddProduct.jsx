@@ -13,6 +13,7 @@ const AdminAddProduct = () => {
     color: "",
     size: "",
     price: "",
+    stock: "",
     images: [""],
   });
 
@@ -90,6 +91,7 @@ const AdminAddProduct = () => {
                 color: v.color || "",
                 size: v.size || "",
                 price: v.price ?? "",
+                stock: v.stock ?? "",
                 images: Array.isArray(v.images) && v.images.length ? v.images : [""],
               }))
             : [],
@@ -191,7 +193,7 @@ const AdminAddProduct = () => {
       const productData = {
         ...formData,
         price: parseFloat(formData.price),
-        stock: parseInt(formData.stock) || 0,
+        stock: parseInt(formData.stock, 10) || 0,
         hsnCode: String(formData.hsnCode || "").trim(),
         features: features.map((item) => item.trim()).filter(Boolean),
         stylingTips: stylingTips.map((item) => item.trim()).filter(Boolean),
@@ -199,11 +201,13 @@ const AdminAddProduct = () => {
           .map((variant) => {
             const images = (variant.images || []).map((s) => (s || "").trim()).filter(Boolean);
             const price = parseFloat(variant.price);
+            const stock = parseInt(variant.stock, 10) || 0;
             if (!Number.isFinite(price) || price < 0) return null;
             const payload = {
               color: String(variant.color || "").trim(),
               size: String(variant.size || "").trim(),
               price,
+              stock,
               images,
             };
             if (variant._id) payload._id = variant._id;
@@ -628,7 +632,7 @@ const AdminAddProduct = () => {
               <div className="space-y-4">
                 <div>
                   <label htmlFor="stock" className={labelClass} style={labelStyle}>
-                    Stock (Quantity) *
+                    Main Stock (Quantity) *
                   </label>
                   <input
                     type="number"
@@ -640,8 +644,15 @@ const AdminAddProduct = () => {
                     onChange={handleChange}
                     className={inputClass}
                     style={inputStyle}
-                    placeholder="Enter stock quantity"
+                    placeholder="Enter main product quantity"
                   />
+                  {variants.length > 0 ? (
+                    <p className="mt-1 text-xs" style={{ color: "var(--brand-muted)" }}>
+                      Total stock (main + variants):{" "}
+                      {(parseInt(formData.stock, 10) || 0) +
+                        variants.reduce((sum, v) => sum + (parseInt(v.stock, 10) || 0), 0)}
+                    </p>
+                  ) : null}
                 </div>
                 <div className="flex items-center pt-1">
                   <input
@@ -684,7 +695,8 @@ const AdminAddProduct = () => {
                     Product Variants
                   </p>
                   <p className="text-xs" style={{ color: "var(--brand-muted)" }}>
-                    Optional. Set color, size, price, and images for each variant.
+                    Optional. Each variant has its own quantity, separate from main stock.
+                    Admin product list shows main + all variant quantities.
                   </p>
                 </div>
                 <button
@@ -720,7 +732,7 @@ const AdminAddProduct = () => {
                           Remove
                         </button>
                       </div>
-                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <div>
                           <label className={labelClass} style={labelStyle}>
                             Color
@@ -760,6 +772,22 @@ const AdminAddProduct = () => {
                             onChange={(e) => updateVariant(vIdx, "price", e.target.value)}
                             className={inputClass}
                             style={inputStyle}
+                          />
+                        </div>
+                        <div>
+                          <label className={labelClass} style={labelStyle}>
+                            Quantity *
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            step="1"
+                            required
+                            value={variant.stock}
+                            onChange={(e) => updateVariant(vIdx, "stock", e.target.value)}
+                            className={inputClass}
+                            style={inputStyle}
+                            placeholder="0"
                           />
                         </div>
                       </div>

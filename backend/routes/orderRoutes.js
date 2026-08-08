@@ -532,8 +532,8 @@ router.put('/admin/:id/status', async (req, res) => {
       order.paymentStatus = 'paid';
     }
 
-    // Stock decrement rule: decrement product stock only once, when transitioning into `delivered`.
-    // (Returnable does not decrement stock.)
+    // Stock decrement rule: decrement once when transitioning into `delivered`.
+    // Main product stock and variant stocks are independent.
     if (prevStatus !== nextStatus && nextStatus === 'delivered' && !deliveredPreviously) {
       for (const item of order.items || []) {
         const qty = Number(item?.quantity || 0);
@@ -544,10 +544,22 @@ router.put('/admin/:id/status', async (req, res) => {
         const product = await Product.findById(productId);
         if (!product) continue;
 
-        const currentStock = Number(product.stock || 0);
-        const nextStock = Math.max(currentStock - qty, 0);
-        product.stock = nextStock;
-        product.inStock = nextStock > 0;
+        const variantId = String(item?.variantId || '').trim();
+        if (variantId && Array.isArray(product.variants) && product.variants.length > 0) {
+          const variant = product.variants.find((v) => String(v._id) === variantId);
+          if (variant) {
+            variant.stock = Math.max(0, Number(variant.stock || 0) - qty);
+          }
+        } else {
+          product.stock = Math.max(0, Number(product.stock || 0) - qty);
+        }
+
+        const variantTotal = (Array.isArray(product.variants) ? product.variants : []).reduce(
+          (sum, v) => sum + Math.max(0, Number(v.stock || 0)),
+          0,
+        );
+        const totalStock = Math.max(0, Number(product.stock || 0)) + variantTotal;
+        product.inStock = totalStock > 0;
         await product.save();
       }
     }
