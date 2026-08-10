@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL;
-// OAuth Web Client IDs are public; keep as production fallback when env/API is missing.
+// OAuth Web Client IDs are public; used when Vite/API env is missing in production.
 const FALLBACK_GOOGLE_CLIENT_ID =
   "82079364642-n4sab2bd3695c6gad9bkiucfsud9rhjm.apps.googleusercontent.com";
 const ENV_GOOGLE_CLIENT_ID = String(import.meta.env.VITE_GOOGLE_CLIENT_ID || "").trim();
@@ -56,29 +56,30 @@ const resolveGoogleClientId = async () => {
   return fromApi || FALLBACK_GOOGLE_CLIENT_ID;
 };
 
+/** Official multicolor Google "G" mark */
 const GoogleIcon = () => (
-  <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+  <svg className="h-5 w-5 shrink-0" viewBox="0 0 48 48" aria-hidden="true">
     <path
-      fill="#EA4335"
-      d="M12 10.2v3.6h5.1c-.2 1.2-.9 2.2-1.9 2.9l3.1 2.4c1.8-1.7 2.9-4.1 2.9-7 0-.7-.1-1.3-.2-1.9H12z"
+      fill="#FFC107"
+      d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
     />
     <path
-      fill="#34A853"
-      d="M5.3 14.3l-.8.6-2.5 2C3.5 20.1 7.5 23 12 23c2.7 0 5-.9 6.7-2.4l-3.1-2.4c-.9.6-2 .9-3.6.9-2.8 0-5.1-1.9-6-4.4z"
+      fill="#FF3D00"
+      d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
     />
     <path
-      fill="#4A90E2"
-      d="M3.3 7.1C2.5 8.7 2 10.3 2 12s.5 3.3 1.3 4.9l3.3-2.6C6.1 13.1 6 12.6 6 12s.1-1.1.3-1.6L3.3 7.1z"
+      fill="#4CAF50"
+      d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
     />
     <path
-      fill="#FBBC05"
-      d="M12 6c1.5 0 2.8.5 3.9 1.5l2.9-2.9C16.9 2.9 14.7 2 12 2 7.5 2 3.5 4.9 2 9.1l3.3 2.6C6.9 8.9 9.2 6 12 6z"
+      fill="#1976D2"
+      d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
     />
   </svg>
 );
 
 const GoogleSignInButton = ({ onSuccess, onError, disabled = false }) => {
-  const hiddenBtnRef = useRef(null);
+  const overlayRef = useRef(null);
   const [clientId, setClientId] = useState(
     ENV_GOOGLE_CLIENT_ID || FALLBACK_GOOGLE_CLIENT_ID,
   );
@@ -133,7 +134,11 @@ const GoogleSignInButton = ({ onSuccess, onError, disabled = false }) => {
     const setup = async () => {
       try {
         await loadGoogleScript();
-        if (cancelled || !window.google?.accounts?.id) return;
+        for (let i = 0; i < 12 && !cancelled; i += 1) {
+          if (overlayRef.current?.offsetWidth) break;
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+        if (cancelled || !overlayRef.current || !window.google?.accounts?.id) return;
 
         window.google.accounts.id.initialize({
           client_id: clientId,
@@ -142,16 +147,22 @@ const GoogleSignInButton = ({ onSuccess, onError, disabled = false }) => {
           cancel_on_tap_outside: true,
         });
 
-        // Keep an official GIS button (hidden) so Google popup/auth flow stays supported.
-        if (hiddenBtnRef.current) {
-          hiddenBtnRef.current.innerHTML = "";
-          window.google.accounts.id.renderButton(hiddenBtnRef.current, {
-            theme: "outline",
-            size: "large",
-            text: "continue_with",
-            shape: "rectangular",
-            width: 320,
-          });
+        overlayRef.current.innerHTML = "";
+        const width = Math.max(overlayRef.current.offsetWidth || 320, 280);
+        window.google.accounts.id.renderButton(overlayRef.current, {
+          theme: "outline",
+          size: "large",
+          text: "continue_with",
+          shape: "rectangular",
+          logo_alignment: "left",
+          width,
+        });
+
+        // Stretch Google's iframe/button to cover our custom button fully.
+        const rendered = overlayRef.current.firstElementChild;
+        if (rendered) {
+          rendered.style.width = "100%";
+          rendered.style.height = "100%";
         }
 
         if (!cancelled) setReady(true);
@@ -168,37 +179,36 @@ const GoogleSignInButton = ({ onSuccess, onError, disabled = false }) => {
     };
   }, [clientId]);
 
-  const handleClick = () => {
-    if (disabled || busy || !ready) return;
-    const googleBtn = hiddenBtnRef.current?.querySelector("div[role='button'], button, div");
-    if (googleBtn) {
-      googleBtn.click();
-      return;
-    }
-    // Fallback: prompt One Tap / account chooser
-    try {
-      window.google?.accounts?.id?.prompt();
-    } catch {
-      callbacksRef.current.onError?.("Google sign-in unavailable");
-    }
-  };
-
   if (!clientId) return null;
 
   return (
     <>
-      <div className="mb-4 w-full">
-        <button
-          type="button"
-          onClick={handleClick}
-          disabled={disabled || busy || !ready}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+      <div className="relative mb-4 w-full">
+        {/* Visual custom button (icon + label) */}
+        <div
+          className={`flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 ${
+            disabled || busy ? "opacity-60" : ""
+          }`}
         >
           <GoogleIcon />
-          {busy ? "Signing in..." : ready ? "Continue with Google" : "Loading Google…"}
-        </button>
-        <div ref={hiddenBtnRef} className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0" aria-hidden />
+          <span>{busy ? "Signing in..." : "Continue with Google"}</span>
+        </div>
+
+        {/* Real Google button overlays the custom UI so clicks always work */}
+        <div
+          ref={overlayRef}
+          className={`absolute inset-0 z-10 overflow-hidden rounded-lg [&>div]:h-full [&>div]:w-full ${
+            disabled || busy ? "pointer-events-none" : "cursor-pointer"
+          }`}
+          style={{ opacity: 0.011 }}
+          aria-label="Continue with Google"
+        />
+
+        {!ready && (
+          <p className="mt-2 text-center text-xs text-gray-500">Loading Google…</p>
+        )}
       </div>
+
       <div className="mb-4 flex items-center gap-3">
         <div className="h-px flex-1 bg-gray-200" />
         <span className="text-xs text-gray-500">or</span>
