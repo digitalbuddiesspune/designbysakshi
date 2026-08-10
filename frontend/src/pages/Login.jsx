@@ -4,7 +4,6 @@ import PasswordInput from "../components/PasswordInput";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 
 const API_URL = import.meta.env.VITE_API_URL;
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
 const Login = ({ isModal = false, onClose, onSwitchSignup }) => {
   const [formData, setFormData] = useState({
@@ -156,23 +155,11 @@ const Login = ({ isModal = false, onClose, onSwitchSignup }) => {
             </div>
           )}
 
-          {GOOGLE_CLIENT_ID ? (
-            <>
-              <div className="mb-4">
-                <GoogleSignInButton
-                  disabled={loading}
-                  onSuccess={handleGoogleSuccess}
-                  onError={(err) => setMessage(err)}
-                />
-              </div>
-
-              <div className="mb-4 flex items-center gap-3">
-                <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-xs text-gray-500">or</span>
-                <div className="h-px flex-1 bg-gray-200" />
-              </div>
-            </>
-          ) : null}
+          <GoogleSignInButton
+            disabled={loading}
+            onSuccess={handleGoogleSuccess}
+            onError={(err) => setMessage(err)}
+          />
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

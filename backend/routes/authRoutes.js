@@ -27,6 +27,15 @@ const verifyGoogleCredential = async (credential) => {
   return ticket.getPayload();
 };
 
+// Public: frontend needs the OAuth client ID (safe to expose)
+router.get('/google-config', (_req, res) => {
+  const clientId = String(process.env.GOOGLE_CLIENT_ID || '').trim();
+  res.json({
+    enabled: Boolean(clientId),
+    clientId: clientId || null,
+  });
+});
+
 
 // Signup
 router.post('/signup', async (req, res) => {
