@@ -130,12 +130,16 @@ router.post('/google', async (req, res) => {
     if (!payload?.email || !payload?.sub) {
       return res.status(401).json({ error: 'Invalid Google token' });
     }
+    if (payload.email_verified === false) {
+      return res.status(401).json({ error: 'Google email is not verified' });
+    }
 
     const email = String(payload.email).toLowerCase().trim();
     const googleId = String(payload.sub);
     const displayName =
       String(payload.name || '').trim() ||
-      String(payload.given_name || 'Google User').trim();
+      [payload.given_name, payload.family_name].filter(Boolean).join(' ').trim() ||
+      'Google User';
 
     let user = await User.findOne({
       $or: [{ googleId }, { email }],
@@ -153,14 +157,13 @@ router.post('/google', async (req, res) => {
       }
       if (changed) await user.save();
     } else {
-      user = new User({
+      user = await User.create({
         name: displayName,
         email,
         googleId,
         authProvider: 'google',
         role: 'user',
       });
-      await user.save();
     }
 
     return res.json({
@@ -170,6 +173,9 @@ router.post('/google', async (req, res) => {
     });
   } catch (error) {
     console.error('Google auth error:', error);
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ error: error.message });
+    }
     return res.status(401).json({ error: 'Google authentication failed' });
   }
 });

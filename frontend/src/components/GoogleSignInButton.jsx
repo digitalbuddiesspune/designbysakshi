@@ -11,8 +11,14 @@ const loadGoogleScript = () => {
   googleScriptPromise = new Promise((resolve, reject) => {
     const existing = document.querySelector('script[data-google-gsi="true"]');
     if (existing) {
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () => reject(new Error("Failed to load Google")));
+      if (window.google?.accounts?.id) {
+        resolve();
+        return;
+      }
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("Failed to load Google")), {
+        once: true,
+      });
       return;
     }
     const script = document.createElement("script");
@@ -38,50 +44,59 @@ const GoogleSignInButton = ({ onSuccess, onError, disabled = false }) => {
   }, [onSuccess, onError]);
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || !buttonRef.current) return undefined;
+    if (!GOOGLE_CLIENT_ID) return undefined;
     let cancelled = false;
+
+    const handleCredential = async (response) => {
+      if (!response?.credential) {
+        callbacksRef.current.onError?.("Google sign-in failed");
+        return;
+      }
+      setBusy(true);
+      try {
+        const res = await fetch(`${API_URL}/auth/google`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential: response.credential }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(data.error || "Google sign-in failed");
+        }
+        callbacksRef.current.onSuccess?.(data);
+      } catch (error) {
+        callbacksRef.current.onError?.(error.message || "Google sign-in failed");
+      } finally {
+        setBusy(false);
+      }
+    };
 
     const setup = async () => {
       try {
         await loadGoogleScript();
+        // Wait until the container is mounted and measurable
+        for (let i = 0; i < 10 && !cancelled; i += 1) {
+          if (buttonRef.current?.offsetWidth) break;
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
         if (cancelled || !buttonRef.current || !window.google?.accounts?.id) return;
 
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
-          callback: async (response) => {
-            if (!response?.credential) {
-              callbacksRef.current.onError?.("Google sign-in failed");
-              return;
-            }
-            setBusy(true);
-            try {
-              const res = await fetch(`${API_URL}/auth/google`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ credential: response.credential }),
-              });
-              const data = await res.json().catch(() => ({}));
-              if (!res.ok) {
-                throw new Error(data.error || "Google sign-in failed");
-              }
-              callbacksRef.current.onSuccess?.(data);
-            } catch (error) {
-              callbacksRef.current.onError?.(error.message || "Google sign-in failed");
-            } finally {
-              setBusy(false);
-            }
-          },
+          callback: handleCredential,
           auto_select: false,
           cancel_on_tap_outside: true,
         });
 
         buttonRef.current.innerHTML = "";
+        const width = Math.max(buttonRef.current.offsetWidth || 320, 280);
         window.google.accounts.id.renderButton(buttonRef.current, {
           theme: "outline",
           size: "large",
           text: "continue_with",
           shape: "rectangular",
-          width: buttonRef.current.offsetWidth || 320,
+          logo_alignment: "left",
+          width,
         });
         if (!cancelled) setReady(true);
       } catch (error) {
@@ -105,7 +120,7 @@ const GoogleSignInButton = ({ onSuccess, onError, disabled = false }) => {
     <div className="w-full">
       <div
         ref={buttonRef}
-        className={`flex min-h-10 w-full items-center justify-center overflow-hidden ${
+        className={`flex min-h-10 w-full items-center justify-center overflow-hidden [&>div]:w-full ${
           disabled || busy ? "pointer-events-none opacity-60" : ""
         }`}
       />
