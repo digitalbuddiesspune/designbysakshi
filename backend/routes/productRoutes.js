@@ -277,6 +277,18 @@ router.get('/:id/can-review', async (req, res) => {
   }
 });
 
+const updateProductRatingSummary = (product) => {
+  const reviews = Array.isArray(product?.userReviews) ? product.userReviews : [];
+  if (reviews.length === 0) {
+    product.rating = 0;
+    product.numReviews = 0;
+  } else {
+    const totalStars = reviews.reduce((sum, r) => sum + Number(r.stars || 0), 0);
+    product.rating = Number((totalStars / reviews.length).toFixed(1));
+    product.numReviews = reviews.length;
+  }
+};
+
 // Add review to product (only purchased users)
 router.post('/:id/reviews', async (req, res) => {
   try {
@@ -325,11 +337,14 @@ router.post('/:id/reviews', async (req, res) => {
       });
     }
 
+    updateProductRatingSummary(product);
     await product.save();
     await product.populate('userReviews.user', 'name');
 
     return res.status(201).json({
       message: 'Review saved successfully',
+      rating: product.rating,
+      numReviews: product.numReviews,
       userReviews: product.userReviews,
     });
   } catch (error) {
@@ -358,6 +373,7 @@ router.delete('/:id/reviews/:reviewId', async (req, res) => {
       return res.status(404).json({ error: 'Review not found' });
     }
 
+    updateProductRatingSummary(product);
     await product.save();
     await product.populate('userReviews.user', 'name');
 

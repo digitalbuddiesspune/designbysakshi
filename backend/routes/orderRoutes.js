@@ -39,6 +39,70 @@ const getRazorpayInstance = () => {
   return new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET });
 };
 
+const decrementOrderProductStock = async (order) => {
+  if (!order || order.stockDecremented) return;
+  for (const item of order.items || []) {
+    const qty = Number(item?.quantity || 0);
+    if (!qty) continue;
+    const productId = item?.product;
+    if (!productId) continue;
+
+    const product = await Product.findById(productId);
+    if (!product) continue;
+
+    const variantId = String(item?.variantId || '').trim();
+    if (variantId && Array.isArray(product.variants) && product.variants.length > 0) {
+      const variant = product.variants.find((v) => String(v._id) === variantId);
+      if (variant) {
+        variant.stock = Math.max(0, Number(variant.stock || 0) - qty);
+      }
+    } else {
+      product.stock = Math.max(0, Number(product.stock || 0) - qty);
+    }
+
+    const variantTotal = (Array.isArray(product.variants) ? product.variants : []).reduce(
+      (sum, v) => sum + Math.max(0, Number(v.stock || 0)),
+      0
+    );
+    const totalStock = Math.max(0, Number(product.stock || 0)) + variantTotal;
+    product.inStock = totalStock > 0;
+    await product.save();
+  }
+  order.stockDecremented = true;
+};
+
+const restoreOrderProductStock = async (order) => {
+  if (!order || !order.stockDecremented) return;
+  for (const item of order.items || []) {
+    const qty = Number(item?.quantity || 0);
+    if (!qty) continue;
+    const productId = item?.product;
+    if (!productId) continue;
+
+    const product = await Product.findById(productId);
+    if (!product) continue;
+
+    const variantId = String(item?.variantId || '').trim();
+    if (variantId && Array.isArray(product.variants) && product.variants.length > 0) {
+      const variant = product.variants.find((v) => String(v._id) === variantId);
+      if (variant) {
+        variant.stock = Number(variant.stock || 0) + qty;
+      }
+    } else {
+      product.stock = Number(product.stock || 0) + qty;
+    }
+
+    const variantTotal = (Array.isArray(product.variants) ? product.variants : []).reduce(
+      (sum, v) => sum + Math.max(0, Number(v.stock || 0)),
+      0
+    );
+    const totalStock = Math.max(0, Number(product.stock || 0)) + variantTotal;
+    product.inStock = totalStock > 0;
+    await product.save();
+  }
+  order.stockDecremented = false;
+};
+
 router.get('/payment/razorpay/key', (req, res) => {
   if (!RAZORPAY_KEY_ID) {
     return res.status(500).json({ message: 'Razorpay key is not configured' });
@@ -228,6 +292,12 @@ router.post('/', async (req, res) => {
 
     if (couponCode) {
       await Coupon.updateOne({ code: String(couponCode).trim().toUpperCase() }, { $inc: { usedCount: 1 } });
+    }
+
+    // Automatically decrement product stock on order confirmation
+    if (normalizeStatus(order.status) === 'confirm') {
+      await decrementOrderProductStock(order);
+      await order.save();
     }
 
     res.status(201).json(order);
@@ -532,36 +602,11 @@ router.put('/admin/:id/status', async (req, res) => {
       order.paymentStatus = 'paid';
     }
 
-    // Stock decrement rule: decrement once when transitioning into `delivered`.
-    // Main product stock and variant stocks are independent.
-    if (prevStatus !== nextStatus && nextStatus === 'delivered' && !deliveredPreviously) {
-      for (const item of order.items || []) {
-        const qty = Number(item?.quantity || 0);
-        if (!qty) continue;
-        const productId = item?.product;
-        if (!productId) continue;
-
-        const product = await Product.findById(productId);
-        if (!product) continue;
-
-        const variantId = String(item?.variantId || '').trim();
-        if (variantId && Array.isArray(product.variants) && product.variants.length > 0) {
-          const variant = product.variants.find((v) => String(v._id) === variantId);
-          if (variant) {
-            variant.stock = Math.max(0, Number(variant.stock || 0) - qty);
-          }
-        } else {
-          product.stock = Math.max(0, Number(product.stock || 0) - qty);
-        }
-
-        const variantTotal = (Array.isArray(product.variants) ? product.variants : []).reduce(
-          (sum, v) => sum + Math.max(0, Number(v.stock || 0)),
-          0,
-        );
-        const totalStock = Math.max(0, Number(product.stock || 0)) + variantTotal;
-        product.inStock = totalStock > 0;
-        await product.save();
-      }
+    // Stock rule: decrement when confirmed, processing, shipped or delivered; restore if cancelled.
+    if (['confirm', 'processing', 'shipped', 'delivered'].includes(nextStatus)) {
+      await decrementOrderProductStock(order);
+    } else if (nextStatus === 'cancelled') {
+      await restoreOrderProductStock(order);
     }
 
     const updated = await order.save();
@@ -663,6 +708,7 @@ router.post('/:id/cancel', async (req, res) => {
 
     order.status = 'cancelled';
     order.statusHistory = [...(order.statusHistory || []), { status: 'cancelled', changedAt: new Date() }];
+    await restoreOrderProductStock(order);
     await order.save();
     res.json({ message: 'Order cancelled', order });
   } catch (error) {

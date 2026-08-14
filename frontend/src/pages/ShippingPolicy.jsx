@@ -141,8 +141,8 @@ const ShippingPolicy = () => {
                 </div>
                 <div className="md:w-2/3 flex flex-col gap-4">
                   <div>
-                    <h3 className="font-semibold text-gray-800 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-orange-400"></span>Failed Deliveries</h3>
-                    <p className="text-sm mt-1">If delivery fails due to incorrect address or refusal, the order may return to us. You will be responsible for re-shipping charges. Please ensure complete addresses!</p>
+                    <h3 className="font-semibold text-gray-800 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-orange-400"></span>RTO (Return to Origin) &amp; Failed Deliveries</h3>
+                    <p className="text-sm mt-1">If an order is returned to us (RTO) for any reason, the amount will be issued as <strong>store credit</strong> within 3–4 working days after the parcel is received back. A flat <strong>₹99 RTO fee</strong> will be deducted. Refunds to original payment method are not applicable for RTO packages.</p>
                   </div>
                   <div>
                     <h3 className="font-semibold text-gray-800 flex items-center gap-2"><span className="w-2 h-2 rounded-full bg-orange-400"></span>International Shipping</h3>

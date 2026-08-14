@@ -19,13 +19,19 @@ const resolveVariant = (product, variantId) => {
 };
 
 const availableStockFor = (product, variant) => {
+  if (product && product.inStock === false) return 0;
   if (variant) return Math.max(0, Number(variant.stock || 0));
   return Math.max(0, Number(product?.stock || 0));
 };
 
-const sameCartLine = (item, productId, variantId = '') =>
-  item.product.toString() === String(productId) &&
-  String(item.variantId || '') === String(variantId || '');
+const sameCartLine = (item, productId, variantId = '') => {
+  if (!item || !item.product) return false;
+  const itemProdId = item.product._id ? item.product._id.toString() : item.product.toString();
+  return (
+    itemProdId === String(productId) &&
+    String(item.variantId || '') === String(variantId || '')
+  );
+};
 
 // Get cart for user or guest
 router.get('/', async (req, res) => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { openInvoiceWindow } from "../utils/invoice";
+import StarRatingPicker from "../components/StarRatingPicker";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const normalizeStatus = (s) => {
@@ -25,8 +26,57 @@ const OrderDetail = () => {
 
   const [loading, setLoading] = useState(true);
   const [order, setOrder] = useState(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedReviewProductId, setSelectedReviewProductId] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewForm, setReviewForm] = useState({ stars: 5, review: "", image: "" });
 
   const token = useMemo(() => localStorage.getItem("token"), []);
+
+  const handleOpenReviewModal = (productId) => {
+    if (!productId) return;
+    setSelectedReviewProductId(productId);
+    setReviewForm({ stars: 5, review: "", image: "" });
+    setShowReviewModal(true);
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    if (!selectedReviewProductId || !token) return;
+    const reviewText = String(reviewForm.review || "").trim();
+    if (!reviewText) {
+      alert("Please write your review.");
+      return;
+    }
+    try {
+      setReviewSubmitting(true);
+      const res = await fetch(`${API_URL}/products/${selectedReviewProductId}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          stars: Number(reviewForm.stars),
+          review: reviewText,
+          image: reviewForm.image,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(data?.error || "Failed to submit review");
+        return;
+      }
+      alert("Review submitted successfully!");
+      setShowReviewModal(false);
+      setSelectedReviewProductId("");
+    } catch (err) {
+      console.error("Submit review failed:", err);
+      alert("Failed to submit review");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   const fetchOrder = async () => {
     try {
@@ -455,6 +505,16 @@ const OrderDetail = () => {
                                     {variantLabel}
                                   </div>
                                 ) : null}
+                                {it.product?._id && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenReviewModal(it.product._id)}
+                                    className="mt-1 flex items-center gap-1 text-[11px] font-semibold hover:underline md:text-xs"
+                                    style={{ color: "#3D294D" }}
+                                  >
+                                    <span className="text-amber-500">★</span> Write a Review
+                                  </button>
+                                )}
                               </div>
                             </div>
                           </td>
@@ -488,6 +548,55 @@ const OrderDetail = () => {
           </div>
         )}
       </div>
+
+      {showReviewModal && (
+        <div className="fixed inset-0 z-[2100] flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-2xl">
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="text-xl font-semibold text-gray-900">Write a Review</h3>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setSelectedReviewProductId("");
+                }}
+                className="text-gray-500 hover:text-gray-800"
+                aria-label="Close review modal"
+              >
+                ✕
+              </button>
+            </div>
+            <form onSubmit={handleSubmitReview} className="space-y-3">
+              <StarRatingPicker
+                label="Your rating"
+                value={reviewForm.stars}
+                onChange={(stars) => setReviewForm((prev) => ({ ...prev, stars }))}
+              />
+              <textarea
+                rows={4}
+                value={reviewForm.review}
+                onChange={(e) => setReviewForm((prev) => ({ ...prev, review: e.target.value }))}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D294D]/30"
+                placeholder="Write your review about the product..."
+              />
+              <input
+                type="url"
+                value={reviewForm.image}
+                onChange={(e) => setReviewForm((prev) => ({ ...prev, image: e.target.value }))}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#3D294D]/30"
+                placeholder="Optional image URL"
+              />
+              <button
+                type="submit"
+                disabled={reviewSubmitting}
+                className="w-full rounded-full bg-[#3D294D] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+              >
+                {reviewSubmitting ? "Submitting..." : "Submit Review"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

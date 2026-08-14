@@ -69,15 +69,33 @@ const HomeProductCard = ({
       </Link>
 
       <div className="p-3">
-        <div className="mb-1 flex items-center gap-1">
-          <svg className="h-3.5 w-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-          </svg>
-          <span className="text-xs font-semibold text-gray-800">{product.rating || "4.8"}</span>
-        </div>
+        {(() => {
+          const reviews = Array.isArray(product?.userReviews) ? product.userReviews : [];
+          const realRating =
+            typeof product?.rating === "number" && product.rating > 0
+              ? product.rating.toFixed(1)
+              : reviews.length > 0
+                ? (reviews.reduce((acc, r) => acc + Number(r.stars || 0), 0) / reviews.length).toFixed(1)
+                : null;
+          const reviewCount = product?.numReviews || reviews.length || 0;
+
+          return (
+            <div className="mb-1 flex items-center gap-1.5">
+              <svg className="h-3.5 w-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              <span className="text-xs font-semibold text-gray-800">
+                {realRating ? realRating : "No ratings"}
+              </span>
+              {reviewCount > 0 && (
+                <span className="text-[11px] text-gray-400">({reviewCount})</span>
+              )}
+            </div>
+          );
+        })()}
 
         <h3
-          className="mb-1 line-clamp-1 text-sm font-semibold text-gray-900"
+          className="mb-1 line-clamp-1 text-base sm:text-lg font-bold text-gray-900"
           style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
         >
           {product.name}

@@ -29,9 +29,9 @@ const ProductDetail = () => {
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [routeReviewOpen, setRouteReviewOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
-  const [showMoreDetails, setShowMoreDetails] = useState(false);
+  const [showMoreDetails, setShowMoreDetails] = useState(true);
   const [selectedVariantId, setSelectedVariantId] = useState("");
-  const [careOpen, setCareOpen] = useState(false);
+  const [careOpen, setCareOpen] = useState(true);
 
   const guestId = useMemo(() => getGuestId(), []);
   const { cartQuantities, cartBusyId, addToCart, setCartQuantity } = useCartQuantities();
@@ -50,7 +50,7 @@ const ProductDetail = () => {
         setActiveImageIndex(0);
         // Keep main product selected by default; user picks a variant when needed
         setSelectedVariantId("");
-        setCareOpen(false);
+        setCareOpen(true);
       } catch (err) {
         setError(err.message || "Something went wrong");
       } finally {
@@ -58,7 +58,7 @@ const ProductDetail = () => {
       }
     };
     if (id) fetchProduct();
-    setShowMoreDetails(false);
+    setShowMoreDetails(true);
     setQuantity(1);
   }, [id]);
 
@@ -443,38 +443,92 @@ const ProductDetail = () => {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-6">
         <div className="grid gap-8 md:grid-cols-2 md:items-start">
 
-          {/* ── Left: Image (sticky on desktop) ── */}
-          <div className="flex items-start justify-center gap-4 w-full md:sticky md:top-4 md:self-start lg:top-6">
-            {/* Thumbnails (left) */}
-            {galleryImages.length > 1 && (
-              <div className="hidden sm:flex flex-col gap-2 w-20 flex-shrink-0">
-                {galleryImages.map((src, idx) => (
-                  <button
-                    key={`${src}-${idx}`}
-                    type="button"
-                    onClick={() => setActiveImageIndex(idx)}
-                    className={`h-16 w-16 overflow-hidden rounded-lg border transition ${
-                      idx === activeImageIndex
-                        ? "border-[#3D294D] hover:border-[#3D294D]"
-                        : "border-[#3D294D]/30 hover:border-[#3D294D]"
-                    }`}
-                    aria-label={`Select image ${idx + 1}`}
-                    style={{ background: "white" }}
-                  >
-                    <img src={src} alt={`${product.name} ${idx + 1}`} className="h-full w-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* ── Left: Image & Trust Badges (sticky gallery on desktop) ── */}
+          <div className="flex flex-col items-center w-full md:sticky md:top-4 md:self-start lg:top-6">
+            <div className="flex items-start justify-center gap-4 w-full">
+              {/* Thumbnails (left) */}
+              {galleryImages.length > 1 && (
+                <div className="hidden sm:flex flex-col gap-2 w-20 flex-shrink-0">
+                  {galleryImages.map((src, idx) => (
+                    <button
+                      key={`${src}-${idx}`}
+                      type="button"
+                      onClick={() => setActiveImageIndex(idx)}
+                      className={`h-16 w-16 overflow-hidden rounded-lg border transition ${
+                        idx === activeImageIndex
+                          ? "border-[#3D294D] hover:border-[#3D294D]"
+                          : "border-[#3D294D]/30 hover:border-[#3D294D]"
+                      }`}
+                      aria-label={`Select image ${idx + 1}`}
+                      style={{ background: "white" }}
+                    >
+                      <img src={src} alt={`${product.name} ${idx + 1}`} className="h-full w-full object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
 
-            {/* Main image */}
-            <div className="w-full max-w-xl aspect-square overflow-hidden shadow-md">
-              <img
-                id="product-main-image"
-                src={activeImage}
-                alt={product.name}
-                className="h-full w-full object-contain object-center"
-              />
+              {/* Main image */}
+              <div className="w-full max-w-xl aspect-square overflow-hidden shadow-md">
+                <img
+                  id="product-main-image"
+                  src={activeImage}
+                  alt={product.name}
+                  className="h-full w-full object-contain object-center"
+                />
+              </div>
+            </div>
+
+            {/* Desktop Trust Badges (below image) */}
+            <div className="hidden md:block w-full mt-3">
+              <div className="rounded-xl border border-[#3D294D]/15 bg-[#FBF8FC] px-2 py-2.5 shadow-sm w-full">
+                <div className="grid grid-cols-3 divide-x divide-[#3D294D]/15">
+                  {/* Store Pickup */}
+                  <div className="flex flex-col items-center justify-center px-1 text-center">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3EAF7] text-[#3D294D] sm:h-10 sm:w-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4.5 w-4.5 text-[#3D294D] sm:h-5 sm:w-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+                      </svg>
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-[#3D294D] sm:text-xs leading-tight">
+                      Store Pickup
+                    </span>
+                    <span className="mt-0.5 text-[10px] font-medium text-[#6A527A]">
+                      Available
+                    </span>
+                  </div>
+
+                  {/* Priority Shipping */}
+                  <div className="flex flex-col items-center justify-center px-1 text-center">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3EAF7] text-[#3D294D] sm:h-10 sm:w-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4.5 w-4.5 text-[#3D294D] sm:h-5 sm:w-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                      </svg>
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-[#3D294D] sm:text-xs leading-tight">
+                      Priority Shipping
+                    </span>
+                    <span className="mt-0.5 text-[10px] font-medium text-[#6A527A]">
+                      Available
+                    </span>
+                  </div>
+
+                  {/* 24 Hours Easy Return */}
+                  <div className="flex flex-col items-center justify-center px-1 text-center">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3EAF7] text-[#3D294D] sm:h-10 sm:w-10">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4.5 w-4.5 text-[#3D294D] sm:h-5 sm:w-5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                      </svg>
+                    </div>
+                    <span className="mt-1.5 text-[11px] font-bold text-[#3D294D] sm:text-xs leading-tight">
+                      24 Hours
+                    </span>
+                    <span className="mt-0.5 text-[10px] font-medium text-[#6A527A]">
+                      Easy Return
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -504,11 +558,25 @@ const ProductDetail = () => {
           <div className="scrollbar-hide flex min-h-0 flex-col gap-6 justify-start pt-2 md:max-h-[calc(100dvh-8.5rem)] md:overflow-y-auto md:overscroll-y-auto md:pr-1 md:pb-2 lg:max-h-[calc(100dvh-10.5rem)]">
             {/* Name */}
             <h1
-              className="text-2xl sm:text-3xl font-semibold text-gray-900"
+              className="text-3xl sm:text-4xl lg:text-4xl font-bold tracking-tight text-gray-900 leading-tight"
               style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
             >
               {product.name}
             </h1>
+
+            {/* Rating summary */}
+            <div className="flex items-center gap-2 -mt-3">
+              <div className="flex items-center gap-0.5 text-amber-500 text-sm">
+                {"★".repeat(Math.round(product.rating || (userReviews.length ? userReviews.reduce((a, b) => a + Number(b.stars || 0), 0) / userReviews.length : 5)))}
+                {"☆".repeat(5 - Math.round(product.rating || (userReviews.length ? userReviews.reduce((a, b) => a + Number(b.stars || 0), 0) / userReviews.length : 5)))}
+              </div>
+              <span className="text-xs font-semibold text-gray-700">
+                {product.rating || (userReviews.length ? (userReviews.reduce((a, b) => a + Number(b.stars || 0), 0) / userReviews.length).toFixed(1) : "5.0")}
+              </span>
+              <span className="text-xs text-gray-500">
+                ({userReviews.length} {userReviews.length === 1 ? "review" : "reviews"})
+              </span>
+            </div>
 
             {/* Price */}
             <ProductPrice
@@ -672,99 +740,181 @@ const ProductDetail = () => {
               </button>
             </div>
 
+            {/* ── Mobile Trust Badges (Store Pickup, Priority Shipping, 24 Hours Return) ── */}
+            <div className="md:hidden block my-2 rounded-xl border border-[#3D294D]/15 bg-[#FBF8FC] px-2 py-2.5 shadow-sm">
+              <div className="grid grid-cols-3 divide-x divide-[#3D294D]/15">
+                {/* Store Pickup */}
+                <div className="flex flex-col items-center justify-center px-1 text-center">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3EAF7] text-[#3D294D] sm:h-10 sm:w-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4.5 w-4.5 text-[#3D294D] sm:h-5 sm:w-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+                    </svg>
+                  </div>
+                  <span className="mt-1.5 text-[11px] font-bold text-[#3D294D] sm:text-xs leading-tight">
+                    Store Pickup
+                  </span>
+                  <span className="mt-0.5 text-[10px] font-medium text-[#6A527A]">
+                    Available
+                  </span>
+                </div>
+
+                {/* Priority Shipping */}
+                <div className="flex flex-col items-center justify-center px-1 text-center">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3EAF7] text-[#3D294D] sm:h-10 sm:w-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4.5 w-4.5 text-[#3D294D] sm:h-5 sm:w-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                    </svg>
+                  </div>
+                  <span className="mt-1.5 text-[11px] font-bold text-[#3D294D] sm:text-xs leading-tight">
+                    Priority Shipping
+                  </span>
+                  <span className="mt-0.5 text-[10px] font-medium text-[#6A527A]">
+                    Available
+                  </span>
+                </div>
+
+                {/* 24 Hours Easy Return */}
+                <div className="flex flex-col items-center justify-center px-1 text-center">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F3EAF7] text-[#3D294D] sm:h-10 sm:w-10">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-4.5 w-4.5 text-[#3D294D] sm:h-5 sm:w-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                    </svg>
+                  </div>
+                  <span className="mt-1.5 text-[11px] font-bold text-[#3D294D] sm:text-xs leading-tight">
+                    24 Hours
+                  </span>
+                  <span className="mt-0.5 text-[10px] font-medium text-[#6A527A]">
+                    Easy Return
+                  </span>
+                </div>
+              </div>
+            </div>
+
             {features.length > 0 && (
               <div>
                 <h3 className="text-sm font-semibold text-gray-800">Features</h3>
                 <ul className="mt-1 list-disc pl-5 text-sm text-gray-600 space-y-1">
-                  {(showMoreDetails ? features : previewFeatures).map((item, idx) => (
+                  {features.map((item, idx) => (
                     <li key={`feature-${idx}`}>{item}</li>
                   ))}
                 </ul>
-                {!showMoreDetails && hasHiddenDetails && (
-                  <button
-                    type="button"
-                    onClick={() => setShowMoreDetails(true)}
-                    className="mt-0.5 text-left text-sm font-semibold text-green-600 hover:text-green-700"
-                  >
-                    ... read more
-                  </button>
-                )}
               </div>
             )}
 
-            {features.length === 0 && !showMoreDetails && hasHiddenDetails && (
-              <button
-                type="button"
-                onClick={() => setShowMoreDetails(true)}
-                className="text-left text-sm font-semibold text-green-600 hover:text-green-700"
-              >
-                ... read more
-              </button>
+            {stylingTips.length > 0 && (
+              <div>
+                <h3 className="text-sm font-semibold text-gray-800">Styling Tips</h3>
+                <ul className="mt-1 list-disc pl-5 text-sm text-gray-600 space-y-1">
+                  {stylingTips.map((item, idx) => (
+                    <li key={`tip-${idx}`}>{item}</li>
+                  ))}
+                </ul>
+              </div>
             )}
 
-            {!showMoreDetails && careInstructions.length > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  setShowMoreDetails(true);
-                  setCareOpen(true);
-                }}
-                className="text-left text-sm font-semibold text-gray-700 underline-offset-2 hover:underline"
-              >
-                View Jewellery Care
-              </button>
+            {product.color && !hasVariants && (
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">Color:</span> {product.color}
+              </p>
             )}
 
-            {showMoreDetails && (
-              <>
-                {stylingTips.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-800">Styling Tips</h3>
-                    <ul className="mt-1 list-disc pl-5 text-sm text-gray-600 space-y-1">
-                      {stylingTips.map((item, idx) => (
-                        <li key={`tip-${idx}`}>{item}</li>
+            {careInstructions.length > 0 && (
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setCareOpen((open) => !open)}
+                  className="flex w-full items-center justify-between text-left"
+                >
+                  <h3 className="text-sm font-semibold text-gray-800">
+                    {product.careTitle || "Jewellery Care"}
+                  </h3>
+                  <span className="text-xs font-semibold text-green-600">
+                    {careOpen ? "Hide" : "Show"}
+                  </span>
+                </button>
+                {careOpen && (
+                  <div className="mt-2 space-y-3">
+                    {product.careDescription ? (
+                      <p className="text-sm text-gray-600">{product.careDescription}</p>
+                    ) : null}
+                    <ul className="space-y-2">
+                      {careInstructions.map((item) => (
+                        <li key={item.id || item.title} className="text-sm text-gray-600">
+                          <span className="font-semibold text-gray-800">{item.title}: </span>
+                          {item.description}
+                        </li>
                       ))}
                     </ul>
                   </div>
                 )}
+              </div>
+            )}
 
-                {product.color && !hasVariants && (
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">Color:</span> {product.color}
-                  </p>
-                )}
+            {/* ── Store Policies Section (Returns & RTO Policy) ── */}
+            <div className="rounded-xl border border-[#3D294D]/15 bg-[#FAF7FC] p-4 text-xs sm:text-sm text-gray-700 space-y-4 shadow-sm">
+              {/* 1. Returns & Refund Policy */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <svg className="h-4 w-4 text-[#3D294D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                  </svg>
+                  <h3 className="font-bold text-[#3D294D] text-sm sm:text-base">
+                    Returns & Refund Policy
+                  </h3>
+                </div>
 
-                {careInstructions.length > 0 && (
-                  <div>
-                    <button
-                      type="button"
-                      onClick={() => setCareOpen((open) => !open)}
-                      className="flex w-full items-center justify-between text-left"
-                    >
-                      <h3 className="text-sm font-semibold text-gray-800">
-                        {product.careTitle || "Jewellery Care"}
-                      </h3>
-                      <span className="text-xs font-semibold text-green-600">
-                        {careOpen ? "Hide" : "Show"}
-                      </span>
-                    </button>
-                    {careOpen && (
-                      <div className="mt-2 space-y-3">
-                        {product.careDescription ? (
-                          <p className="text-sm text-gray-600">{product.careDescription}</p>
-                        ) : null}
-                        <ul className="space-y-2">
-                          {careInstructions.map((item) => (
-                            <li key={item.id || item.title} className="text-sm text-gray-600">
-                              <span className="font-semibold text-gray-800">{item.title}: </span>
-                              {item.description}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                  </div>
-                )}
+                <p className="font-semibold text-gray-900">
+                  We offer Returns & Refunds only (No Exchanges).
+                </p>
+
+                <p className="text-gray-700">
+                  Return requests must be raised <span className="font-bold text-[#3D294D]">within 24 hours of delivery.</span>
+                </p>
+
+                <ul className="space-y-1.5 pt-0.5 text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✔</span>
+                    <span>Product must be unused and in original packaging</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✔</span>
+                    <span>Refunds are processed after quality check</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✔</span>
+                    <span>₹99 return shipping fee applies for all orders</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-emerald-600 font-bold">✔</span>
+                    <span>Refund will be credited to the original payment method</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* 2. RTO (Return to Origin) Policy */}
+              <div className="border-t border-[#3D294D]/15 pt-3.5 space-y-2">
+                <div className="flex items-center gap-2">
+                  <svg className="h-4 w-4 text-[#3D294D]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                  </svg>
+                  <h3 className="font-bold text-[#3D294D] text-sm sm:text-base">
+                    RTO (Return to Origin) Policy
+                  </h3>
+                </div>
+
+                <p className="text-gray-700 leading-relaxed">
+                  If an order is returned to us <span className="font-bold text-gray-900">(RTO)</span> for any reason, the amount will be issued as <span className="font-bold text-[#3D294D]">store credit</span> within <span className="font-bold text-gray-900">3–4 working days</span> after the parcel is received back. A flat <span className="font-bold text-[#3D294D]">₹99 RTO fee</span> will be deducted.
+                </p>
+
+                <p className="text-gray-700 leading-relaxed pt-1">
+                  <span className="font-bold text-gray-900">Refunds to the original payment method are not applicable.</span> The returned parcel will not be re-shipped. If you wish to receive the same product again, you may place a <span className="font-semibold text-[#3D294D]">new order using the store credit.</span>
+                </p>
+              </div>
+
+              <p className="text-[11px] sm:text-xs text-gray-500 italic pt-2 border-t border-[#3D294D]/10">
+                By placing an order, you agree to our return & RTO policies.
+              </p>
+            </div>
 
                 {showReviewsSection && (
                   <div>
@@ -831,16 +981,6 @@ const ProductDetail = () => {
                     )}
                   </div>
                 )}
-
-                <button
-                  type="button"
-                  onClick={() => setShowMoreDetails(false)}
-                  className="text-left text-sm font-semibold text-green-600 hover:text-green-700"
-                >
-                  read less
-                </button>
-              </>
-            )}
           </div>
 
         </div>

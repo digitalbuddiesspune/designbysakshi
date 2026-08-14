@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useSearchParams, Link } from "react-router-dom";
 import CartQuantityControls from "../components/CartQuantityControls.jsx";
 import ProductPrice from "../components/ProductPrice.jsx";
 import { flyToCart, getVisibleProductImage } from "../utils/flyToCart.js";
+import { useCartQuantities } from "../hooks/useCartQuantities.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,8 +21,7 @@ const CategoryPage = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState(subcategoryParam || "");
   const [categories, setCategories] = useState([]);
   const [wishlistedIds, setWishlistedIds] = useState(new Set());
-  const [cartQuantities, setCartQuantities] = useState({});
-  const [cartBusyId, setCartBusyId] = useState(null);
+  const { cartQuantities, cartBusyId, addToCart, setCartQuantity } = useCartQuantities();
 
   const normalizeSlug = (value) =>
     String(value || "")
@@ -118,29 +118,6 @@ const CategoryPage = () => {
       maximumFractionDigits: 0,
     }).format(price);
 
-  const loadCartQuantities = useCallback(async () => {
-    try {
-      const guestId = getGuestId();
-      const res = await fetch(`${API_URL}/cart?guestId=${encodeURIComponent(guestId)}`);
-      const data = res.ok ? await res.json() : { items: [] };
-      const qtyMap = {};
-      (data?.items || []).forEach((item) => {
-        const id = String(item?.product?._id || item?.product || "");
-        if (id) qtyMap[id] = Number(item.quantity || 0);
-      });
-      setCartQuantities(qtyMap);
-    } catch (error) {
-      console.error("Error loading cart quantities:", error);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadCartQuantities();
-    const onCartUpdated = () => loadCartQuantities();
-    window.addEventListener("cart-updated", onCartUpdated);
-    return () => window.removeEventListener("cart-updated", onCartUpdated);
-  }, [loadCartQuantities]);
-
   const handleSubcategoryChange = (subSlug) => {
     const newSubcategory = subSlug === selectedSubcategory ? "" : subSlug;
     setSelectedSubcategory(newSubcategory);
@@ -151,56 +128,6 @@ const CategoryPage = () => {
       newSearchParams.delete("subcategory");
     }
     setSearchParams(newSearchParams);
-  };
-
-  const handleAddToCart = async (productId, imageEl) => {
-    try {
-      setCartBusyId(productId);
-      if (imageEl) flyToCart(imageEl);
-      const guestId = getGuestId();
-      await fetch(`${API_URL}/cart/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: 1, guestId }),
-      });
-      setCartQuantities((prev) => ({
-        ...prev,
-        [String(productId)]: (prev[String(productId)] || 0) + 1,
-      }));
-      window.dispatchEvent(new Event("cart-updated"));
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("Could not add to cart. Please try again.");
-    } finally {
-      setCartBusyId(null);
-    }
-  };
-
-  const handleSetCartQuantity = async (productId, nextQty) => {
-    try {
-      setCartBusyId(productId);
-      const guestId = getGuestId();
-      await fetch(`${API_URL}/cart/set-quantity`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId, quantity: nextQty, guestId }),
-      });
-      setCartQuantities((prev) => {
-        const updated = { ...prev };
-        if (nextQty <= 0) {
-          delete updated[String(productId)];
-        } else {
-          updated[String(productId)] = nextQty;
-        }
-        return updated;
-      });
-      window.dispatchEvent(new Event("cart-updated"));
-    } catch (error) {
-      console.error("Error updating cart quantity:", error);
-      alert("Could not update cart. Please try again.");
-    } finally {
-      setCartBusyId(null);
-    }
   };
 
   const handleAddToWishlist = async (productId) => {
@@ -294,7 +221,7 @@ const CategoryPage = () => {
               {products.map((product) => {
                 const productId = String(product._id);
                 const inCartQty = cartQuantities[productId] || 0;
-                const isBusy = cartBusyId === product._id;
+                const isBusy = String(cartBusyId) === productId;
 
                 return (
                 <div
@@ -339,6 +266,25 @@ const CategoryPage = () => {
                     </button>
                   </div>
                   <div className="p-3 lg:p-2">
+                    {(() => {
+                      const reviews = Array.isArray(product?.userReviews) ? product.userReviews : [];
+                      const realRating =
+                        typeof product?.rating === "number" && product.rating > 0
+                          ? product.rating.toFixed(1)
+                          : reviews.length > 0
+                            ? (reviews.reduce((acc, r) => acc + Number(r.stars || 0), 0) / reviews.length).toFixed(1)
+                            : null;
+                      return (
+                        <div className="mb-0.5 flex items-center gap-1">
+                          <svg className="h-3 w-3 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                          </svg>
+                          <span className="text-[11px] font-semibold text-gray-800">
+                            {realRating || "No ratings"}
+                          </span>
+                        </div>
+                      );
+                    })()}
                     <h3
                       className="mb-1 line-clamp-1 text-xs font-semibold text-gray-900 sm:text-sm lg:text-xs"
                       style={{ fontFamily: "Cormorant Garamond, Georgia, serif" }}
@@ -360,8 +306,8 @@ const CategoryPage = () => {
                       <CartQuantityControls
                         quantity={inCartQty}
                         disabled={isBusy}
-                        onDecrease={() => handleSetCartQuantity(product._id, inCartQty - 1)}
-                        onIncrease={() => handleSetCartQuantity(product._id, inCartQty + 1)}
+                        onDecrease={() => setCartQuantity(product._id, inCartQty - 1)}
+                        onIncrease={() => setCartQuantity(product._id, inCartQty + 1)}
                       />
                     ) : (
                       <button
@@ -371,7 +317,7 @@ const CategoryPage = () => {
                         disabled={isBusy}
                         onClick={() => {
                           const imageEl = getVisibleProductImage(`[data-product-image="${productId}"]`);
-                          handleAddToCart(product._id, imageEl);
+                          addToCart(product._id, imageEl);
                         }}
                       >
                         {isBusy ? "Adding..." : "Add to Cart"}

@@ -55,7 +55,8 @@ const Cart = () => {
 
   const changeQty = async (productId, delta, variantId = "") => {
     try {
-      setBusyProductId(`${productId}:${variantId || ""}`);
+      const lineKey = `${productId}:${variantId || ""}`;
+      setBusyProductId(lineKey);
       const currentItem = items.find(
         (it) =>
           String(it.product?._id || it.product) === String(productId) &&
@@ -64,11 +65,17 @@ const Cart = () => {
       const currentQty = Number(currentItem?.quantity || 0);
       const nextQty = currentQty + delta;
 
-      await fetch(`${API_URL}/cart/set-quantity`, {
+      const res = await fetch(`${API_URL}/cart/set-quantity`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productId, quantity: nextQty, guestId, variantId: variantId || "" }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data?.error || "Could not update quantity.");
+        await fetchCart();
+        return;
+      }
       window.dispatchEvent(new Event("cart-updated"));
       await fetchCart();
     } catch (e) {
