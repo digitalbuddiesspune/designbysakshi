@@ -151,7 +151,7 @@ const AdminLogin = () => {
               Security Authorization Required
             </h2>
             <p className="text-sm text-gray-300">
-              Enter the security code to access the Admin Login page.
+              Enter the security code.
             </p>
           </div>
 
