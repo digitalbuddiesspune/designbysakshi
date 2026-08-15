@@ -141,10 +141,12 @@ const EditCategory = () => {
         timestamp: true,
       };
 
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const response = await fetch(`${API_URL}/categories/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(categoryData),
       });

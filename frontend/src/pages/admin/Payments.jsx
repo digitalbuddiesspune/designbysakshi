@@ -26,7 +26,10 @@ const Payments = () => {
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/orders/admin/payments?${query}`);
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/orders/admin/payments?${query}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Failed to load payments");
       const data = await res.json();
       setPayments(Array.isArray(data) ? data : []);

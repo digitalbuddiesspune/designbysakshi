@@ -36,7 +36,10 @@ const OrderDetails = () => {
   const fetchOrder = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/orders/admin/${id}`);
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/orders/admin/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Failed to load order");
       const data = await res.json();
       setOrder(data);
@@ -59,9 +62,13 @@ const OrderDetails = () => {
   const updateStatus = async (nextStatus) => {
     if (!order?._id) return;
     setStatus(nextStatus);
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
     await fetch(`${API_URL}/orders/admin/${order._id}/status`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
       body: JSON.stringify({ status: nextStatus }),
     });
     await fetchOrder();
@@ -72,9 +79,13 @@ const OrderDetails = () => {
   const updatePaymentStatus = async (nextPaymentStatus) => {
     if (!order?._id) return;
     setPaymentStatus(nextPaymentStatus);
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
     await fetch(`${API_URL}/orders/admin/${order._id}/payment-status`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
       body: JSON.stringify({ paymentStatus: nextPaymentStatus }),
     });
     await fetchOrder();

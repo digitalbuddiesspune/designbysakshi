@@ -22,7 +22,11 @@ const AdminCollections = () => {
 
   const remove = async (id) => {
     if (!window.confirm("Delete this item?")) return;
-    await fetch(`${API_URL}/collection-showcase/${id}`, { method: "DELETE" });
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    await fetch(`${API_URL}/collection-showcase/${id}`, { 
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
     await load();
   };
 

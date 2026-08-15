@@ -47,9 +47,13 @@ const AddBlog = () => {
     setMessage("");
     try {
       const isEdit = Boolean(editingId);
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const res = await fetch(isEdit ? `${API_URL}/blogs/${editingId}` : `${API_URL}/blogs`, {
         method: isEdit ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(formData),
       });
 
@@ -89,7 +93,11 @@ const AddBlog = () => {
     if (!ok) return;
 
     try {
-      const res = await fetch(`${API_URL}/blogs/${id}`, { method: "DELETE" });
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/blogs/${id}`, { 
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const data = await res.json();
       if (!res.ok) {
         setMessage(`Error: ${data.error || data.message || "Failed to delete blog"}`);

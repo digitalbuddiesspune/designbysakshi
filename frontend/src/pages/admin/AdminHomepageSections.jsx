@@ -82,9 +82,13 @@ const AdminHomepageSections = () => {
     try {
       setSaving(true);
       setMessage("");
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const res = await fetch(`${API_URL}/homepage-sections/banners/${key}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(banners[key] || {}),
       });
       const data = await res.json().catch(() => ({}));
@@ -101,9 +105,13 @@ const AdminHomepageSections = () => {
     try {
       setSaving(true);
       setMessage("");
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const res = await fetch(`${API_URL}/homepage-sections/shop-by-category/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({ image }),
       });
       const data = await res.json().catch(() => ({}));
@@ -121,9 +129,13 @@ const AdminHomepageSections = () => {
     try {
       setSaving(true);
       setMessage("");
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const res = await fetch(`${API_URL}/homepage-sections/shop-by-collection/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({ image }),
       });
       const data = await res.json().catch(() => ({}));

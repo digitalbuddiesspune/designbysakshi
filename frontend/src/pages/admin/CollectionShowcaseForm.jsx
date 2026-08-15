@@ -75,11 +75,15 @@ const CollectionShowcaseForm = () => {
     setMessage("");
     try {
       const payload = { ...form, priority: Number(form.priority) || 0 };
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const res = await fetch(
         isEditMode ? `${API_URL}/collection-showcase/${id}` : `${API_URL}/collection-showcase`,
         {
           method: isEditMode ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
           body: JSON.stringify(payload),
         },
       );

@@ -43,9 +43,13 @@ const AddCoupon = () => {
         expiresAt: form.expiresAt || undefined,
         isActive: form.isActive,
       };
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const res = await fetch(`${API_URL}/coupons`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));

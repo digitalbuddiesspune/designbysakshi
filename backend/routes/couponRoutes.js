@@ -1,6 +1,7 @@
 import express from 'express';
 import Coupon from '../models/Coupon.js';
 import Product from '../models/Product.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ router.get('/', async (_req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', protect, adminOnly, async (req, res) => {
   try {
     const payload = req.body || {};
     const code = normalizeCode(payload.code);
@@ -56,7 +57,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, adminOnly, async (req, res) => {
   try {
     const payload = req.body || {};
     if (payload.code) payload.code = normalizeCode(payload.code);

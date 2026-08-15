@@ -8,6 +8,7 @@ import Coupon from '../models/Coupon.js';
 import { resolveOrderAddress } from '../utils/addressUtils.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 const normalizeStatus = (status) => {
@@ -329,8 +330,8 @@ router.get('/myorders', async (req, res) => {
 
 // @desc    Get all orders (admin)
 // @route   GET /api/orders/admin
-// @access  Public (admin UI only)
-router.get('/admin', async (req, res) => {
+// @access  Private/Admin
+router.get('/admin', protect, adminOnly, async (req, res) => {
   try {
     const { startDate, endDate, orderStatus, paymentStatus } = req.query;
 
@@ -372,8 +373,8 @@ router.get('/admin', async (req, res) => {
 
 // @desc    Get monthly revenue summary (admin)
 // @route   GET /api/orders/admin/revenue
-// @access  Public (admin UI only)
-router.get('/admin/revenue', async (req, res) => {
+// @access  Private/Admin
+router.get('/admin/revenue', protect, adminOnly, async (req, res) => {
   try {
     const now = new Date();
     const year = Number(req.query.year) || now.getFullYear();
@@ -461,8 +462,8 @@ router.get('/admin/revenue', async (req, res) => {
 
 // @desc    Get payments list (admin)
 // @route   GET /api/orders/admin/payments
-// @access  Public (admin UI only)
-router.get('/admin/payments', async (req, res) => {
+// @access  Private/Admin
+router.get('/admin/payments', protect, adminOnly, async (req, res) => {
   try {
     const {
       startDate,
@@ -553,8 +554,8 @@ router.get('/admin/payments', async (req, res) => {
 
 // @desc    Get order details (admin)
 // @route   GET /api/orders/admin/:id
-// @access  Public (admin UI only)
-router.get('/admin/:id', async (req, res) => {
+// @access  Private/Admin
+router.get('/admin/:id', protect, adminOnly, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id)
       .populate('items.product')
@@ -571,8 +572,8 @@ router.get('/admin/:id', async (req, res) => {
 
 // @desc    Update order status (admin)
 // @route   PUT /api/orders/admin/:id/status
-// @access  Public (admin UI only)
-router.put('/admin/:id/status', async (req, res) => {
+// @access  Private/Admin
+router.put('/admin/:id/status', protect, adminOnly, async (req, res) => {
   try {
     const { status } = req.body;
     if (!status) return res.status(400).json({ message: 'status is required' });
@@ -619,8 +620,8 @@ router.put('/admin/:id/status', async (req, res) => {
 
 // @desc    Update payment status (admin)
 // @route   PUT /api/orders/admin/:id/payment-status
-// @access  Public (admin UI only)
-router.put('/admin/:id/payment-status', async (req, res) => {
+// @access  Private/Admin
+router.put('/admin/:id/payment-status', protect, adminOnly, async (req, res) => {
   try {
     const { paymentStatus } = req.body;
     if (!paymentStatus) return res.status(400).json({ message: 'paymentStatus is required' });

@@ -22,7 +22,11 @@ const AdminBanners = () => {
 
   const remove = async (id) => {
     if (!window.confirm("Delete this banner?")) return;
-    await fetch(`${API_URL}/banners/${id}`, { method: "DELETE" });
+    const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+    await fetch(`${API_URL}/banners/${id}`, { 
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` }
+    });
     await load();
   };
 

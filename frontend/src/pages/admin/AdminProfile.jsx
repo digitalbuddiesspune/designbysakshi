@@ -37,7 +37,7 @@ const AdminProfile = () => {
           }));
         }
 
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
         let loaded = false;
 
         if (token) {
@@ -56,7 +56,9 @@ const AdminProfile = () => {
         }
 
         if (!loaded) {
-          const fallbackRes = await fetch(`${API_URL}/users/admin/account`);
+          const fallbackRes = await fetch(`${API_URL}/users/admin/account`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
           const fallbackData = await fallbackRes.json().catch(() => ({}));
           if (fallbackRes.ok) {
             setAdminUser(fallbackData);
@@ -107,7 +109,7 @@ const AdminProfile = () => {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const res = await fetch(`${API_URL}/users/admin/change-password`, {
         method: "PUT",
         headers: {

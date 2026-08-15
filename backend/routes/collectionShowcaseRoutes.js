@@ -1,6 +1,7 @@
 import express from 'express';
 import CollectionShowcase from '../models/CollectionShowcase.js';
 import Category from '../models/Category.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -41,7 +42,7 @@ router.get('/allowed-routes', async (_req, res) => {
 });
 
 // CRUD
-router.post('/', async (req, res) => {
+router.post('/', protect, adminOnly, async (req, res) => {
   try {
     // Validate route and uniqueness per route
     const route = req.body.route;
@@ -73,7 +74,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, adminOnly, async (req, res) => {
   try {
     // If changing route, validate and enforce uniqueness
     if (req.body.route) {
@@ -118,7 +119,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, adminOnly, async (req, res) => {
   try {
     const deleted = await CollectionShowcase.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Item not found' });

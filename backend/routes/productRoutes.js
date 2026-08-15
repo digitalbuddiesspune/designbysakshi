@@ -4,6 +4,7 @@ import Product from '../models/Product.js';
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import { JEWELLERY_CARE } from '../constants/jewelleryCare.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -386,8 +387,8 @@ router.delete('/:id/reviews/:reviewId', async (req, res) => {
   }
 });
 
-// Create product
-router.post('/', async (req, res) => {
+// Create product (admin)
+router.post('/', protect, adminOnly, async (req, res) => {
   try {
     const product = new Product(normalizeProductPayload(req.body));
     await product.save();
@@ -397,8 +398,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update product
-router.put('/:id', async (req, res) => {
+// Update product (admin)
+router.put('/:id', protect, adminOnly, async (req, res) => {
   try {
     const product = await Product.findByIdAndUpdate(
       req.params.id,
@@ -414,8 +415,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete product
-router.delete('/:id', async (req, res) => {
+// Delete product (admin)
+router.delete('/:id', protect, adminOnly, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) {

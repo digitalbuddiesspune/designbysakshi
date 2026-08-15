@@ -1,6 +1,7 @@
 import express from 'express';
 import Category from '../models/Category.js';
 import CollectionShowcase from '../models/CollectionShowcase.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -39,8 +40,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Create category
-router.post('/', async (req, res) => {
+// Create category (admin)
+router.post('/', protect, adminOnly, async (req, res) => {
   try {
     const category = new Category(req.body);
     await category.save();
@@ -50,8 +51,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// Update category
-router.put('/:id', async (req, res) => {
+// Update category (admin)
+router.put('/:id', protect, adminOnly, async (req, res) => {
   try {
     // Use find → mutate → save to reliably persist nested subdocument fields like image/priority
     const doc = await Category.findById(req.params.id);
@@ -133,8 +134,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Delete category
-router.delete('/:id', async (req, res) => {
+// Delete category (admin)
+router.delete('/:id', protect, adminOnly, async (req, res) => {
   try {
     const category = await Category.findByIdAndDelete(req.params.id);
     if (!category) {

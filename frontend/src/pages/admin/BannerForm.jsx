@@ -72,9 +72,13 @@ const BannerForm = () => {
         startsAt: form.startsAt ? new Date(form.startsAt) : undefined,
         endsAt: form.endsAt ? new Date(form.endsAt) : undefined,
       };
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const res = await fetch(isEditMode ? `${API_URL}/banners/${id}` : `${API_URL}/banners`, {
         method: isEditMode ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error(isEditMode ? "Failed to update banner" : "Failed to create banner");

@@ -1,5 +1,6 @@
 import express from "express";
 import Blog from "../models/Blog.js";
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -24,8 +25,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Create blog (admin will call this from Admin panel)
-router.post("/", async (req, res) => {
+// Create blog (admin)
+router.post("/", protect, adminOnly, async (req, res) => {
   try {
     const blog = new Blog(req.body);
     await blog.save();
@@ -35,8 +36,8 @@ router.post("/", async (req, res) => {
   }
 });
 
-// Update blog
-router.put("/:id", async (req, res) => {
+// Update blog (admin)
+router.put("/:id", protect, adminOnly, async (req, res) => {
   try {
     const updated = await Blog.findByIdAndUpdate(req.params.id, req.body, {
       returnDocument: 'after',
@@ -49,8 +50,8 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-// Delete blog
-router.delete("/:id", async (req, res) => {
+// Delete blog (admin)
+router.delete("/:id", protect, adminOnly, async (req, res) => {
   try {
     const deleted = await Blog.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: "Blog not found" });

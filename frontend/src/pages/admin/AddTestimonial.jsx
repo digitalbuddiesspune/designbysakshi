@@ -38,9 +38,13 @@ const AddTestimonial = () => {
     try {
       setSaving(true);
       setMessage("");
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const response = await fetch(`${API_URL}/testimonials`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify(formData),
       });
       if (!response.ok) {

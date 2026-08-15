@@ -23,9 +23,13 @@ const Coupons = () => {
 
   const toggleStatus = async (coupon) => {
     try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       await fetch(`${API_URL}/coupons/${coupon._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({ isActive: !coupon.isActive }),
       });
       fetchCoupons();
@@ -37,7 +41,11 @@ const Coupons = () => {
   const remove = async (id) => {
     if (!window.confirm("Delete this coupon?")) return;
     try {
-      await fetch(`${API_URL}/coupons/${id}`, { method: "DELETE" });
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      await fetch(`${API_URL}/coupons/${id}`, { 
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
       fetchCoupons();
     } catch (e) {
       console.error("Delete coupon failed:", e);

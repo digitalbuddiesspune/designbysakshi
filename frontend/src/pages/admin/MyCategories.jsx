@@ -53,8 +53,10 @@ const MyCategories = () => {
     if (!window.confirm("Are you sure you want to delete this category?")) return;
 
     try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const response = await fetch(`${API_URL}/categories/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {

@@ -12,7 +12,10 @@ const Users = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/users/admin`);
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/users/admin`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Failed to load users");
       const data = await res.json();
       setUsers(Array.isArray(data) ? data : []);
@@ -56,7 +59,11 @@ const Users = () => {
   const deleteUser = async (userId, userName) => {
     if (!window.confirm(`Delete ${userName}? This will delete user data, orders, cart and wishlist.`)) return;
     try {
-      const res = await fetch(`${API_URL}/users/admin/${userId}`, { method: "DELETE" });
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/users/admin/${userId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Failed to delete user");
       setUsers((prev) => prev.filter((u) => u._id !== userId));
     } catch (error) {

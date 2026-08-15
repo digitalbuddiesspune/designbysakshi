@@ -46,8 +46,10 @@ const AdminRevenue = () => {
     const fetchRevenue = async () => {
       try {
         setLoading(true);
+        const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
         const res = await fetch(
           `${API_URL}/orders/admin/revenue?year=${year}&month=${month}`,
+          { headers: { Authorization: `Bearer ${token}` } }
         );
         const json = res.ok ? await res.json() : null;
         setData(json);

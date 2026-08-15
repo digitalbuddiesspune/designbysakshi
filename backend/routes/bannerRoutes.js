@@ -1,5 +1,6 @@
 import express from 'express';
 import Banner from '../models/Banner.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -24,8 +25,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Admin-like CRUD (no auth middleware in project yet)
-router.post('/', async (req, res) => {
+// Admin CRUD protected by auth middleware
+router.post('/', protect, adminOnly, async (req, res) => {
   try {
     const created = await Banner.create(req.body);
     res.status(201).json(created);
@@ -34,7 +35,7 @@ router.post('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', protect, adminOnly, async (req, res) => {
   try {
     const updated = await Banner.findByIdAndUpdate(req.params.id, req.body, {
       returnDocument: 'after',
@@ -47,7 +48,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', protect, adminOnly, async (req, res) => {
   try {
     const deleted = await Banner.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Banner not found' });

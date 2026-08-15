@@ -9,7 +9,10 @@ const AdminTestimonials = () => {
 
   const fetchTestimonials = async () => {
     try {
-      const response = await fetch(`${API_URL}/testimonials/admin`);
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/testimonials/admin`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const data = await response.json();
       setTestimonials(Array.isArray(data) ? data : []);
     } catch (error) {
@@ -27,8 +30,10 @@ const AdminTestimonials = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this testimonial?")) return;
     try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const response = await fetch(`${API_URL}/testimonials/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
         fetchTestimonials();
@@ -40,9 +45,13 @@ const AdminTestimonials = () => {
 
   const handleToggleActive = async (id, currentStatus) => {
     try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const response = await fetch(`${API_URL}/testimonials/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
         body: JSON.stringify({ isActive: !currentStatus }),
       });
       if (response.ok) {

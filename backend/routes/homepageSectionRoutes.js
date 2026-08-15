@@ -2,6 +2,7 @@ import express from 'express';
 import Category from '../models/Category.js';
 import CollectionShowcase from '../models/CollectionShowcase.js';
 import SectionBanner, { SECTION_BANNER_KEYS } from '../models/SectionBanner.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -107,7 +108,7 @@ router.get('/banners/:key', async (req, res) => {
 });
 
 // Admin: update section banner (upsert)
-router.put('/banners/:key', async (req, res) => {
+router.put('/banners/:key', protect, adminOnly, async (req, res) => {
   try {
     const key = String(req.params.key || '').trim();
     if (!SECTION_BANNER_KEYS.includes(key)) {
@@ -128,7 +129,7 @@ router.put('/banners/:key', async (req, res) => {
 });
 
 // Admin: update Shop By Category item image
-router.put('/shop-by-category/:id', async (req, res) => {
+router.put('/shop-by-category/:id', protect, adminOnly, async (req, res) => {
   try {
     const image = String(req.body?.image || '').trim();
     const updated = await Category.findByIdAndUpdate(
@@ -144,7 +145,7 @@ router.put('/shop-by-category/:id', async (req, res) => {
 });
 
 // Admin: update Shop By Collection item image
-router.put('/shop-by-collection/:id', async (req, res) => {
+router.put('/shop-by-collection/:id', protect, adminOnly, async (req, res) => {
   try {
     const payload = {};
     if (req.body?.image !== undefined) payload.image = String(req.body.image || '').trim();

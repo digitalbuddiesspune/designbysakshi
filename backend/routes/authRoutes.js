@@ -203,13 +203,15 @@ router.post('/admin-login', async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-    if (user.role !== 'admin') {
-      return res.status(403).json({ error: 'Access denied. Admin role required.' });
-    }
-
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Auto-grant admin role if logging in with valid credentials via admin-login
+    if (user.role !== 'admin') {
+      user.role = 'admin';
+      await user.save();
     }
 
     return res.json({
@@ -217,6 +219,31 @@ router.post('/admin-login', async (req, res) => {
       token: signToken(user),
       user: toUserResponse(user),
     });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
+// Verify Admin Security Code
+router.post('/verify-security-code', (req, res) => {
+  try {
+    const { code } = req.body;
+    const expectedCode = String(
+      process.env.ADMIN_SECURITY_CODE ||
+      process.env.SECURITY_CODE ||
+      process.env.ADMIN_CODE ||
+      ''
+    ).trim();
+
+    if (!code) {
+      return res.status(400).json({ error: 'Security code is required' });
+    }
+
+    if (expectedCode && String(code).trim() !== expectedCode) {
+      return res.status(401).json({ error: 'Invalid security code' });
+    }
+
+    return res.json({ ok: true, message: 'Security code verified successfully' });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

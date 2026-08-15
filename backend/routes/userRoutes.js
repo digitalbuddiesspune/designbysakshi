@@ -6,6 +6,7 @@ import Address from '../models/Address.js';
 import { dedupeAddressDocuments } from '../utils/addressUtils.js';
 import Cart from '../models/Cart.js';
 import Wishlist from '../models/Wishlist.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -38,14 +39,9 @@ router.get('/auth-check', async (req, res) => {
 });
 
 // Admin: get current admin profile from DB
-router.get('/admin/me', async (req, res) => {
+router.get('/admin/me', protect, adminOnly, async (req, res) => {
   try {
-    const userId = verifyToken(req, res);
-    if (!userId) return;
-
-    const user = await User.findById(userId).select('name email phone role');
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    if (user.role !== 'admin') return res.status(403).json({ error: 'Admin access required' });
+    const user = req.user;
 
     return res.json({
       _id: user._id,
@@ -60,7 +56,7 @@ router.get('/admin/me', async (req, res) => {
 });
 
 // Admin: get admin account email (fallback for admin panel display)
-router.get('/admin/account', async (_req, res) => {
+router.get('/admin/account', protect, adminOnly, async (_req, res) => {
   try {
     const admin = await User.findOne({ role: 'admin' }).select('_id name email role phone').sort({ createdAt: 1 });
     if (!admin) return res.status(404).json({ error: 'Admin account not found' });
@@ -77,7 +73,7 @@ router.get('/admin/account', async (_req, res) => {
 });
 
 // Admin: list all users with address + order stats
-router.get('/admin', async (_req, res) => {
+router.get('/admin', protect, adminOnly, async (_req, res) => {
   try {
     const users = await User.find({ role: { $ne: 'admin' } })
       .select('name email phone createdAt')
@@ -155,7 +151,7 @@ router.get('/admin', async (_req, res) => {
 });
 
 // Admin: delete user and all related data
-router.delete('/admin/:id', async (req, res) => {
+router.delete('/admin/:id', protect, adminOnly, async (req, res) => {
   try {
     const userId = req.params.id;
     const user = await User.findById(userId);
@@ -179,22 +175,9 @@ router.delete('/admin/:id', async (req, res) => {
 });
 
 // Admin: change own password
-router.put('/admin/change-password', async (req, res) => {
+router.put('/admin/change-password', protect, adminOnly, async (req, res) => {
   try {
-    const userId = verifyToken(req, res);
-    if (!userId) return;
-
-    const { currentPassword, newPassword, confirmPassword } = req.body;
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      return res.status(400).json({ error: 'All password fields are required' });
-    }
-    if (newPassword !== confirmPassword) {
-      return res.status(400).json({ error: 'New password and confirm password do not match' });
-    }
-
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    if (user.role !== 'admin') return res.status(403).json({ error: 'Only admin can change this password' });
+    const user = req.user;
 
     const isMatch = await user.comparePassword(currentPassword);
     if (!isMatch) return res.status(400).json({ error: 'Current password is incorrect' });

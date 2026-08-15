@@ -151,8 +151,10 @@ const MyProducts = () => {
     if (!window.confirm("Are you sure you want to delete this product?")) return;
 
     try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const response = await fetch(`${API_URL}/products/${id}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {

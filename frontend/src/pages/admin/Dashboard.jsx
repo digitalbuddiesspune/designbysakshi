@@ -24,10 +24,13 @@ const Dashboard = () => {
 
   const fetchStats = async () => {
     try {
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const [productsRes, categoriesRes, ordersRes] = await Promise.all([
         fetch(`${API_URL}/products`),
         fetch(`${API_URL}/categories`),
-        fetch(`${API_URL}/orders/admin`),
+        fetch(`${API_URL}/orders/admin`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
       ]);
 
       const products = await productsRes.json();
@@ -91,7 +94,10 @@ const Dashboard = () => {
     const emptySales = months.map((month) => ({ month, sales: 0 }));
     setSalesData(emptySales);
     try {
-      const res = await fetch(`${API_URL}/orders/admin`);
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/orders/admin`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const orders = res.ok ? await res.json() : [];
       const monthlyTotals = Array(12).fill(0);
       const monthlyLastDate = Array(12).fill(null);

@@ -28,13 +28,16 @@ const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [openDropdown, setOpenDropdown] = useState(null);
   const [authChecking, setAuthChecking] = useState(true);
+  const [isAuthorized, setIsAuthorized] = useState(false);
 
   const handleAdminLogout = () => {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminUser");
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/admin/login");
+    sessionStorage.removeItem("adminSecurityVerified");
+    setIsAuthorized(false);
+    navigate("/admin/login", { replace: true });
   };
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + "/");
@@ -120,6 +123,7 @@ const AdminLayout = () => {
           localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
+          setIsAuthorized(false);
           navigate("/admin/login", { replace: true });
           return;
         }
@@ -132,6 +136,7 @@ const AdminLayout = () => {
           localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
+          setIsAuthorized(false);
           navigate("/admin/login", { replace: true });
           return;
         }
@@ -141,10 +146,20 @@ const AdminLayout = () => {
           localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
+          setIsAuthorized(false);
           navigate("/admin/login", { replace: true });
+          return;
         }
+
+        setIsAuthorized(true);
       } catch (_error) {
-        // Keep current admin session on transient network errors.
+        // Clear session on verification failure
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminUser");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setIsAuthorized(false);
+        navigate("/admin/login", { replace: true });
       } finally {
         setAuthChecking(false);
       }
@@ -155,10 +170,14 @@ const AdminLayout = () => {
 
   if (authChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-700">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-700 font-medium">
         Checking admin access...
       </div>
     );
+  }
+
+  if (!isAuthorized) {
+    return null;
   }
 
   return (

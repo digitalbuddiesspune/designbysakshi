@@ -1,5 +1,6 @@
 import express from 'express';
 import Testimonial from '../models/Testimonial.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
 });
 
 // GET all testimonials (for admin)
-router.get('/admin', async (req, res) => {
+router.get('/admin', protect, adminOnly, async (req, res) => {
   try {
     const testimonials = await Testimonial.find().sort({ createdAt: -1 });
     res.json(testimonials);
@@ -24,7 +25,7 @@ router.get('/admin', async (req, res) => {
 });
 
 // POST new testimonial (admin)
-router.post('/', async (req, res) => {
+router.post('/', protect, adminOnly, async (req, res) => {
   try {
     const { name, review, rating, isActive } = req.body;
     const testimonial = new Testimonial({ name, review, rating, isActive });
@@ -35,8 +36,8 @@ router.post('/', async (req, res) => {
   }
 });
 
-// DELETE testimonial
-router.delete('/:id', async (req, res) => {
+// DELETE testimonial (admin)
+router.delete('/:id', protect, adminOnly, async (req, res) => {
   try {
     await Testimonial.findByIdAndDelete(req.params.id);
     res.json({ message: 'Testimonial removed' });
@@ -45,8 +46,8 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// PUT update testimonial (toggle active)
-router.put('/:id', async (req, res) => {
+// PUT update testimonial (admin)
+router.put('/:id', protect, adminOnly, async (req, res) => {
   try {
     const testimonial = await Testimonial.findById(req.params.id);
     if (testimonial) {

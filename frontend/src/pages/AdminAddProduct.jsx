@@ -226,12 +226,14 @@ const AdminAddProduct = () => {
       const extraImages = (additionalImageUrls || []).map((s) => (s || "").trim()).filter(Boolean);
       productData.images = [formData.image, ...extraImages];
 
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
       const response = await fetch(
         isEditMode ? `${API_URL}/products/${editId}` : `${API_URL}/products`,
         {
           method: isEditMode ? "PUT" : "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(productData),
         },

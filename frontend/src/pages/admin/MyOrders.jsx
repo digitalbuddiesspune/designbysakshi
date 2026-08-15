@@ -54,7 +54,10 @@ const MyOrders = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/orders/admin${queryString ? `?${queryString}` : ""}`);
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/orders/admin${queryString ? `?${queryString}` : ""}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Failed to load admin orders");
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
