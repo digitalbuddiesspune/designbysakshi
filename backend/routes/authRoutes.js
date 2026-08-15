@@ -11,8 +11,10 @@ const toUserResponse = (user) => {
   return userResponse;
 };
 
-const signToken = (user) =>
-  jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+const signToken = (user, customExpiresIn) => {
+  const expiresIn = customExpiresIn || (user.role === 'admin' ? '1d' : '7d');
+  return jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn });
+};
 
 const verifyGoogleCredential = async (credential) => {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -216,7 +218,7 @@ router.post('/admin-login', async (req, res) => {
 
     return res.json({
       message: 'Admin login successful',
-      token: signToken(user),
+      token: signToken(user, '1d'),
       user: toUserResponse(user),
     });
   } catch (error) {

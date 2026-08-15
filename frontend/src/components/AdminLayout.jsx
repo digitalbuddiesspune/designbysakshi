@@ -123,6 +123,7 @@ const AdminLayout = () => {
           localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
+          sessionStorage.removeItem("adminSecurityVerified");
           setIsAuthorized(false);
           navigate("/admin/login", { replace: true });
           return;
@@ -136,6 +137,7 @@ const AdminLayout = () => {
           localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
+          sessionStorage.removeItem("adminSecurityVerified");
           setIsAuthorized(false);
           navigate("/admin/login", { replace: true });
           return;
@@ -146,6 +148,7 @@ const AdminLayout = () => {
           localStorage.removeItem("adminUser");
           localStorage.removeItem("token");
           localStorage.removeItem("user");
+          sessionStorage.removeItem("adminSecurityVerified");
           setIsAuthorized(false);
           navigate("/admin/login", { replace: true });
           return;
@@ -158,6 +161,7 @@ const AdminLayout = () => {
         localStorage.removeItem("adminUser");
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        sessionStorage.removeItem("adminSecurityVerified");
         setIsAuthorized(false);
         navigate("/admin/login", { replace: true });
       } finally {
