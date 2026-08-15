@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+dotenv.config()
 import connectDB from './config/db.js'
 import Product from './models/Product.js'
 import { JEWELLERY_CARE } from './constants/jewelleryCare.js'

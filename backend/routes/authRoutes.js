@@ -229,17 +229,18 @@ router.post('/verify-security-code', (req, res) => {
   try {
     const { code } = req.body;
     const expectedCode = String(
-      process.env.ADMIN_SECURITY_CODE ||
-      process.env.SECURITY_CODE ||
-      process.env.ADMIN_CODE ||
-      ''
+      process.env.SECURITY_CODE || process.env.ADMIN_SECURITY_CODE || ''
     ).trim();
 
     if (!code) {
       return res.status(400).json({ error: 'Security code is required' });
     }
 
-    if (expectedCode && String(code).trim() !== expectedCode) {
+    if (!expectedCode) {
+      return res.status(500).json({ error: 'SECURITY_CODE is not configured in backend .env' });
+    }
+
+    if (String(code).trim() !== expectedCode) {
       return res.status(401).json({ error: 'Invalid security code' });
     }
 
