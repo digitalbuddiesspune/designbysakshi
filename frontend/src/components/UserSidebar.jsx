@@ -11,6 +11,9 @@ const UserSidebar = ({ onLogout }) => {
     } else {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      localStorage.removeItem("adminUser");
+      localStorage.removeItem("adminToken");
+      sessionStorage.removeItem("adminSecurityVerified");
       navigate("/");
     }
   };

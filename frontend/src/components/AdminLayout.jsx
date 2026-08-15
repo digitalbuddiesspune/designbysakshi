@@ -125,6 +125,7 @@ const AdminLayout = () => {
           localStorage.removeItem("user");
           sessionStorage.removeItem("adminSecurityVerified");
           setIsAuthorized(false);
+          setAuthChecking(false);
           navigate("/admin/login", { replace: true });
           return;
         }
@@ -139,6 +140,7 @@ const AdminLayout = () => {
           localStorage.removeItem("user");
           sessionStorage.removeItem("adminSecurityVerified");
           setIsAuthorized(false);
+          setAuthChecking(false);
           navigate("/admin/login", { replace: true });
           return;
         }
@@ -150,6 +152,7 @@ const AdminLayout = () => {
           localStorage.removeItem("user");
           sessionStorage.removeItem("adminSecurityVerified");
           setIsAuthorized(false);
+          setAuthChecking(false);
           navigate("/admin/login", { replace: true });
           return;
         }
@@ -170,7 +173,7 @@ const AdminLayout = () => {
     };
 
     verifyAdmin();
-  }, [API_URL, navigate]);
+  }, [API_URL, navigate, location.pathname]);
 
   if (authChecking) {
     return (
