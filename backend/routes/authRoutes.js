@@ -60,13 +60,13 @@ router.post('/signup', async (req, res) => {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
-    // Create new user
+    // Create new user (public signup is strictly user role)
     const user = new User({
       name,
       email,
       password,
       phone: phone || undefined,
-      role: role || 'user'
+      role: 'user'
     });
 
     await user.save();
@@ -205,15 +205,14 @@ router.post('/admin-login', async (req, res) => {
     if (!user) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
+
+    if (user.role !== 'admin') {
+      return res.status(403).json({ error: 'Access denied: Admin role required' });
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid email or password' });
-    }
-
-    // Auto-grant admin role if logging in with valid credentials via admin-login
-    if (user.role !== 'admin') {
-      user.role = 'admin';
-      await user.save();
     }
 
     return res.json({
