@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { openInvoiceWindow } from "../utils/invoice";
+import { getOrderRefundAmount, getOrderShippingCharge } from "../utils/shipping";
 import StarRatingPicker from "../components/StarRatingPicker";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -175,7 +176,8 @@ const OrderDetail = () => {
     [order]
   );
   const couponDiscount = Number(order?.discountAmount || 0);
-  const inferredDelivery = Math.max(0, Number(order?.totalAmount || 0) - itemsSubtotal + couponDiscount);
+  const shippingCharge = getOrderShippingCharge(order);
+  const refundAmount = getOrderRefundAmount(order);
   const statusMap = useMemo(() => {
     const map = {};
     const hist = Array.isArray(order?.statusHistory) ? order.statusHistory : [];
@@ -418,11 +420,20 @@ const OrderDetail = () => {
                       <span style={{ color: "var(--brand-dark)" }}>Included</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span style={{ color: "var(--brand-muted)" }}>Delivery</span>
-                      <span style={{ color: inferredDelivery === 0 ? "#16a34a" : "var(--brand-dark)" }}>
-                        {inferredDelivery === 0 ? "Free" : `₹${inferredDelivery.toLocaleString("en-IN")}`}
+                      <span style={{ color: "var(--brand-muted)" }}>Shipping</span>
+                      <span style={{ color: shippingCharge === 0 ? "#16a34a" : "var(--brand-dark)" }}>
+                        {shippingCharge === 0 ? "Free" : `₹${shippingCharge.toLocaleString("en-IN")}`}
                       </span>
                     </div>
+                    {order?.shippingNonRefundable !== false ? (
+                      <p className="text-xs text-gray-500">Shipping charges are non-refundable.</p>
+                    ) : null}
+                    {returnAlreadyRequested ? (
+                      <div className="flex items-center justify-between rounded-md bg-amber-50 px-2 py-1.5 text-xs">
+                        <span className="text-amber-800">Refundable (excl. shipping)</span>
+                        <span className="font-semibold text-amber-900">₹{refundAmount.toLocaleString("en-IN")}</span>
+                      </div>
+                    ) : null}
                   </div>
                   <div className="text-lg font-bold mt-2" style={{ color: "var(--brand-dark)" }}>
                     Total: ₹{(order.totalAmount || 0).toLocaleString("en-IN")}

@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  computeShippingFee,
+  DEFAULT_SHIPPING_SETTINGS,
+} from "../utils/shipping.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const RAZORPAY_SCRIPT_URL = "https://checkout.razorpay.com/v1/checkout.js";
@@ -82,6 +86,7 @@ const Checkout = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [lastOrderedProductId, setLastOrderedProductId] = useState("");
+  const [shippingSettings, setShippingSettings] = useState(DEFAULT_SHIPPING_SETTINGS);
 
   const guestId = useMemo(() => getGuestId(), []);
   const [addresses, setAddresses] = useState([]);
@@ -163,6 +168,18 @@ const Checkout = () => {
   useEffect(() => {
     fetchCart();
     fetchAddresses();
+    fetch(`${API_URL}/settings/shipping`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.defaultShippingCharge !== undefined) {
+          setShippingSettings({
+            defaultShippingCharge: Number(data.defaultShippingCharge ?? 50),
+            freeShippingThreshold: Number(data.freeShippingThreshold ?? 0),
+            shippingNonRefundable: data.shippingNonRefundable !== false,
+          });
+        }
+      })
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -255,11 +272,11 @@ const Checkout = () => {
     }
   };
 
-  // Price calculation
-  // Free delivery above ₹699 (so ₹700+ will get free shipping)
-  const freeDeliveryThreshold = 699;
-  const isDeliveryFree = subtotal > freeDeliveryThreshold;
-  const deliveryFee = isDeliveryFree ? 0 : 50;
+  // Shipping from admin settings (applies to COD and online)
+  const freeDeliveryThreshold = Number(shippingSettings.freeShippingThreshold || 0);
+  const isDeliveryFree =
+    freeDeliveryThreshold > 0 && subtotal > freeDeliveryThreshold;
+  const deliveryFee = isDeliveryFree ? 0 : computeShippingFee(subtotal, shippingSettings);
   const couponDiscount = Number(appliedCoupon?.discountAmount || 0);
   const itemsTotalAfterCoupon = Math.max(0, subtotal - couponDiscount);
   const grandTotal = itemsTotalAfterCoupon + deliveryFee;
@@ -286,7 +303,15 @@ const Checkout = () => {
       document.body.appendChild(script);
     });
 
-  const createOrderInSystem = async (token, mode, transactionId = "") => {
+  const createOrderInSystem = async (token, mode, paymentDetails = {}) => {
+    const {
+      transactionId = "",
+      shippingTransactionId = "",
+      razorpay_order_id = "",
+      razorpay_payment_id = "",
+      razorpay_signature = "",
+    } = paymentDetails;
+
     const orderPayload = {
       items: items.map((item) => ({
         product: item.product?._id || item.product,
@@ -300,7 +325,12 @@ const Checkout = () => {
       shippingAddress: selectedAddress,
       paymentMethod: mode,
       totalAmount: grandTotal,
+      shippingCharge: deliveryFee,
       transactionId,
+      shippingTransactionId,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
       couponCode: appliedCoupon?.code || "",
       discountAmount: couponDiscount,
     };
@@ -328,11 +358,15 @@ const Checkout = () => {
     return createdOrder;
   };
 
-  const handleOnlinePayment = async (token) => {
+  const handleOnlinePayment = async (token, amount, description = "Order Payment") => {
+    const payAmount = Number(amount || 0);
+    if (!Number.isFinite(payAmount) || payAmount <= 0) {
+      throw new Error("Invalid payment amount");
+    }
+
     const scriptLoaded = await loadRazorpayScript();
     if (!scriptLoaded) {
-      alert("Unable to load Razorpay. Please try again.");
-      return;
+      throw new Error("Unable to load Razorpay. Please try again.");
     }
 
     const [keyRes, razorOrderRes] = await Promise.all([
@@ -340,7 +374,7 @@ const Checkout = () => {
       fetch(`${API_URL}/orders/payment/razorpay/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ amount: grandTotal }),
+        body: JSON.stringify({ amount: payAmount }),
       }),
     ]);
 
@@ -360,7 +394,7 @@ const Checkout = () => {
         amount: razorOrder.amount,
         currency: razorOrder.currency || "INR",
         name: "Design By Sakshi",
-        description: "Order Payment",
+        description,
         order_id: razorOrder.id,
         handler: async (response) => {
           try {
@@ -435,13 +469,31 @@ const Checkout = () => {
     try {
       setLoading(true);
 
-      let transactionId = "";
+      let paymentDetails = {};
+
       if (paymentMode === "online") {
-        const paymentResponse = await handleOnlinePayment(token);
-        transactionId = paymentResponse?.razorpay_payment_id || "";
+        const paymentResponse = await handleOnlinePayment(token, grandTotal, "Order Payment");
+        paymentDetails = {
+          transactionId: paymentResponse?.razorpay_payment_id || "",
+          razorpay_order_id: paymentResponse?.razorpay_order_id || "",
+          razorpay_payment_id: paymentResponse?.razorpay_payment_id || "",
+          razorpay_signature: paymentResponse?.razorpay_signature || "",
+        };
+      } else if (deliveryFee > 0) {
+        const paymentResponse = await handleOnlinePayment(
+          token,
+          deliveryFee,
+          "Shipping charges (Cash on Delivery)",
+        );
+        paymentDetails = {
+          shippingTransactionId: paymentResponse?.razorpay_payment_id || "",
+          razorpay_order_id: paymentResponse?.razorpay_order_id || "",
+          razorpay_payment_id: paymentResponse?.razorpay_payment_id || "",
+          razorpay_signature: paymentResponse?.razorpay_signature || "",
+        };
       }
 
-      const createdOrder = await createOrderInSystem(token, paymentMode, transactionId);
+      const createdOrder = await createOrderInSystem(token, paymentMode, paymentDetails);
       const firstOrderedProductId =
         createdOrder?.items?.[0]?.product?._id ||
         createdOrder?.items?.[0]?.product ||
@@ -452,16 +504,19 @@ const Checkout = () => {
       setShowConfirmModal(true);
     } catch (e) {
       console.error("Place order failed:", e);
-      if (paymentMode === "online" && e?.message !== "Payment cancelled by user") {
+      if (
+        (paymentMode === "online" || (paymentMode === "cash" && deliveryFee > 0)) &&
+        e?.message !== "Payment cancelled by user"
+      ) {
         await logPaymentAttempt(token, {
           items: items.map((item) => ({
             product: item.product?._id || item.product,
             quantity: item.quantity || 1,
             name: item.product?.name || "",
           })),
-          totalAmount: grandTotal,
+          totalAmount: paymentMode === "online" ? grandTotal : deliveryFee,
           paymentStatus: "failed",
-          paymentMethod: "online",
+          paymentMethod: paymentMode === "online" ? "online" : "cash",
           errorMessage: e?.message || "Payment failed",
         });
       }
@@ -522,6 +577,9 @@ const Checkout = () => {
     setShowCouponInput(false);
   };
 
+  const codShippingDue = paymentMode === "cash" && deliveryFee > 0;
+  const codItemsDue = paymentMode === "cash" ? itemsTotalAfterCoupon : 0;
+
   return (
     <div className="min-h-screen bg-white py-8">
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 flex flex-col items-center">
@@ -552,7 +610,11 @@ const Checkout = () => {
                   />
                   <div>
                     <div className="text-base font-bold text-gray-900">Cash on Delivery</div>
-                    <div className="text-sm text-gray-600">Pay when you receive your order</div>
+                    <div className="text-sm text-gray-600">
+                      {deliveryFee > 0
+                        ? `Pay ₹${deliveryFee.toLocaleString("en-IN")} shipping now via Razorpay. Item total on delivery.`
+                        : "Pay when you receive your order"}
+                    </div>
                   </div>
                 </label>
 
@@ -842,16 +904,23 @@ const Checkout = () => {
                   <span className="font-semibold text-gray-900">₹{subtotal.toLocaleString("en-IN")}</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-700">
-                  <span>Delivery Charges</span>
+                  <span>Shipping Charges</span>
                   {isDeliveryFree ? (
                     <span className="font-semibold text-green-600">Free</span>
                   ) : (
-                    <span className="font-semibold text-gray-900">₹50</span>
+                    <span className="font-semibold text-gray-900">
+                      ₹{deliveryFee.toLocaleString("en-IN")}
+                    </span>
                   )}
                 </div>
-                {!isDeliveryFree && (
+                {!isDeliveryFree && freeDeliveryThreshold > 0 && (
                   <div className="text-xs text-green-600 mt-1">
-                    Add ₹{(freeDeliveryThreshold - subtotal).toLocaleString("en-IN")} more for free delivery!
+                    Add ₹{(freeDeliveryThreshold - subtotal).toLocaleString("en-IN")} more for free shipping!
+                  </div>
+                )}
+                {!isDeliveryFree && shippingSettings.shippingNonRefundable !== false && (
+                  <div className="text-xs text-gray-500 mt-1">
+                    Shipping is non-refundable on returns.
                   </div>
                 )}
                 {couponDiscount > 0 && (
@@ -859,6 +928,19 @@ const Checkout = () => {
                     <span>Coupon Discount</span>
                     <span className="font-semibold text-green-600">-₹{couponDiscount.toLocaleString("en-IN")}</span>
                   </div>
+                )}
+                
+                {codShippingDue && (
+                  <>
+                    <div className="flex items-center justify-between text-gray-700">
+                      <span>Pay now (shipping)</span>
+                      <span className="font-semibold text-gray-900">₹{deliveryFee.toLocaleString("en-IN")}</span>
+                    </div>
+                    <div className="flex items-center justify-between text-gray-700">
+                      <span>Pay on delivery (items)</span>
+                      <span className="font-semibold text-gray-900">₹{codItemsDue.toLocaleString("en-IN")}</span>
+                    </div>
+                  </>
                 )}
                 
                 <div className="flex items-center justify-between border-t border-gray-200 pt-4 text-lg font-bold text-gray-900">
@@ -873,7 +955,11 @@ const Checkout = () => {
                 onClick={handlePlaceOrder}
                 className="mt-8 w-full rounded-xl bg-gray-900 px-5 py-3.5 text-base font-bold text-white hover:bg-gray-800 disabled:cursor-not-allowed disabled:opacity-50 transition shadow-lg hover:shadow-xl"
               >
-                {loading ? "Processing..." : "Place Order"}
+                {loading
+                  ? "Processing..."
+                  : codShippingDue
+                    ? `Pay ₹${deliveryFee.toLocaleString("en-IN")} Shipping & Place Order`
+                    : "Place Order"}
               </button>
 
               <div className="mt-4 text-center">

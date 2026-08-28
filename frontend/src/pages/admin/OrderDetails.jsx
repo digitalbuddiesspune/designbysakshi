@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { openInvoiceWindow } from "../../utils/invoice";
+import { getOrderRefundAmount, getOrderShippingCharge } from "../../utils/shipping";
 
 const API_URL = import.meta.env.VITE_API_URL;
 const normalizeStatus = (s) => {
@@ -27,6 +28,8 @@ const OrderDetails = () => {
 
   const [status, setStatus] = useState("confirm");
   const [paymentStatus, setPaymentStatus] = useState("unpaid");
+  const [shippingChargeInput, setShippingChargeInput] = useState("0");
+  const [shippingSaving, setShippingSaving] = useState(false);
 
   const orderNumberLabel = useMemo(() => {
     if (!order) return "";
@@ -45,6 +48,7 @@ const OrderDetails = () => {
       setOrder(data);
       setStatus(normalizeStatus(data?.status || "confirm"));
       setPaymentStatus(data?.paymentStatus || "unpaid");
+      setShippingChargeInput(String(getOrderShippingCharge(data)));
     } catch (e) {
       console.error(e);
       setOrder(null);
@@ -91,6 +95,33 @@ const OrderDetails = () => {
     await fetchOrder();
   };
 
+  const updateShippingCharge = async () => {
+    if (!order?._id) return;
+    try {
+      setShippingSaving(true);
+      const token = localStorage.getItem("adminToken") || localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/orders/admin/${order._id}/shipping`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ shippingCharge: Number(shippingChargeInput || 0) }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data?.message || "Failed to update shipping charge");
+        return;
+      }
+      await fetchOrder();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update shipping charge");
+    } finally {
+      setShippingSaving(false);
+    }
+  };
+
   const timelineIndex = useMemo(() => {
     const s = normalizeStatus(order?.status);
     if (!s) return 0;
@@ -104,9 +135,10 @@ const OrderDetails = () => {
   }, [order]);
 
   const sumTotal = (o) => (o?.items || []).reduce((s, it) => s + (it.quantity || 0) * (it.priceAtOrderTime || 0), 0);
-  const subtotal = sumTotal(order);
-  const delivery = subtotal > 699 ? 0 : 50;
-  const discount = Math.max(0, subtotal + delivery - (order?.totalAmount || 0));
+  const subtotal = Number.isFinite(Number(order?.subtotal)) ? Number(order.subtotal) : sumTotal(order);
+  const discount = Math.max(0, Number(order?.discountAmount || 0));
+  const delivery = getOrderShippingCharge(order);
+  const refundAmount = getOrderRefundAmount(order);
   const statusMap = useMemo(() => {
     const map = {};
     const hist = Array.isArray(order?.statusHistory) ? order.statusHistory : [];
@@ -350,8 +382,39 @@ const OrderDetails = () => {
                 <span style={{ color: "var(--brand-muted)" }}>18% GST</span>
                 <span style={{ color: "var(--brand-dark)" }}>Included</span>
               </div>
+              <div className="flex items-center justify-between gap-3">
+                <span style={{ color: "var(--brand-muted)" }}>Shipping Charges</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    value={shippingChargeInput}
+                    onChange={(e) => setShippingChargeInput(e.target.value)}
+                    className="w-24 rounded-md border px-2 py-1 text-sm"
+                    style={{ borderColor: "var(--brand-lavender-soft)", color: "var(--brand-dark)" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={updateShippingCharge}
+                    disabled={shippingSaving}
+                    className="rounded-md px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
+                    style={{ background: "#3D294D" }}
+                  >
+                    {shippingSaving ? "Saving..." : "Update"}
+                  </button>
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                Shipping is non-refundable. Applies to COD and online orders.
+              </p>
+              {normalizeStatus(order?.status) === "refundable" ? (
+                <div className="flex items-center justify-between rounded-md bg-amber-50 px-3 py-2 text-sm">
+                  <span className="text-amber-800">Refundable amount (excl. shipping)</span>
+                  <span className="font-semibold text-amber-900">₹{refundAmount.toLocaleString("en-IN")}</span>
+                </div>
+              ) : null}
               <div className="flex items-center justify-between">
-                <span style={{ color: "var(--brand-muted)" }}>Delivery Charges</span>
+                <span style={{ color: "var(--brand-muted)" }}>Current Shipping</span>
                 <span style={{ color: delivery === 0 ? "#16a34a" : "var(--brand-dark)" }}>
                   {delivery === 0 ? "Free" : `₹${delivery.toLocaleString("en-IN")}`}
                 </span>

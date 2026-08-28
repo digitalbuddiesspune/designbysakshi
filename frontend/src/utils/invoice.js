@@ -1,3 +1,5 @@
+import { getOrderShippingCharge } from "./shipping.js";
+
 const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
 
 const formatDateTime = (value) => {
@@ -22,10 +24,12 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
   if (!order) return;
 
   const items = Array.isArray(order.items) ? order.items : [];
-  const subtotal = items.reduce((sum, it) => sum + (it.quantity || 0) * (it.priceAtOrderTime || 0), 0);
+  const subtotal = Number.isFinite(Number(order.subtotal))
+    ? Number(order.subtotal)
+    : items.reduce((sum, it) => sum + (it.quantity || 0) * (it.priceAtOrderTime || 0), 0);
   const couponDiscount = Number(order.discountAmount || 0);
   const totalAmount = Number(order.totalAmount || subtotal);
-  const deliveryCharge = Math.max(0, totalAmount - subtotal + couponDiscount);
+  const deliveryCharge = getOrderShippingCharge(order);
   const invoiceNo = `INV-${order.orderNumber || (order._id || "").slice(-6)}`;
   const address = order.address
     ? `${order.address.street || ""}, ${order.address.city || ""}, ${order.address.state || ""} - ${order.address.pincode || ""}`
@@ -244,7 +248,8 @@ export const openInvoiceWindow = (order, { title = "DesignsByShakshi Invoice" } 
             : ""
         }
         <div class="row"><span>18% GST</span><strong>Included</strong></div>
-        <div class="row"><span>Delivery Charges</span><strong>${deliveryCharge === 0 ? "Free" : formatCurrency(deliveryCharge)}</strong></div>
+        <div class="row"><span>Shipping Charges</span><strong>${deliveryCharge === 0 ? "Free" : formatCurrency(deliveryCharge)}</strong></div>
+        ${order.shippingNonRefundable !== false ? '<div class="row"><span>Shipping policy</span><strong>Non-refundable</strong></div>' : ""}
         <div class="row total"><span>Total Amount</span><strong>${formatCurrency(totalAmount)}</strong></div>
       </div>
     </div>

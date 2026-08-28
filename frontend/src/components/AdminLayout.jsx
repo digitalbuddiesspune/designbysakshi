@@ -14,6 +14,7 @@ import {
   ArrowRightOnRectangleIcon,
   TagIcon,
   TicketIcon,
+  TruckIcon,
   UserCircleIcon,
   UsersIcon,
   XMarkIcon,
@@ -49,6 +50,7 @@ const AdminLayout = () => {
     if (p.startsWith("/admin/order-details/")) return "Order Details";
     if (p === "/admin/payments") return "Payments";
     if (p === "/admin/revenue") return "Revenue";
+    if (p === "/admin/shipping-settings") return "Shipping Settings";
     if (p === "/admin/coupons") return "Coupons";
     if (p === "/admin/add-coupon") return "Create Coupon";
     if (p === "/admin/users") return "Users";
@@ -414,6 +416,20 @@ const AdminLayout = () => {
               >
                 <BanknotesIcon className="h-5 w-5" />
                 {isSidebarOpen && <span>Revenue</span>}
+              </Link>
+            </li>
+
+            <li>
+              <Link
+                to="/admin/shipping-settings"
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                  isActive("/admin/shipping-settings")
+                    ? "bg-purple-600 text-white"
+                    : "text-gray-300 hover:bg-gray-800"
+                }`}
+              >
+                <TruckIcon className="h-5 w-5" />
+                {isSidebarOpen && <span>Shipping</span>}
               </Link>
             </li>
 

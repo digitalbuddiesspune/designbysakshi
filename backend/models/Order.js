@@ -118,6 +118,34 @@ const orderSchema = new mongoose.Schema(
       min: 0,
       default: 0,
     },
+    subtotal: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    shippingCharge: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
+    shippingNonRefundable: {
+      type: Boolean,
+      default: true,
+    },
+    shippingPaid: {
+      type: Boolean,
+      default: false,
+    },
+    shippingTransactionId: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    refundAmount: {
+      type: Number,
+      min: 0,
+      default: 0,
+    },
     totalAmount: {
       type: Number,
       required: true,

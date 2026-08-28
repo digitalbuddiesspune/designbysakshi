@@ -18,6 +18,7 @@ import collectionShowcaseRoutes from './routes/collectionShowcaseRoutes.js'
 import uploadRoutes from './routes/uploadRoutes.js'
 import couponRoutes from './routes/couponRoutes.js'
 import homepageSectionRoutes from './routes/homepageSectionRoutes.js'
+import settingsRoutes from './routes/settingsRoutes.js'
 
 const backfillJewelleryCare = async () => {
   try {
@@ -54,9 +55,19 @@ const PORT = process.env.PORT || 3000
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS middleware
+// CORS middleware — comma-separated origins in CORS_ORIGIN env var
+const allowedOrigins = (process.env.CORS_ORIGIN
+  || 'http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin');
+  }
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   if (req.method === 'OPTIONS') return res.sendStatus(204);
@@ -82,15 +93,24 @@ app.use('/api/collection-showcase', collectionShowcaseRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/homepage-sections', homepageSectionRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Connect to MongoDB and start server
 const startServer = async () => {
     try {
         await connectDB();
         await backfillJewelleryCare();
-        app.listen(PORT, () => {
-            console.log(`Server is running on port ${PORT} `);
-            console.log("Mongodb is connected")
+        const server = app.listen(PORT, () => {
+            console.log(`Server is running on port ${PORT}`);
+            console.log('Mongodb is connected');
+        });
+        server.on('error', (error) => {
+            if (error.code === 'EADDRINUSE') {
+                console.error(`Port ${PORT} is already in use. Stop the other app or set PORT in .env (e.g. PORT=5001).`);
+            } else {
+                console.error('Failed to start server:', error);
+            }
+            process.exit(1);
         });
     } catch (error) {
         console.error('Failed to start server:', error);

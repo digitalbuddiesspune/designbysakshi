@@ -9,6 +9,12 @@ import { resolveOrderAddress } from '../utils/addressUtils.js';
 import User from '../models/User.js';
 import Product from '../models/Product.js';
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
+import {
+  computeOrderTotals,
+  computeRefundableAmount,
+  computeShippingCharge,
+  getShippingSettings,
+} from '../utils/shippingUtils.js';
 
 const router = express.Router();
 const normalizeStatus = (status) => {
@@ -38,6 +44,23 @@ const verifyToken = (req, res) => {
 const getRazorpayInstance = () => {
   if (!RAZORPAY_KEY_ID || !RAZORPAY_KEY_SECRET) return null;
   return new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET });
+};
+
+const verifyRazorpaySignature = (razorpayOrderId, razorpayPaymentId, razorpaySignature) => {
+  if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+    return { ok: false, message: 'Missing Razorpay verification fields' };
+  }
+  if (!RAZORPAY_KEY_SECRET) {
+    return { ok: false, message: 'Razorpay secret is not configured' };
+  }
+  const generatedSignature = crypto
+    .createHmac('sha256', RAZORPAY_KEY_SECRET)
+    .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+    .digest('hex');
+  if (generatedSignature !== razorpaySignature) {
+    return { ok: false, message: 'Invalid payment signature' };
+  }
+  return { ok: true, paymentId: razorpayPaymentId };
 };
 
 const decrementOrderProductStock = async (order) => {
@@ -151,24 +174,12 @@ router.post('/payment/razorpay/verify', (req, res) => {
       razorpay_signature: razorpaySignature,
     } = req.body || {};
 
-    if (!razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
-      return res.status(400).json({ message: 'Missing Razorpay verification fields' });
+    const verified = verifyRazorpaySignature(razorpayOrderId, razorpayPaymentId, razorpaySignature);
+    if (!verified.ok) {
+      return res.status(400).json({ message: verified.message });
     }
 
-    if (!RAZORPAY_KEY_SECRET) {
-      return res.status(500).json({ message: 'Razorpay secret is not configured' });
-    }
-
-    const generatedSignature = crypto
-      .createHmac('sha256', RAZORPAY_KEY_SECRET)
-      .update(`${razorpayOrderId}|${razorpayPaymentId}`)
-      .digest('hex');
-
-    if (generatedSignature !== razorpaySignature) {
-      return res.status(400).json({ message: 'Invalid payment signature' });
-    }
-
-    return res.json({ verified: true });
+    return res.json({ verified: true, paymentId: verified.paymentId });
   } catch (error) {
     console.error('Razorpay verify error:', error);
     return res.status(500).json({ message: 'Failed to verify Razorpay payment' });
@@ -238,7 +249,20 @@ router.post('/', async (req, res) => {
     const userId = verifyToken(req, res);
     if (!userId) return;
 
-    const { items, shippingAddress, paymentMethod, totalAmount, transactionId = '', couponCode = '', discountAmount = 0 } = req.body;
+    const {
+      items,
+      shippingAddress,
+      paymentMethod,
+      totalAmount,
+      transactionId = '',
+      shippingTransactionId = '',
+      razorpay_order_id: razorpayOrderId = '',
+      razorpay_payment_id: razorpayPaymentId = '',
+      razorpay_signature: razorpaySignature = '',
+      couponCode = '',
+      discountAmount = 0,
+      shippingCharge,
+    } = req.body;
 
     if (!items || items.length === 0) {
       return res.status(400).json({ message: 'No order items' });
@@ -250,6 +274,65 @@ router.post('/', async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
+    const shippingSettings = await getShippingSettings();
+    const mappedItems = items.map((i) => ({
+      product: i.product,
+      quantity: i.quantity,
+      price: i.price,
+      priceAtOrderTime: i.price,
+      variantId: i.variantId || '',
+      variantColor: i.variantColor || '',
+      variantSize: i.variantSize || '',
+      variantImage: i.variantImage || '',
+    }));
+
+    const subtotal = mappedItems.reduce(
+      (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 0),
+      0,
+    );
+    const resolvedShipping =
+      shippingCharge !== undefined && shippingCharge !== null
+        ? Math.max(0, Number(shippingCharge) || 0)
+        : computeShippingCharge(subtotal, shippingSettings);
+
+    const totals = computeOrderTotals({
+      items: mappedItems,
+      discountAmount,
+      shippingCharge: resolvedShipping,
+    });
+
+    if (Math.abs(Number(totalAmount) - totals.totalAmount) > 0.01) {
+      return res.status(400).json({
+        message: 'Order total mismatch. Please refresh checkout and try again.',
+        expectedTotal: totals.totalAmount,
+      });
+    }
+
+    const isCod = paymentMethod === 'cash';
+    const isOnline = paymentMethod === 'online';
+    let resolvedShippingTxId = '';
+
+    if (isOnline) {
+      if (!transactionId) {
+        return res.status(400).json({ message: 'Online payment is required for this order' });
+      }
+      const verified = verifyRazorpaySignature(razorpayOrderId, razorpayPaymentId || transactionId, razorpaySignature);
+      if (!verified.ok && razorpaySignature) {
+        return res.status(400).json({ message: verified.message });
+      }
+    }
+
+    if (isCod && totals.shippingCharge > 0) {
+      resolvedShippingTxId = String(shippingTransactionId || razorpayPaymentId || '').trim();
+      if (!resolvedShippingTxId) {
+        return res.status(400).json({ message: 'Shipping charge must be paid online for COD orders' });
+      }
+      const verified = verifyRazorpaySignature(razorpayOrderId, resolvedShippingTxId, razorpaySignature);
+      if (!verified.ok) {
+        return res.status(400).json({ message: verified.message || 'Shipping payment verification failed' });
+      }
+    }
+
     const orderAddress = await resolveOrderAddress(userId, user, shippingAddress);
 
     const order = await Order.create({
@@ -258,7 +341,7 @@ router.post('/', async (req, res) => {
       email: user.email,
       phone: user.phone || shippingAddress.phone || '',
       address: orderAddress._id,
-      items: items.map(i => ({
+      items: mappedItems.map((i) => ({
         product: i.product,
         quantity: i.quantity,
         priceAtOrderTime: i.price,
@@ -268,13 +351,18 @@ router.post('/', async (req, res) => {
         variantImage: i.variantImage || '',
       })),
       paymentMode: paymentMethod,
-      paymentStatus: paymentMethod === 'online' ? 'paid' : 'unpaid',
-      transactionId: paymentMethod === 'online' ? transactionId : '',
+      paymentStatus: isOnline ? 'paid' : 'unpaid',
+      transactionId: isOnline ? transactionId : '',
       couponCode: couponCode || '',
-      discountAmount: Number(discountAmount || 0),
+      discountAmount: totals.discountAmount,
+      subtotal: totals.subtotal,
+      shippingCharge: totals.shippingCharge,
+      shippingNonRefundable: shippingSettings.shippingNonRefundable !== false,
+      shippingPaid: isOnline || (isCod && totals.shippingCharge > 0 && !!resolvedShippingTxId),
+      shippingTransactionId: isCod ? resolvedShippingTxId : '',
       status: 'confirm',
       statusHistory: [{ status: 'confirm', changedAt: new Date() }],
-      totalAmount,
+      totalAmount: totals.totalAmount,
     });
 
     await Payment.create({
@@ -285,11 +373,24 @@ router.post('/', async (req, res) => {
         product: i.product,
         quantity: i.quantity,
       })),
-      totalAmount,
-      paymentStatus: paymentMethod === 'online' ? 'paid' : 'unpaid',
+      totalAmount: totals.totalAmount,
+      paymentStatus: isOnline ? 'paid' : 'unpaid',
       paymentMethod,
-      transactionId: paymentMethod === 'online' ? transactionId : '',
+      transactionId: isOnline ? transactionId : '',
     });
+
+    if (isCod && totals.shippingCharge > 0 && resolvedShippingTxId) {
+      await Payment.create({
+        user: userId,
+        email: user.email || '',
+        order: order._id,
+        items: [],
+        totalAmount: totals.shippingCharge,
+        paymentStatus: 'paid',
+        paymentMethod: 'online',
+        transactionId: resolvedShippingTxId,
+      });
+    }
 
     if (couponCode) {
       await Coupon.updateOne({ code: String(couponCode).trim().toUpperCase() }, { $inc: { usedCount: 1 } });
@@ -638,6 +739,45 @@ router.put('/admin/:id/payment-status', protect, adminOnly, async (req, res) => 
   }
 });
 
+// @desc    Update shipping charge for an order (admin)
+// @route   PUT /api/orders/admin/:id/shipping
+// @access  Private/Admin
+router.put('/admin/:id/shipping', protect, adminOnly, async (req, res) => {
+  try {
+    const { shippingCharge } = req.body;
+    if (shippingCharge === undefined || shippingCharge === null) {
+      return res.status(400).json({ message: 'shippingCharge is required' });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const subtotal =
+      Number(order.subtotal) ||
+      (order.items || []).reduce(
+        (sum, item) => sum + Number(item.quantity || 0) * Number(item.priceAtOrderTime || 0),
+        0,
+      );
+    const discount = Math.max(0, Number(order.discountAmount || 0));
+    const nextShipping = Math.max(0, Number(shippingCharge) || 0);
+    const nextTotal = Math.max(0, subtotal - discount + nextShipping);
+
+    order.subtotal = subtotal;
+    order.shippingCharge = nextShipping;
+    order.totalAmount = nextTotal;
+    order.shippingNonRefundable = true;
+
+    const updated = await order.save();
+
+    await Payment.updateOne({ order: order._id }, { $set: { totalAmount: nextTotal } });
+
+    return res.json(updated);
+  } catch (error) {
+    console.error('Update order shipping error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // @desc    Get order details for logged-in user
 // @route   GET /api/orders/:id
 // @access  Private
@@ -745,6 +885,7 @@ router.post('/:id/return', async (req, res) => {
       order.deliveredAt = getDeliveredAt(order);
     }
     order.statusHistory = [...(order.statusHistory || []), { status: 'refundable', changedAt: now }];
+    order.refundAmount = computeRefundableAmount(order);
     if (order.paymentStatus === 'paid') {
       order.paymentStatus = 'refundable';
     }
@@ -753,6 +894,8 @@ router.post('/:id/return', async (req, res) => {
     return res.json({
       message: 'Return requested successfully',
       order,
+      refundAmount: order.refundAmount,
+      shippingNonRefundable: order.shippingNonRefundable !== false,
       canReturn: false,
       returnExpiresAt: eligibility.expiresAt,
     });

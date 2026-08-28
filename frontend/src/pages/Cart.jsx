@@ -1,5 +1,9 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import {
+  computeShippingFee,
+  DEFAULT_SHIPPING_SETTINGS,
+} from "../utils/shipping.js";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -18,6 +22,7 @@ const Cart = () => {
   const [cart, setCart] = useState(null);
   const [loading, setLoading] = useState(true);
   const [busyProductId, setBusyProductId] = useState(null);
+  const [shippingSettings, setShippingSettings] = useState(DEFAULT_SHIPPING_SETTINGS);
 
   const guestId = useMemo(() => getGuestId(), []);
 
@@ -36,6 +41,18 @@ const Cart = () => {
 
   useEffect(() => {
     fetchCart();
+    fetch(`${API_URL}/settings/shipping`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.defaultShippingCharge !== undefined) {
+          setShippingSettings({
+            defaultShippingCharge: Number(data.defaultShippingCharge ?? 50),
+            freeShippingThreshold: Number(data.freeShippingThreshold ?? 0),
+            shippingNonRefundable: data.shippingNonRefundable !== false,
+          });
+        }
+      })
+      .catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -45,10 +62,9 @@ const Cart = () => {
     0
   );
 
-  // Free delivery above ₹699 (matches Checkout.jsx)
-  const freeDeliveryThreshold = 699;
-  const isDeliveryFree = total > freeDeliveryThreshold;
-  const deliveryFee = isDeliveryFree ? 0 : 50;
+  const freeDeliveryThreshold = Number(shippingSettings.freeShippingThreshold || 0);
+  const isDeliveryFree = freeDeliveryThreshold > 0 && total > freeDeliveryThreshold;
+  const deliveryFee = isDeliveryFree ? 0 : computeShippingFee(total, shippingSettings);
   const grandTotal = total + deliveryFee;
 
   const itemCount = items.reduce((sum, item) => sum + (item.quantity || 1), 0);
@@ -274,16 +290,16 @@ const Cart = () => {
                   <span className="text-gray-600">Included</span>
                 </div>
                 <div className="flex items-center justify-between text-gray-700">
-                  <span>Delivery Charges</span>
+                  <span>Shipping Charges</span>
                   {isDeliveryFree ? (
                     <span className="font-semibold text-green-600">Free</span>
                   ) : (
-                    <span className="font-semibold text-gray-900">₹{deliveryFee}</span>
+                    <span className="font-semibold text-gray-900">₹{deliveryFee.toLocaleString("en-IN")}</span>
                   )}
                 </div>
-                {!isDeliveryFree && (
+                {!isDeliveryFree && freeDeliveryThreshold > 0 && (
                   <div className="text-xs text-green-600 mt-1">
-                    Add ₹{(freeDeliveryThreshold - total).toLocaleString("en-IN")} more for free delivery!
+                    Add ₹{(freeDeliveryThreshold - total).toLocaleString("en-IN")} more for free shipping!
                   </div>
                 )}
               </div>
